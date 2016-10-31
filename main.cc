@@ -48,6 +48,6 @@ int main()
 
     ht<int, double, empty_key<int, 0>> h;
 
-    assert(h.capacity() == 10);
+    assert(h.capacity() == 16);
     assert(h.size() == 0);
 }
