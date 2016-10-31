@@ -15,6 +15,7 @@ template <typename Key, typename Value, typename EmptyKey, typename Hash = std::
 struct ht
 {
     using Node = std::pair<Key, Value>;
+    using iterator = void*; // TODO
 
     ht() :
       _elements(0),
@@ -23,15 +24,21 @@ struct ht
     {
     }
 
-    void insert(Node& n)
+    std::pair<iterator, bool> insert(Node& n)
     {
-        std::size_t pos = Hash()(n.first) & (_table.size() - 1);
+        assert(!Equal()(n.first, EmptyKey::value));
+
+        std::size_t pos = Hash()(n.first) & (_max_elements - 1);
         std::size_t num_probes = 1;
 
         while (!Equal()(_table[pos].first, EmptyKey::value))
-            pos = (pos + num_probes++) & (_table.size() - 1);
+        {
+            pos = (pos + num_probes++) & (_max_elements - 1);
+            assert(num_probes < _max_elements);
+        }
 
         new (&_table[pos]) Node(n);
+        return {{}, true};
     }
 
     std::size_t size() const { return _elements; }
@@ -50,4 +57,10 @@ int main()
 
     assert(h.capacity() == 16);
     assert(h.size() == 0);
+
+    auto p = std::make_pair(1, 5.0);
+    auto ok = h.insert(p).second;
+
+    assert(ok);
+
 }
