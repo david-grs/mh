@@ -20,8 +20,8 @@ struct ht
 
     ht(std::size_t capacity = 16) :
       _elements(0),
-      _max_elements(capacity),
-      _table(std::make_unique<Node[]>(_max_elements))
+      _table_sz(capacity),
+      _table(std::make_unique<Node[]>(_table_sz))
     {
     }
 
@@ -31,13 +31,13 @@ struct ht
 
         assert(!Equal()(n.first, EmptyKey::value));
 
-        std::size_t pos = Hash()(n.first) & (_max_elements - 1);
+        std::size_t pos = Hash()(n.first) & (_table_sz - 1);
         std::size_t num_probes = 1;
 
         while (!Equal()(_table[pos].first, EmptyKey::value))
         {
-            pos = (pos + num_probes++) & (_max_elements - 1);
-            assert(num_probes < _max_elements);
+            pos = (pos + num_probes++) & (_table_sz - 1);
+            assert(num_probes < _table_sz);
         }
 
         new (&_table[pos]) Node(n);
@@ -45,18 +45,18 @@ struct ht
     }
 
     std::size_t size() const { return _elements; }
-    std::size_t capacity() const { return _max_elements; }
+    std::size_t capacity() const { return _table_sz; }
 
 private:
     void resize(std::size_t n)
     {
-        if (_elements + n > _max_elements / 2)
+        if (_elements + n > _table_sz / 2)
         {
             // TODO
         }
     }
     std::size_t _elements;
-    std::size_t _max_elements;
+    std::size_t _table_sz;
     std::unique_ptr<Node[]> _table;
 };
 
