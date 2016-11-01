@@ -28,10 +28,12 @@ struct ht
     {
     }
 
-    std::pair<iterator, bool> insert(Node& n)
+    template <typename Pair>
+    std::pair<iterator, bool> insert(Pair&& n)
     {
         resize(1);
 
+        DEBUG("inserting " << n.first);
         assert(!Equal()(n.first, EmptyKey::value));
 
         std::size_t pos = Hash()(n.first) & (_table_sz - 1);
@@ -48,7 +50,9 @@ struct ht
             assert(num_probes < _table_sz);
         }
 
-        new (&_table[pos]) Node(n);
+        new (&_table[pos]) Node(std::forward<Pair>(n));
+        ++_elements;
+
         return {{}, true};
     }
 
