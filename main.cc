@@ -52,7 +52,9 @@ private:
     {
         if (_elements + n > _table_sz / 2)
         {
-            // TODO
+            ht h(_table_sz * 2);
+            std::for_each(&_table[0], &_table[_table_sz], [&h](auto&& p) { h.insert(p); });
+            std::swap(*this, h);
         }
     }
     std::size_t _elements;
