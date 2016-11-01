@@ -5,6 +5,9 @@
 #include <memory>
 #include <cassert>
 #include <iostream>
+#include <unordered_map>
+#include <random>
+#include <chrono>
 
 #if defined NDEBUG
 #define DEBUG(x)
@@ -84,6 +87,36 @@ private:
     std::unique_ptr<Node[]> _table;
 };
 
+
+void benchmark()
+{
+    auto benchmark = [](auto&& operation, const char* desc)
+    {
+        static const int Iterations = 1e6;
+
+        auto start = std::chrono::steady_clock::now();
+        for (int i = 0; i < Iterations; ++i)
+            operation();
+        auto end = std::chrono::steady_clock::now();
+
+        std::cout << desc << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
+    };
+
+
+    std::random_device rd;
+    auto seed = rd();
+
+    std::mt19937 gen(seed);
+    std::uniform_int_distribution<> rng(0, 1e6);
+
+    std::unordered_map<int, double> umap;
+    ht<int, double, empty_key<int, 0>> mh;
+
+    benchmark([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap");
+
+    gen.seed(seed);
+    benchmark([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "mh");
+}
 int main()
 {
 
@@ -96,6 +129,7 @@ int main()
     auto ok = h.insert(p).second;
 
     assert(ok);
+    (void)ok;
 
     h.insert(std::make_pair(1, 4));
     h.insert(std::make_pair(1, 4));
@@ -106,4 +140,7 @@ int main()
     h.insert(std::make_pair(1, 4));
     h.insert(std::make_pair(1, 4));
 
+    benchmark();
+
+    return 0;
 }
