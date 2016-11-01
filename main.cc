@@ -117,6 +117,7 @@ void benchmark()
     gen.seed(seed);
     benchmark([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "mh");
 }
+
 int main()
 {
 
