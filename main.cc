@@ -6,7 +6,11 @@
 #include <cassert>
 #include <iostream>
 
+#if defined NDEBUG
+#define DEBUG(x)
+#else
 #define DEBUG(x) std::cout << x << std::endl;
+#endif
 
 template <typename T, T t>
 struct empty_key
