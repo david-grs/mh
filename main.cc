@@ -4,6 +4,9 @@
 #include <functional>
 #include <memory>
 #include <cassert>
+#include <iostream>
+
+#define DEBUG(x) std::cout << x << std::endl;
 
 template <typename T, T t>
 struct empty_key
@@ -34,9 +37,14 @@ struct ht
         std::size_t pos = Hash()(n.first) & (_table_sz - 1);
         std::size_t num_probes = 1;
 
+        DEBUG("trying to insert at pos=" << pos);
+
         while (!Equal()(_table[pos].first, EmptyKey::value))
         {
+            DEBUG("position pos=" << pos << " not empty");
+
             pos = (pos + num_probes++) & (_table_sz - 1);
+            DEBUG("trying to insert at pos=" << pos << " probes" << num_probes);
             assert(num_probes < _table_sz);
         }
 
@@ -55,6 +63,8 @@ private:
             ht h(_table_sz * 2);
             std::for_each(&_table[0], &_table[_table_sz], [&h](auto&& p) { h.insert(p); });
             std::swap(*this, h);
+
+            DEBUG("resizing to " << _table_sz * 2)
         }
     }
     std::size_t _elements;
@@ -74,5 +84,7 @@ int main()
     auto ok = h.insert(p).second;
 
     assert(ok);
+
+//    h.insert(std::make_pair(1, 4));
 
 }
