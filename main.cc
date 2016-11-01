@@ -65,7 +65,11 @@ private:
         if (_elements + n > _table_sz / 2)
         {
             ht h(_table_sz * 2);
-            std::for_each(&_table[0], &_table[_table_sz], [&h](auto&& p) { h.insert(p); });
+            std::for_each(&_table[0], &_table[_table_sz], [&h](auto&& p)
+            {
+                if (!Equal()(p.first, EmptyKey::value))
+                    h.insert(p);
+            });
             std::swap(*this, h);
 
             DEBUG("resizing to " << _table_sz * 2)
@@ -89,6 +93,13 @@ int main()
 
     assert(ok);
 
-//    h.insert(std::make_pair(1, 4));
+    h.insert(std::make_pair(1, 4));
+    h.insert(std::make_pair(1, 4));
+    h.insert(std::make_pair(1, 4));
+    h.insert(std::make_pair(1, 4));
+    h.insert(std::make_pair(1, 4));
+    h.insert(std::make_pair(1, 4));
+    h.insert(std::make_pair(1, 4));
+    h.insert(std::make_pair(1, 4));
 
 }
