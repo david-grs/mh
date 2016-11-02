@@ -72,6 +72,8 @@ struct ht
         {
             if (Equal()(_table[pos].first, EmptyKey::value))
             {
+                resize(1);
+
                 DEBUG("empty node, inserting value at pos=" << pos);
                 insert_element(pos, std::make_pair(key, Value{}));
                 break;
@@ -103,6 +105,8 @@ private:
     {
         if (_elements + n > _table_sz / 2)
         {
+            DEBUG("resizing to " << _table_sz * 2 << "...")
+
             ht h(_table_sz * 2);
             std::for_each(&_table[0], &_table[_table_sz], [&h](auto&& p)
             {
@@ -111,7 +115,7 @@ private:
             });
             std::swap(*this, h);
 
-            DEBUG("resizing to " << _table_sz * 2)
+            DEBUG("resized.")
         }
     }
     std::size_t _elements;
