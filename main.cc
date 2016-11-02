@@ -143,15 +143,27 @@ void benchmark()
     auto seed = rd();
 
     std::mt19937 gen(seed);
-    std::uniform_int_distribution<> rng(0, 1e6);
 
     std::unordered_map<int, double> umap;
     ht<int, double, empty_key<int, 0>> mh;
 
-    benchmark([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap");
+    {
+        std::uniform_int_distribution<> rng(0, 1e6);
 
-    gen.seed(seed);
-    benchmark([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "mh");
+        benchmark([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
+
+        gen.seed(seed);
+        benchmark([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
+    }
+
+    {
+        std::uniform_int_distribution<> rng(0, std::min(umap.size(), mh.size()) - 1);
+
+        benchmark([&]() { umap[rng(gen)] = 123; }, "umap operator[]");
+
+        gen.seed(seed);
+        benchmark([&]() { mh[rng(gen)] = 123; }, "mh operator[]");
+    }
 }
 
 int main()
@@ -164,7 +176,6 @@ int main()
 
     double& d = h[1];
     d = 123.0;
-    std::cout << h[1] << std::endl;
 
     h[17] = 2;
     h[16*2 + 1] = 2;
@@ -177,7 +188,7 @@ int main()
     h[16*9 + 1] = 2;
     h[16*10 + 1] = 2;
 
-//    benchmark();
+    benchmark();
 
     return 0;
 }
