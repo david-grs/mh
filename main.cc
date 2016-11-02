@@ -148,7 +148,7 @@ void benchmark()
     ht<int, double, empty_key<int, 0>> mh;
 
     {
-        std::uniform_int_distribution<> rng(0, 1e6);
+        std::uniform_int_distribution<> rng(1, 1e6);
 
         benchmark([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
 
@@ -157,7 +157,7 @@ void benchmark()
     }
 
     {
-        std::uniform_int_distribution<> rng(0, std::min(umap.size(), mh.size()) - 1);
+        std::uniform_int_distribution<> rng(1, std::min(umap.size(), mh.size()) - 1);
 
         benchmark([&]() { umap[rng(gen)] = 123; }, "umap operator[]");
 
