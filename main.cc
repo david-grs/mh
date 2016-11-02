@@ -66,17 +66,24 @@ struct ht
         std::size_t pos = Hash()(key) & (_table_sz - 1);
         std::size_t num_probes = 1;
 
+        DEBUG("lookup at pos=" << pos);
+
         while (!Equal()(_table[pos].first, key))
         {
             if (Equal()(_table[pos].first, EmptyKey::value))
             {
+                DEBUG("empty node, inserting value at pos=" << pos);
                 insert_element(pos, std::make_pair(key, Value{}));
                 break;
             }
 
+            DEBUG("other value at pos=" << pos << ", continuing");
+
             pos = (pos + num_probes++) & (_table_sz - 1);
             assert(num_probes < _table_sz);
         }
+
+        DEBUG("found existing key at pos=" << pos);
 
         return _table[pos].second;
     }
@@ -151,17 +158,22 @@ int main()
     assert(h.capacity() == 16);
     assert(h.size() == 0);
 
-    auto p = std::make_pair(1, 5.0);
-    auto ok = h.insert(p).second;
-
-    assert(ok);
-    (void)ok;
-
-    h.insert(std::make_pair(1, 4));
-
     double& d = h[1];
+    d = 123.0;
+    std::cout << h[1] << std::endl;
 
-    benchmark();
+    h[17] = 2;
+    h[16*2 + 1] = 2;
+    h[16*3 + 1] = 2;
+    h[16*4 + 1] = 2;
+    h[16*5 + 1] = 2;
+    h[16*6 + 1] = 2;
+    h[16*7 + 1] = 2;
+    h[16*8 + 1] = 2;
+    h[16*9 + 1] = 2;
+    h[16*10 + 1] = 2;
+
+//    benchmark();
 
     return 0;
 }
