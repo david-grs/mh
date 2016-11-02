@@ -36,14 +36,14 @@ struct ht
     }
 
     template <typename Pair>
-    std::pair<iterator, bool> insert(Pair&& n)
+    std::pair<iterator, bool> insert(Pair&& p)
     {
         resize(1);
 
-        DEBUG("inserting " << n.first);
-        assert(!Equal()(n.first, EmptyKey::value));
+        DEBUG("inserting " << p.first);
+        assert(!Equal()(p.first, EmptyKey::value));
 
-        std::size_t pos = Hash()(n.first) & (_table_sz - 1);
+        std::size_t pos = Hash()(p.first) & (_table_sz - 1);
         std::size_t num_probes = 1;
 
         DEBUG("trying to insert at pos=" << pos);
@@ -57,16 +57,41 @@ struct ht
             assert(num_probes < _table_sz);
         }
 
-        new (&_table[pos]) Node(std::forward<Pair>(n));
-        ++_elements;
-
+        insert_element(pos, std::forward<Pair>(p));
         return {{}, true};
+    }
+
+    Value& operator[](const Key& key)
+    {
+        std::size_t pos = Hash()(key) & (_table_sz - 1);
+        std::size_t num_probes = 1;
+
+        while (!Equal()(_table[pos].first, key))
+        {
+            if (Equal()(_table[pos].first, EmptyKey::value))
+            {
+                insert_element(pos, std::make_pair(key, Value{}));
+                break;
+            }
+
+            pos = (pos + num_probes++) & (_table_sz - 1);
+            assert(num_probes < _table_sz);
+        }
+
+        return _table[pos].second;
     }
 
     std::size_t size() const { return _elements; }
     std::size_t capacity() const { return _table_sz; }
 
 private:
+    template <typename Pair>
+    void insert_element(std::size_t pos, Pair&& p)
+    {
+        new (&_table[pos]) Node(std::forward<Pair>(p));
+        ++_elements;
+    }
+
     void resize(std::size_t n)
     {
         if (_elements + n > _table_sz / 2)
@@ -133,13 +158,8 @@ int main()
     (void)ok;
 
     h.insert(std::make_pair(1, 4));
-    h.insert(std::make_pair(1, 4));
-    h.insert(std::make_pair(1, 4));
-    h.insert(std::make_pair(1, 4));
-    h.insert(std::make_pair(1, 4));
-    h.insert(std::make_pair(1, 4));
-    h.insert(std::make_pair(1, 4));
-    h.insert(std::make_pair(1, 4));
+
+    double& d = h[1];
 
     benchmark();
 
