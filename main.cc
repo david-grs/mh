@@ -39,15 +39,23 @@ struct ht
     {
     }
 
-    std::size_t next(std::size_t pos, std::size_t& num_probes) const
+    std::size_t next_quadratic(std::size_t pos, std::size_t& num_probes) const
     {
         return (pos + (1ULL << num_probes++) + 1) & (_table_sz - 1);
     }
 
-    std::size_t next2(std::size_t pos, std::size_t& num_probes) const
+    std::size_t next_quadratic_2(std::size_t pos, std::size_t& num_probes) const
     {
         return (pos + num_probes++) & (_table_sz - 1);
     }
+
+    std::size_t next_linear(std::size_t pos, std::size_t& num_probes) const
+    {
+        ++num_probes;
+        return (pos + 1) & (_table_sz - 1);
+    }
+
+    template <typename... Args> auto next(Args&&... args) { return next_quadratic_2(std::forward<Args>(args)...); }
 
     template <typename Pair>
     std::pair<iterator, bool> insert(Pair&& p)
@@ -73,8 +81,7 @@ struct ht
             assert(num_probes < _table_sz);
         }
 
-        max_num_probes = std::max(max_num_probes, (int)num_probes);
-
+        _max_num_probes = std::max(_max_num_probes, num_probes);
         insert_element(pos, std::forward<Pair>(p));
         return {{}, true};
     }
@@ -97,8 +104,6 @@ struct ht
 
         return true;
     }
-
-    int max_num_probes = 0;
 
     Value& operator[](const Key& key)
     {
@@ -160,7 +165,9 @@ private:
                 if (!Equal()(p.first, EmptyKey::value))
                     h.insert(p);
             });
+
             std::swap(*this, h);
+            _max_num_probes = h._max_num_probes;
 
             DEBUG("resized.")
             return true;
@@ -171,6 +178,9 @@ private:
     std::size_t _elements;
     std::size_t _table_sz;
     std::unique_ptr<Node[]> _table;
+
+public:
+    std::size_t _max_num_probes = 0;
 };
 
 
@@ -214,7 +224,7 @@ void benchmark(boost::optional<long unsigned> seed = boost::none)
         benchmark([&]() { gd.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
     }
 
-    std::cout << mh.max_num_probes << std::endl;
+    std::cout << mh._max_num_probes << std::endl;
 
     volatile int i = 0;
 
