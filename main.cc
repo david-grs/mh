@@ -64,10 +64,8 @@ struct ht
 
         while (!Equal()(_table[pos].first, EmptyKey::value))
         {
-            //pos = (pos + num_probes++) & (_table_sz - 1);
-
-            //pos = (pos + 1) & (_table_sz - 1);
-            //++num_probes;
+            if (Equal()(_table[pos].first, p.first))
+                return {{}, false};
 
             pos = next(pos, num_probes);
 
