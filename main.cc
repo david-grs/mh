@@ -10,7 +10,7 @@
 #include <chrono>
 
 #include <boost/optional.hpp>
-
+#include <google/dense_hash_map>
 
 #if defined NDEBUG
 #define DEBUG(x)
@@ -200,6 +200,8 @@ void benchmark(boost::optional<long unsigned> seed = boost::none)
 
     std::unordered_map<int, double> umap;
     ht<int, double, empty_key<int, 0>> mh;
+    google::dense_hash_map<int, double> gd;
+    gd.set_empty_key(0);
 
     std::uniform_int_distribution<> rng(1, 1e6);
 
@@ -209,6 +211,9 @@ void benchmark(boost::optional<long unsigned> seed = boost::none)
 
         gen.seed(*seed);
         benchmark([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
+
+        gen.seed(*seed);
+        benchmark([&]() { gd.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
     }
 
     std::cout << mh.max_num_probes << std::endl;
@@ -223,6 +228,9 @@ void benchmark(boost::optional<long unsigned> seed = boost::none)
 
         gen.seed(*seed);
         benchmark([&]() { i += mh.find(rng(gen)); }, "mh lookup ex");
+
+        gen.seed(*seed);
+        benchmark([&]() { i += gd.find(rng(gen)) != gd.end(); }, "google lookup ex");
     }
 
     {
@@ -233,6 +241,9 @@ void benchmark(boost::optional<long unsigned> seed = boost::none)
 
         gen.seed(*seed);
         benchmark([&]() { i += mh.find(rng2(gen)); }, "mh lookup inex");
+
+        gen.seed(*seed);
+        benchmark([&]() { i += gd.find(rng2(gen)) != gd.end(); }, "google lookup inex");
     }
 }
 
