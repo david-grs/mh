@@ -61,9 +61,13 @@ struct ht
             assert(num_probes < _table_sz);
         }
 
+        max_num_probes = std::max(max_num_probes, (int)num_probes);
+
         insert_element(pos, std::forward<Pair>(p));
         return {{}, true};
     }
+
+    int max_num_probes = 0;
 
     Value& operator[](const Key& key)
     {
@@ -161,6 +165,9 @@ void benchmark(boost::optional<long unsigned> seed = boost::none)
         gen.seed(*seed);
         benchmark([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
     }
+
+    std::cout << mh.max_num_probes << std::endl;
+  //  std::exit(1);
 
     {
         std::uniform_int_distribution<> rng(1, std::min(umap.size(), mh.size()) - 1);
