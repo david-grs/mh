@@ -39,6 +39,16 @@ struct ht
     {
     }
 
+    std::size_t next(std::size_t pos, std::size_t& num_probes) const
+    {
+        return (pos + (1ULL << num_probes++) + 1) & (_table_sz - 1);
+    }
+
+    std::size_t next2(std::size_t pos, std::size_t& num_probes) const
+    {
+        return (pos + num_probes++) & (_table_sz - 1);
+    }
+
     template <typename Pair>
     std::pair<iterator, bool> insert(Pair&& p)
     {
@@ -59,8 +69,7 @@ struct ht
             //pos = (pos + 1) & (_table_sz - 1);
             //++num_probes;
 
-            pos = (pos + (1ULL << num_probes) + 1) & (_table_sz - 1);
-            ++num_probes;
+            pos = next(pos, num_probes);
 
             DEBUG(" - not empty, trying pos=" << pos);
             assert(num_probes < _table_sz);
@@ -102,9 +111,7 @@ struct ht
 
             DEBUG("other value at pos=" << pos << ", continuing");
 
-            pos = (pos + (1ULL << num_probes) + 1) & (_table_sz - 1);
-            ++num_probes;
-
+            pos = next(pos, num_probes);
             assert(num_probes < _table_sz);
         }
 
@@ -128,7 +135,7 @@ private:
     {
         if (_elements + n > _table_sz / 2)
         {
-            DEBUG("resizing to " << _table_sz * 2 << "...")
+            DEBUG("resizing to " << _table_sz * 2  << "...")
 
             ht h(_table_sz * 2);
             std::for_each(&_table[0], &_table[_table_sz], [&h](auto&& p)
