@@ -214,14 +214,25 @@ void benchmark(boost::optional<long unsigned> seed = boost::none)
     std::cout << mh.max_num_probes << std::endl;
 
     volatile int i = 0;
+
     {
         //std::uniform_int_distribution<> rng(1, std::min(umap.size(), mh.size()) - 1);
 
         gen.seed(*seed);
-        benchmark([&]() { i += umap.find(rng(gen)) != umap.end(); }, "umap lookup");
+        benchmark([&]() { i += umap.find(rng(gen)) != umap.end(); }, "umap lookup ex");
 
         gen.seed(*seed);
-        benchmark([&]() { i += mh.find(rng(gen)); }, "mh lookup");
+        benchmark([&]() { i += mh.find(rng(gen)); }, "mh lookup ex");
+    }
+
+    {
+        std::uniform_int_distribution<> rng2(1e6 + 1, 2e9);
+
+        gen.seed(*seed);
+        benchmark([&]() { i += umap.find(rng2(gen)) != umap.end(); }, "umap lookup inex");
+
+        gen.seed(*seed);
+        benchmark([&]() { i += mh.find(rng2(gen)); }, "mh lookup inex");
     }
 }
 
