@@ -85,16 +85,26 @@ struct ht
         {
             if (Equal()(_table[pos].first, EmptyKey::value))
             {
-                resize(1);
+                const bool resized = resize(1);
 
-                DEBUG("empty node, inserting value at pos=" << pos);
-                insert_element(pos, std::make_pair(key, Value{}));
+                if (resized)
+                {
+                    return operator[](key);
+                }
+                else
+                {
+                    DEBUG("empty node, inserting value at pos=" << pos);
+                    insert_element(pos, std::make_pair(key, Value{}));
+                }
+
                 break;
             }
 
             DEBUG("other value at pos=" << pos << ", continuing");
 
-            pos = (pos + num_probes++) & (_table_sz - 1);
+            pos = (pos + (1ULL << num_probes) + 1) & (_table_sz - 1);
+            ++num_probes;
+
             assert(num_probes < _table_sz);
         }
 
@@ -114,7 +124,7 @@ private:
         ++_elements;
     }
 
-    void resize(std::size_t n)
+    bool resize(std::size_t n)
     {
         if (_elements + n > _table_sz / 2)
         {
@@ -129,7 +139,10 @@ private:
             std::swap(*this, h);
 
             DEBUG("resized.")
+            return true;
         }
+
+        return false;
     }
     std::size_t _elements;
     std::size_t _table_sz;
