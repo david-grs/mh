@@ -81,6 +81,25 @@ struct ht
         return {{}, true};
     }
 
+    bool find(const Key& key)
+    {
+        std::size_t pos = Hash()(key) & (_table_sz - 1);
+        std::size_t num_probes = 1;
+
+        DEBUG("lookup at pos=" << pos);
+
+        while (!Equal()(_table[pos].first, key))
+        {
+            if (Equal()(_table[pos].first, EmptyKey::value))
+                return false;
+
+            pos = next(pos, num_probes);
+            assert(num_probes < _table_sz);
+        }
+
+        return true;
+    }
+
     int max_num_probes = 0;
 
     Value& operator[](const Key& key)
