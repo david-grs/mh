@@ -9,10 +9,14 @@
 #include <random>
 #include <chrono>
 
+#include <boost/optional.hpp>
+
+
 #if defined NDEBUG
 #define DEBUG(x)
 #else
-#define DEBUG(x) std::cout << x << std::endl;
+#define DEBUG(x)
+//#define DEBUG(x) std::cout << x << std::endl;
 #endif
 
 template <typename T, T t>
@@ -124,7 +128,7 @@ private:
 };
 
 
-void benchmark()
+void benchmark(boost::optional<long unsigned> seed = boost::none)
 {
     auto benchmark = [](auto&& operation, const char* desc)
     {
@@ -140,9 +144,11 @@ void benchmark()
 
 
     std::random_device rd;
-    auto seed = rd();
+    if (!seed)
+        seed = rd();
 
-    std::mt19937 gen(seed);
+    std::mt19937 gen(*seed);
+    std::cout << "seed = " << *seed << std::endl;
 
     std::unordered_map<int, double> umap;
     ht<int, double, empty_key<int, 0>> mh;
@@ -152,7 +158,7 @@ void benchmark()
 
         benchmark([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
 
-        gen.seed(seed);
+        gen.seed(*seed);
         benchmark([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
     }
 
@@ -161,12 +167,12 @@ void benchmark()
 
         benchmark([&]() { umap[rng(gen)] = 123; }, "umap operator[]");
 
-        gen.seed(seed);
+        gen.seed(*seed);
         benchmark([&]() { mh[rng(gen)] = 123; }, "mh operator[]");
     }
 }
 
-int main()
+int main(int argc, char** argv)
 {
 
     ht<int, double, empty_key<int, 0>> h;
@@ -188,7 +194,10 @@ int main()
     h[16*9 + 1] = 2;
     h[16*10 + 1] = 2;
 
-    benchmark();
+    if (argc == 2)
+        benchmark(std::atoll(argv[1]));
+    else
+        benchmark();
 
     return 0;
 }
