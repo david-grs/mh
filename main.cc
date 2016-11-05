@@ -201,9 +201,10 @@ void benchmark(boost::optional<long unsigned> seed = boost::none)
     std::unordered_map<int, double> umap;
     ht<int, double, empty_key<int, 0>> mh;
 
-    {
-        std::uniform_int_distribution<> rng(1, 1e6);
+    std::uniform_int_distribution<> rng(1, 1e6);
 
+    {
+        gen.seed(*seed);
         benchmark([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
 
         gen.seed(*seed);
@@ -211,15 +212,16 @@ void benchmark(boost::optional<long unsigned> seed = boost::none)
     }
 
     std::cout << mh.max_num_probes << std::endl;
-  //  std::exit(1);
 
+    volatile int i = 0;
     {
-        std::uniform_int_distribution<> rng(1, std::min(umap.size(), mh.size()) - 1);
-
-        benchmark([&]() { umap[rng(gen)] = 123; }, "umap operator[]");
+        //std::uniform_int_distribution<> rng(1, std::min(umap.size(), mh.size()) - 1);
 
         gen.seed(*seed);
-        benchmark([&]() { mh[rng(gen)] = 123; }, "mh operator[]");
+        benchmark([&]() { i += umap.find(rng(gen)) != umap.end(); }, "umap lookup");
+
+        gen.seed(*seed);
+        benchmark([&]() { i += mh.find(rng(gen)); }, "mh lookup");
     }
 }
 
