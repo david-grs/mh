@@ -54,10 +54,15 @@ struct ht
 
         while (!Equal()(_table[pos].first, EmptyKey::value))
         {
-            DEBUG("position pos=" << pos << " not empty");
+            //pos = (pos + num_probes++) & (_table_sz - 1);
 
-            pos = (pos + num_probes++) & (_table_sz - 1);
-            DEBUG("trying to insert at pos=" << pos << " probes" << num_probes);
+            //pos = (pos + 1) & (_table_sz - 1);
+            //++num_probes;
+
+            pos = (pos + (1ULL << num_probes) + 1) & (_table_sz - 1);
+            ++num_probes;
+
+            DEBUG(" - not empty, trying pos=" << pos);
             assert(num_probes < _table_sz);
         }
 
