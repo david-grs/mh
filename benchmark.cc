@@ -29,12 +29,12 @@ void benchmark(boost::optional<long unsigned> seed)
     std::mt19937 gen(*seed);
     std::cout << "seed = " << *seed << std::endl;
 
-    std::unordered_map<int, double> umap;
+    //std::unordered_map<int, double> umap;
     ht<int, double, empty_key<int, 0>> mh;
     google::dense_hash_map<int, double> gd;
     gd.set_empty_key(0);
 
-    std::uniform_int_distribution<> rng(1, 1e9); // no collision
+    std::uniform_int_distribution<> rng(1, 1e9);
 
     {
         //gen.seed(*seed);
