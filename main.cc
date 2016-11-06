@@ -13,7 +13,10 @@
 #include <google/dense_hash_map>
 
 #include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/median.hpp>
+#include <boost/accumulators/statistics/min.hpp>
+#include <boost/accumulators/statistics/max.hpp>
 #include <boost/accumulators/statistics/extended_p_square_quantile.hpp>
 
 namespace acc = boost::accumulators;
@@ -24,6 +27,14 @@ struct percentiles
       _acc(acc::extended_p_square_probabilities = _probes)
     {}
 
+    void add(double d) { _acc(d); }
+
+    double percentile(double p)  { return acc::quantile(_acc, acc::quantile_probability = p); }
+    double median() const { return acc::median(_acc); }
+    double min() const { return acc::min(_acc); }
+    double max() const { return acc::max(_acc); }
+
+private:
     std::array<double, 7> _probes = {{0.01, 0.1, 0.25, 0.5, 0.75, 0.90, 0.99}};
 
     using stats = acc::accumulator_set<double,
