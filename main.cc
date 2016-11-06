@@ -129,7 +129,6 @@ struct ht
             assert(num_probes < _table_sz);
         }
 
-        _max_num_probes = std::max(_max_num_probes, num_probes);
         insert_element(pos, std::forward<Pair>(p));
         return {{}, true};
     }
@@ -215,7 +214,6 @@ private:
             });
 
             std::swap(*this, h);
-            _max_num_probes = h._max_num_probes;
 
             DEBUG("resized.")
             return true;
@@ -226,9 +224,6 @@ private:
     std::size_t _elements;
     std::size_t _table_sz;
     std::unique_ptr<Node[]> _table;
-
-public:
-    std::size_t _max_num_probes = 0;
 };
 
 
@@ -259,7 +254,7 @@ void benchmark(boost::optional<long unsigned> seed = boost::none)
     google::dense_hash_map<int, double> gd;
     gd.set_empty_key(0);
 
-    std::uniform_int_distribution<> rng(1, 1e6);
+    std::uniform_int_distribution<> rng(1, 1e6); // no collision
 
     {
         gen.seed(*seed);
@@ -271,8 +266,6 @@ void benchmark(boost::optional<long unsigned> seed = boost::none)
         gen.seed(*seed);
         benchmark([&]() { gd.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
     }
-
-    std::cout << mh._max_num_probes << std::endl;
 
     volatile int i = 0;
 
