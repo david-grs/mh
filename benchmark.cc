@@ -7,7 +7,7 @@
 #include <chrono>
 #include <unordered_map>
 
-void benchmark(boost::optional<long unsigned> seed)
+void benchmark(long unsigned seed)
 {
     auto benchmark = [](auto&& operation, const char* desc)
     {
@@ -21,13 +21,7 @@ void benchmark(boost::optional<long unsigned> seed)
         std::cout << desc << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
     };
 
-
-    std::random_device rd;
-    if (!seed)
-        seed = rd();
-
-    std::mt19937 gen(*seed);
-    std::cout << "seed = " << *seed << std::endl;
+    std::mt19937 gen(seed);
 
     //std::unordered_map<int, double> umap;
     ht<int, double, empty_key<int, 0>> mh;
@@ -37,13 +31,13 @@ void benchmark(boost::optional<long unsigned> seed)
     std::uniform_int_distribution<> rng(1, 1e9);
 
     {
-        //gen.seed(*seed);
+        //gen.seed(seed);
         //benchmark([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
 
-        gen.seed(*seed);
+        gen.seed(seed);
         benchmark([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
 
-        gen.seed(*seed);
+        gen.seed(seed);
         benchmark([&]() { gd.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
     }
 
@@ -52,26 +46,26 @@ void benchmark(boost::optional<long unsigned> seed)
     {
         //std::uniform_int_distribution<> rng(1, std::min(umap.size(), mh.size()) - 1);
 
-        //gen.seed(*seed);
+        //gen.seed(seed);
         //benchmark([&]() { i += umap.find(rng(gen)) != umap.end(); }, "umap lookup ex");
 
-        gen.seed(*seed);
+        gen.seed(seed);
         benchmark([&]() { i += mh.find(rng(gen)); }, "mh lookup ex");
 
-        gen.seed(*seed);
+        gen.seed(seed);
         benchmark([&]() { i += gd.find(rng(gen)) != gd.end(); }, "google lookup ex");
     }
 
     {
         std::uniform_int_distribution<> rng2(1e9 + 1, 2e9);
 
-        //gen.seed(*seed);
+        //gen.seed(seed);
         //benchmark([&]() { i += umap.find(rng2(gen)) != umap.end(); }, "umap lookup inex");
 
-        gen.seed(*seed);
+        gen.seed(seed);
         benchmark([&]() { i += mh.find(rng2(gen)); }, "mh lookup inex");
 
-        gen.seed(*seed);
+        gen.seed(seed);
         benchmark([&]() { i += gd.find(rng2(gen)) != gd.end(); }, "google lookup inex");
     }
 }
