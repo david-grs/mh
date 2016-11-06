@@ -17,6 +17,7 @@
 #include <boost/accumulators/statistics/median.hpp>
 #include <boost/accumulators/statistics/min.hpp>
 #include <boost/accumulators/statistics/max.hpp>
+#include <boost/accumulators/statistics/count.hpp>
 #include <boost/accumulators/statistics/extended_p_square_quantile.hpp>
 
 namespace acc = boost::accumulators;
@@ -33,6 +34,7 @@ struct stats
     double median() const { return acc::median(_acc); }
     double min() const { return acc::min(_acc); }
     double max() const { return acc::max(_acc); }
+    std::size_t count() const { return acc::count(_acc); }
 
     static constexpr const std::array<double, 7> percentiles = {{0.01, 0.1, 0.25, 0.5, 0.75, 0.90, 0.99}};
 
@@ -41,16 +43,19 @@ private:
                                      acc::stats<acc::tag::median,
                                                 acc::tag::min,
                                                 acc::tag::max,
+                                                acc::tag::count,
                                                 acc::tag::extended_p_square_quantile>>;
     Acc _acc;
 };
 
+constexpr const std::array<double, 7> stats::percentiles;
+
 inline std::ostream& operator<<(std::ostream& oss, stats& s)
 {
-    oss << "min: " << s.min();
-    for (int i : stats::percentiles)
-        oss << i << "%: " << s.percentile(i) << " ";
-    return oss << " max: " << s.max();
+    oss << "count: " << s.count() << " min: " << s.min() << " - ";
+    for (double d : stats::percentiles)
+        oss << d << "%: " << s.percentile(d) << " - ";
+    return oss << "max: " << s.max();
 }
 
 #if defined NDEBUG
