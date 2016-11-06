@@ -21,10 +21,10 @@
 
 namespace acc = boost::accumulators;
 
-struct percentiles
+struct stats
 {
-    percentiles() :
-      _acc(acc::extended_p_square_probabilities = _probes)
+    stats() :
+      _acc(acc::extended_p_square_probabilities = percentiles)
     {}
 
     void add(double d) { _acc(d); }
@@ -34,16 +34,24 @@ struct percentiles
     double min() const { return acc::min(_acc); }
     double max() const { return acc::max(_acc); }
 
-private:
-    std::array<double, 7> _probes = {{0.01, 0.1, 0.25, 0.5, 0.75, 0.90, 0.99}};
+    static constexpr const std::array<double, 7> percentiles = {{0.01, 0.1, 0.25, 0.5, 0.75, 0.90, 0.99}};
 
-    using stats = acc::accumulator_set<double,
-                                       acc::stats<acc::tag::median,
-                                                  acc::tag::min,
-                                                  acc::tag::max,
-                                                  acc::tag::extended_p_square_quantile>>;
-    stats _acc;
+private:
+    using Acc = acc::accumulator_set<double,
+                                     acc::stats<acc::tag::median,
+                                                acc::tag::min,
+                                                acc::tag::max,
+                                                acc::tag::extended_p_square_quantile>>;
+    Acc _acc;
 };
+
+inline std::ostream& operator<<(std::ostream& oss, stats& s)
+{
+    oss << "min: " << s.min();
+    for (int i : stats::percentiles)
+        oss << i << "%: " << s.percentile(i) << " ";
+    return oss << " max: " << s.max();
+}
 
 #if defined NDEBUG
 #define DEBUG(x)
