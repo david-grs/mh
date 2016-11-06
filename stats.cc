@@ -45,7 +45,6 @@ constexpr const std::array<double, 7> stats::percentiles;
 
 inline std::ostream& operator<<(std::ostream& oss, impl::stats& s)
 {
-    return
     oss << "count: " << s.count() << " min: " << s.min() << " - ";
     for (double d : impl::stats::percentiles)
         oss << d << "%: " << s.percentile(d) << " - ";
