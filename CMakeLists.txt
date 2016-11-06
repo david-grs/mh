@@ -7,5 +7,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 include_directories(.)
 add_library(stats STATIC stats.cc)
+add_library(benchmark STATIC benchmark.cc)
 add_executable(main main.cc)
-target_link_libraries(main stats)
+target_link_libraries(main stats benchmark)
