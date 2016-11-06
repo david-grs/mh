@@ -83,6 +83,8 @@ struct ht
       _table_sz(capacity),
       _table(std::make_unique<Node[]>(_table_sz))
     {
+        for (std::size_t i = 0; i < _table_sz; ++i)
+            new (&_table[i]) Node(EmptyKey::value, Value());
     }
 
     std::size_t next_quadratic(std::size_t pos, std::size_t& num_probes) const
