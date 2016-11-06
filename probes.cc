@@ -28,7 +28,7 @@ void probes(unsigned long seed)
     gen.seed(seed);
     benchmark([&]()
     {
-        i += mh.find2(rng(gen), [&](std::size_t probes)
+        i += mh.find(rng(gen), [&](std::size_t probes)
         {
             s.add(probes);
         });

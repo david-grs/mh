@@ -20,6 +20,11 @@ struct empty_key
     enum { value = t };
 };
 
+namespace detail
+{
+    auto empty_callback = [](std::size_t) {};
+}
+
 template <typename Key, typename Value, typename EmptyKey, typename Hash = std::hash<Key>, typename Equal = std::equal_to<Key>>
 struct ht
 {
@@ -82,27 +87,8 @@ struct ht
         return {{}, true};
     }
 
-    bool find(const Key& key)
-    {
-        std::size_t pos = Hash()(key) & (_table_sz - 1);
-        std::size_t num_probes = 1;
-
-        DEBUG("lookup at pos=" << pos);
-
-        while (!Equal()(_table[pos].first, key))
-        {
-            if (Equal()(_table[pos].first, EmptyKey::value))
-                return false;
-
-            pos = next(pos, num_probes);
-            assert(num_probes < _table_sz);
-        }
-
-        return true;
-    }
-
-    template <typename F>
-    bool find2(const Key& key, F&& f)
+    template <typename F = decltype(detail::empty_callback)>
+    bool find(const Key& key, F f = detail::empty_callback)
     {
         std::size_t pos = Hash()(key) & (_table_sz - 1);
         std::size_t num_probes = 1;
@@ -119,7 +105,6 @@ struct ht
         }
 
         f(num_probes);
-
         return true;
     }
 
@@ -192,6 +177,7 @@ private:
 
         return false;
     }
+
     std::size_t _elements;
     std::size_t _table_sz;
     std::unique_ptr<Node[]> _table;
