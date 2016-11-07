@@ -6,6 +6,7 @@
 #include <boost/accumulators/statistics/min.hpp>
 #include <boost/accumulators/statistics/max.hpp>
 #include <boost/accumulators/statistics/count.hpp>
+#include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/statistics/extended_p_square_quantile.hpp>
 
 namespace impl
@@ -25,6 +26,7 @@ struct stats
     double median() const { return acc::median(_acc); }
     double min() const { return acc::min(_acc); }
     double max() const { return acc::max(_acc); }
+    double stddev() const { return std::sqrt(acc::variance(_acc)); }
     std::size_t count() const { return acc::count(_acc); }
 
     static constexpr const std::array<double, 18> percentiles = {{0.01, 0.1, 0.25, 0.5, 0.625, 0.75, 0.875, 0.90, 0.925, 0.95, 0.975, 0.98, 0.99, 0.995, 0.996, 0.997, 0.998, 0.999}};
@@ -35,6 +37,7 @@ private:
                                                 acc::tag::min,
                                                 acc::tag::max,
                                                 acc::tag::count,
+                                                acc::tag::variance,
                                                 acc::tag::extended_p_square_quantile>>;
     Acc _acc;
 };
@@ -45,7 +48,7 @@ constexpr const std::array<double, 18> stats::percentiles;
 
 inline std::ostream& operator<<(std::ostream& oss, impl::stats& s)
 {
-    oss << "count: " << s.count() << " min: " << s.min() << " - ";
+    oss << "count: " << s.count() << " stddev: " << s.stddev() << " - min: " << s.min() << " - ";
     for (double d : impl::stats::percentiles)
         oss << d << "%: " << s.percentile(d) << " - ";
     return oss << "max: " << s.max();
@@ -63,6 +66,7 @@ double stats::percentile(double p) const { return _stats->percentile(p); }
 double stats::median() const { return _stats->median(); }
 double stats::min() const { return _stats->min(); }
 double stats::max() const  { return _stats->max(); }
+double stats::stddev() const  { return _stats->stddev(); }
 std::size_t stats::count() const  { return _stats->count(); }
 
 std::ostream& operator<<(std::ostream& oss, stats& s)

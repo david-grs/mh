@@ -19,6 +19,7 @@ struct stats
     double median() const;
     double min() const;
     double max() const;
+    double stddev() const;
     std::size_t count() const;
 
 private:
