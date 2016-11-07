@@ -29,7 +29,7 @@ struct stats
     double stddev() const { return std::sqrt(acc::variance(_acc)); }
     std::size_t count() const { return acc::count(_acc); }
 
-    static constexpr const std::array<double, 18> percentiles = {{0.01, 0.1, 0.25, 0.5, 0.625, 0.75, 0.875, 0.90, 0.925, 0.95, 0.975, 0.98, 0.99, 0.995, 0.996, 0.997, 0.998, 0.999}};
+    static constexpr const std::array<double, 20> percentiles = {{0.01, 0.1, 0.25, 0.5, 0.625, 0.75, 0.875, 0.90, 0.925, 0.95, 0.975, 0.98, 0.99, 0.995, 0.996, 0.997, 0.998, 0.999, 0.9995, 0.9999}};
 
 private:
     using Acc = acc::accumulator_set<double,
@@ -42,7 +42,7 @@ private:
     Acc _acc;
 };
 
-constexpr const std::array<double, 18> stats::percentiles;
+constexpr const std::array<double, 20> stats::percentiles;
 
 }
 
