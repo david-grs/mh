@@ -6,4 +6,4 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 include_directories(.)
-add_executable(main main.cc probes.cc stats.cc benchmark.cc)
+add_executable(ht ht.cc probes.cc stats.cc benchmark.cc)
