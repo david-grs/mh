@@ -30,7 +30,7 @@ struct ht
 {
     using Container = ht<Key, Value, EmptyKey, Hash, Equal>;
     using Node = std::pair<Key, Value>;
-    using iterator = void*; // TODO
+    using iterator = std::size_t; // TODO
 
     ht(std::size_t capacity = 16) :
       _elements(0),
@@ -84,7 +84,7 @@ struct ht
         }
 
         insert_element(pos, std::forward<Pair>(p));
-        return {{}, true};
+        return {pos, true};
     }
 
     template <typename F = decltype(detail::empty_callback)>
