@@ -28,10 +28,10 @@ struct hash_array
         iterator_base& operator++()              { return operator+=(1); }
         iterator_base& operator--()              { return operator+=(-1); }
 
-        difference_type operator-(const iterator_base& it) { assert(_h == it._h); return _i - it._i; }
+        difference_type operator-(const iterator_base& it) { assert(&_h == &it._h); return _i - it._i; }
 
-        bool operator< (const iterator_base& it) const { assert(_h == it._h); return _i < it._i; }
-        bool operator==(const iterator_base& it) const { return _h == it._h && _i == it._i; }
+        bool operator< (const iterator_base& it) const { assert(&_h == &it._h); return _i < it._i; }
+        bool operator==(const iterator_base& it) const { return &_h == &it._h && _i == it._i; }
 
      protected:
         hash_array& _h;
@@ -44,7 +44,7 @@ struct hash_array
     {
         using iterator_base::iterator_base;
 
-        reference operator*() { return this->_h._sequence[this->_i]; }
+        reference operator*() { return this->_h._hashtable._table[this->_h._sequence[this->_i]].second; }
     };
 
     template <typename Pair>
