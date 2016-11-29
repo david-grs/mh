@@ -44,7 +44,7 @@ struct hash_array
     {
         using iterator_base::iterator_base;
 
-        reference operator*() { return this->_h._hashtable._table[this->_h._sequence[this->_i]].second; }
+        auto& operator*() { return this->_h._hashtable._table[this->_h._sequence[this->_i]]; }
     };
 
     template <typename Pair>
