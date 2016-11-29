@@ -1,5 +1,6 @@
 #include "benchmark.h"
 #include "ht.h"
+#include "mic.h"
 
 #include <google/dense_hash_map>
 
@@ -25,6 +26,7 @@ void benchmark(long unsigned seed)
 
     //std::unordered_map<int, double> umap;
     ht<int, double, empty_key<int, 0>> mh;
+    hash_array<int, double, empty_key<int, 0>> mha;
     google::dense_hash_map<int, double> gd;
     gd.set_empty_key(0);
 
@@ -36,6 +38,9 @@ void benchmark(long unsigned seed)
 
         gen.seed(seed);
         benchmark([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
+
+        gen.seed(seed);
+        benchmark([&]() { mha.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
 
         gen.seed(seed);
         benchmark([&]() { gd.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
@@ -51,7 +56,10 @@ void benchmark(long unsigned seed)
 
         gen.seed(seed);
         benchmark([&]() { i += mh.find(rng(gen)); }, "mh lookup ex");
-
+#if 0
+        gen.seed(seed);
+        benchmark([&]() { i += mha.find(rng(gen)); }, "mha lookup ex");
+#endif
         gen.seed(seed);
         benchmark([&]() { i += gd.find(rng(gen)) != gd.end(); }, "google lookup ex");
     }
@@ -64,6 +72,11 @@ void benchmark(long unsigned seed)
 
         gen.seed(seed);
         benchmark([&]() { i += mh.find(rng2(gen)); }, "mh lookup inex");
+
+#if 0
+        gen.seed(seed);
+        benchmark([&]() { i += mha.find(rng2(gen)); }, "mha lookup inex");
+#endif
 
         gen.seed(seed);
         benchmark([&]() { i += gd.find(rng2(gen)) != gd.end(); }, "google lookup inex");
