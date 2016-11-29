@@ -17,7 +17,7 @@ struct hash_array
 
     struct iterator_base
     {
-        iterator_base(hashtable& h, std::size_t i) :
+        iterator_base(hash_array& h, std::size_t i) :
             _h(h),
             _i(i)
         {}
@@ -34,7 +34,7 @@ struct hash_array
         bool operator==(const iterator_base& it) const { return _h == it._h && _i == it._i; }
 
      protected:
-        hashtable& _h;
+        hash_array& _h;
         std::size_t _i;
     };
 
@@ -55,11 +55,11 @@ struct hash_array
         if (p.second)
             _sequence.emplace_back(p.first);
 
-        return {{}, true}; // TODO
+        return {end() - 1, true};
     }
 
-    iterator begin() const { return iterator(*this, 0); }
-    iterator end() const { return iterator(*this, _sequence.size()); }
+    iterator begin() { return iterator(*this, 0); }
+    iterator end()   { return iterator(*this, _sequence.size()); }
 
     hashtable _hashtable;
     std::vector<typename hashtable::iterator> _sequence;
