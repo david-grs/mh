@@ -10,16 +10,32 @@ struct hash_array
 {
     using value_type = Value;
     using reference = value_type&;
+    using size_type = std::size_t;
+    using difference_type = std::size_t;
 
     using hashtable = ht<Key, Value, EmptyKey>;
 
     struct iterator_base
     {
+        iterator_base(hashtable& h, std::size_t i) :
+            _h(h),
+            _i(i)
+        {}
+        virtual ~iterator_base() {}
 
+        iterator_base& operator+=(std::size_t i) { _i += i; return *this; }
+        iterator_base& operator-=(std::size_t i) { return operator+=(-i); }
+        iterator_base& operator++()              { return operator+=(1); }
+        iterator_base& operator--()              { return operator+=(-1); }
 
-    protected:
-        hash_array<Key, Value, EmptyKey>& _container;
-        std::size_t _index;
+        difference_type operator-(const iterator_base& it) { assert(_h == it._h); return _i - it._i; }
+
+        bool operator< (const iterator_base& it) const { assert(_h == it._h); return _i < it._i; }
+        bool operator==(const iterator_base& it) const { return _h == it._h && _i == it._i; }
+
+     protected:
+        hashtable& _h;
+        std::size_t _i;
     };
 
      struct iterator :
@@ -28,7 +44,7 @@ struct hash_array
     {
         using iterator_base::iterator_base;
 
-        reference operator*() { return (*this->m_container)[this->m_index]; }
+        reference operator*() { return this->_h._sequence[this->_i]; }
     };
 
     template <typename Pair>
@@ -42,8 +58,8 @@ struct hash_array
         return {{}, true}; // TODO
     }
 
-  //  auto cbegin() const { return _sequence.cbegin(); }
-   // auto cend() const { return _sequence.cend(); }
+    iterator begin() const { return iterator(*this, 0); }
+    iterator end() const { return iterator(*this, _sequence.size()); }
 
     hashtable _hashtable;
     std::vector<typename hashtable::iterator> _sequence;
