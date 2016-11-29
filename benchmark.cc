@@ -4,9 +4,21 @@
 
 #include <google/dense_hash_map>
 
+
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/member.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/mem_fun.hpp>
+#include <boost/multi_index/composite_key.hpp>
+#include <boost/multi_index/sequenced_index.hpp>
+#include <boost/multi_index/random_access_index.hpp>
+
 #include <random>
 #include <chrono>
 #include <unordered_map>
+
+using namespace boost::multi_index;
 
 void benchmark(long unsigned seed)
 {
@@ -27,6 +39,17 @@ void benchmark(long unsigned seed)
     //std::unordered_map<int, double> umap;
     ht<int, double, empty_key<int, 0>> mh;
     hash_array<int, double, empty_key<int, 0>> mha;
+
+    boost::multi_index_container<
+      std::pair<int, double>,
+      indexed_by<
+        hashed_unique<
+          member<std::pair<int, double>, int, &std::pair<int, double>::first>
+        >,
+        sequenced<>
+      >
+    > mic_hs;
+
     google::dense_hash_map<int, double> gd;
     gd.set_empty_key(0);
 
@@ -41,6 +64,9 @@ void benchmark(long unsigned seed)
 
         gen.seed(seed);
         benchmark([&]() { mha.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
+
+        gen.seed(seed);
+        benchmark([&]() { mic_hs.insert(std::make_pair(rng(gen), 222.0)); }, "mic insert");
 
         gen.seed(seed);
         benchmark([&]() { gd.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
