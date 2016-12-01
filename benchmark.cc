@@ -20,9 +20,10 @@
 
 using namespace boost::multi_index;
 
-void benchmark(long unsigned seed)
+struct bench
 {
-    auto benchmark = [](auto&& operation, const char* desc)
+    template <typename Callable>
+    void operator()(Callable operation, const char* desc)
     {
         static const int Iterations = 3e6;
 
@@ -32,8 +33,11 @@ void benchmark(long unsigned seed)
         auto end = std::chrono::steady_clock::now();
 
         std::cout << desc << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
-    };
+    }
+};
 
+void benchmark(long unsigned seed)
+{
     std::mt19937 gen(seed);
 
     //std::unordered_map<int, double> umap;
@@ -56,39 +60,51 @@ void benchmark(long unsigned seed)
 
     std::uniform_int_distribution<> rng(1, 1e9);
 
-    {
-        //gen.seed(seed);
-        //benchmark([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
+#if 0
+    std::cout << "mh = " << (void*)mh._table.get() << std::endl;
+    std::cout << "mha = " << (void*)mha._hashtable._table.get() << std::endl;
+    std::cout << "mha = " << (void*)mha._sequence.data() << std::endl;
 
-        gen.seed(seed);
-        benchmark([&]() { mh2.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
-
-        gen.seed(seed);
-        benchmark([&]() { mha2.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
-
-        gen.seed(seed);
-        benchmark([&]() { mic_hs2.insert(std::make_pair(rng(gen), 222.0)); }, "mic insert");
-
-        gen.seed(seed);
-        benchmark([&]() { gd2.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
-    }
+    std::cout << "mh2 = " << (void*)mh2._table.get() << std::endl;
+    std::cout << "mha2 = " << (void*)mha2._hashtable._table.get() << std::endl;
+    std::cout << "mha2 = " << (void*)mha2._sequence.data() << std::endl;
+#endif
 
     {
         //gen.seed(seed);
-        //benchmark([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
+        //bench()([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
 
         gen.seed(seed);
-        benchmark([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
+        bench()([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
 
         gen.seed(seed);
-        benchmark([&]() { mha.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
+        bench()([&]() { mha.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
 
         gen.seed(seed);
-        benchmark([&]() { mic_hs.insert(std::make_pair(rng(gen), 222.0)); }, "mic insert");
+        bench()([&]() { mic_hs.insert(std::make_pair(rng(gen), 222.0)); }, "mic insert");
 
         gen.seed(seed);
-        benchmark([&]() { gd.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
+        bench()([&]() { gd.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
     }
+
+#if 0
+    {
+        //gen.seed(seed);
+        //bench()([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
+
+        gen.seed(seed);
+        bench()([&]() { mh2.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
+
+        gen.seed(seed);
+        bench()([&]() { mha2.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
+
+        gen.seed(seed);
+        bench()([&]() { mic_hs2.insert(std::make_pair(rng(gen), 222.0)); }, "mic insert");
+
+        gen.seed(seed);
+        bench()([&]() { gd2.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
+    }
+#endif
 
     volatile int i = 0;
 
@@ -96,33 +112,33 @@ void benchmark(long unsigned seed)
         //std::uniform_int_distribution<> rng(1, std::min(umap.size(), mh.size()) - 1);
 
         //gen.seed(seed);
-        //benchmark([&]() { i += umap.find(rng(gen)) != umap.end(); }, "umap lookup ex");
+        //bench()([&]() { i += umap.find(rng(gen)) != umap.end(); }, "umap lookup ex");
 
         gen.seed(seed);
-        benchmark([&]() { i += mh.find(rng(gen)); }, "mh lookup ex");
+        bench()([&]() { i += mh.find(rng(gen)); }, "mh lookup ex");
 #if 0
         gen.seed(seed);
-        benchmark([&]() { i += mha.find(rng(gen)); }, "mha lookup ex");
+        bench()([&]() { i += mha.find(rng(gen)); }, "mha lookup ex");
 #endif
         gen.seed(seed);
-        benchmark([&]() { i += gd.find(rng(gen)) != gd.end(); }, "google lookup ex");
+        bench()([&]() { i += gd.find(rng(gen)) != gd.end(); }, "google lookup ex");
     }
 
     {
         std::uniform_int_distribution<> rng2(1e9 + 1, 2e9);
 
         //gen.seed(seed);
-        //benchmark([&]() { i += umap.find(rng2(gen)) != umap.end(); }, "umap lookup inex");
+        //bench()([&]() { i += umap.find(rng2(gen)) != umap.end(); }, "umap lookup inex");
 
         gen.seed(seed);
-        benchmark([&]() { i += mh.find(rng2(gen)); }, "mh lookup inex");
+        bench()([&]() { i += mh.find(rng2(gen)); }, "mh lookup inex");
 
 #if 0
         gen.seed(seed);
-        benchmark([&]() { i += mha.find(rng2(gen)); }, "mha lookup inex");
+        bench()([&]() { i += mha.find(rng2(gen)); }, "mha lookup inex");
 #endif
 
         gen.seed(seed);
-        benchmark([&]() { i += gd.find(rng2(gen)) != gd.end(); }, "google lookup inex");
+        bench()([&]() { i += gd.find(rng2(gen)) != gd.end(); }, "google lookup inex");
     }
 }
