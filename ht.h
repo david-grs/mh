@@ -148,7 +148,7 @@ struct ht
     std::size_t size() const { return _elements; }
     std::size_t capacity() const { return _table_sz; }
 
-private:
+// TODO private:
     template <typename Pair>
     void insert_element(std::size_t pos, Pair&& p)
     {
