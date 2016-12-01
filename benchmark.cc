@@ -2,6 +2,8 @@
 #include "ht.h"
 #include "mic.h"
 
+#include <geiger/chrono.h>
+
 #include <google/dense_hash_map>
 
 
@@ -17,6 +19,7 @@
 #include <random>
 #include <chrono>
 #include <unordered_map>
+#include <array>
 
 using namespace boost::multi_index;
 
@@ -36,8 +39,29 @@ struct bench
     }
 };
 
+struct bench_stats
+{
+    template <typename Callable>
+    void operator()(Callable operation, const char* desc)
+    {
+        geiger::chrono chrono;
+        for (int i = 0; i < Iterations; ++i)
+        {
+            chrono.start();
+            operation();
+            _ts[i] = chrono.elapsed();
+            chrono.restart();
+        }
+    }
+
+    static constexpr const int Iterations = 3000000;
+    std::array<double, Iterations> _ts;
+};
+
 void benchmark(long unsigned seed)
 {
+    geiger::init();
+
     std::mt19937 gen(seed);
 
     //std::unordered_map<int, double> umap;
