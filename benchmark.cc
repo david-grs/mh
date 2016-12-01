@@ -93,7 +93,7 @@ void benchmark(long unsigned seed)
     std::cout << "mha2 = " << (void*)mha2._hashtable._table.get() << std::endl;
     std::cout << "mha2 = " << (void*)mha2._sequence.data() << std::endl;
 #endif
-
+//TODO see why mha outputs diff results with/without mha/mha2
     {
         //gen.seed(seed);
         //bench()([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
