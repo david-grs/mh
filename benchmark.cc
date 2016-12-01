@@ -1,6 +1,7 @@
 #include "benchmark.h"
 #include "ht.h"
 #include "mic.h"
+#include "stats.h"
 
 #include <geiger/chrono.h>
 
@@ -52,10 +53,16 @@ struct bench_stats
             _ts[i] = chrono.elapsed();
             chrono.restart();
         }
+
+        stats st;
+        for (int i = 0; i < Iterations; ++i)
+            st.add(_ts[i]);
+
+        std::cout << desc << ": " << st << std::endl;
     }
 
     static constexpr const int Iterations = 3000000;
-    std::array<double, Iterations> _ts;
+    std::array<int64_t, Iterations> _ts;
 };
 
 void benchmark(long unsigned seed)
