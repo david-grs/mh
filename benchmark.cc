@@ -45,6 +45,8 @@ struct bench_stats
     template <typename Callable>
     void operator()(Callable operation, const char* desc)
     {
+        _ts.reserve(Iterations);
+        
         geiger::chrono chrono;
         for (int i = 0; i < Iterations; ++i)
         {
@@ -62,7 +64,7 @@ struct bench_stats
     }
 
     static constexpr const int Iterations = 3000000;
-    std::array<int64_t, Iterations> _ts;
+    std::vector<int64_t> _ts;
 };
 
 void benchmark(long unsigned seed)
@@ -101,6 +103,23 @@ void benchmark(long unsigned seed)
     std::cout << "mha2 = " << (void*)mha2._sequence.data() << std::endl;
 #endif
 //TODO see why mha outputs diff results with/without mha/mha2
+    {
+        //gen.seed(seed);
+        //bench()([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
+
+        gen.seed(seed);
+        bench_stats()([&]() { mh2.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
+
+        gen.seed(seed);
+        bench_stats()([&]() { mha2.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
+
+        gen.seed(seed);
+        bench_stats()([&]() { mic_hs2.insert(std::make_pair(rng(gen), 222.0)); }, "mic insert");
+
+        gen.seed(seed);
+        bench_stats()([&]() { gd2.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
+    }
+
     {
         //gen.seed(seed);
         //bench()([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
