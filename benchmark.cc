@@ -37,8 +37,8 @@ void benchmark(long unsigned seed)
     std::mt19937 gen(seed);
 
     //std::unordered_map<int, double> umap;
-    ht<int, double, empty_key<int, 0>> mh;
-    hash_array<int, double, empty_key<int, 0>> mha;
+    ht<int, double, empty_key<int, 0>> mh, mh2;
+    hash_array<int, double, empty_key<int, 0>> mha, mha2;
 
     boost::multi_index_container<
       std::pair<int, double>,
@@ -48,12 +48,30 @@ void benchmark(long unsigned seed)
         >,
         sequenced<>
       >
-    > mic_hs;
+    > mic_hs, mic_hs2;
 
-    google::dense_hash_map<int, double> gd;
+    google::dense_hash_map<int, double> gd, gd2;
     gd.set_empty_key(0);
+    gd2.set_empty_key(0);
 
     std::uniform_int_distribution<> rng(1, 1e9);
+
+    {
+        //gen.seed(seed);
+        //benchmark([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
+
+        gen.seed(seed);
+        benchmark([&]() { mh2.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
+
+        gen.seed(seed);
+        benchmark([&]() { mha2.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
+
+        gen.seed(seed);
+        benchmark([&]() { mic_hs2.insert(std::make_pair(rng(gen), 222.0)); }, "mic insert");
+
+        gen.seed(seed);
+        benchmark([&]() { gd2.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
+    }
 
     {
         //gen.seed(seed);
