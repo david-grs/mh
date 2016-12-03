@@ -54,7 +54,7 @@ void benchmark_ha(long unsigned seed)
 #endif
     {
         gen.seed(seed);
-        bench()([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
+        bench()([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
 
         gen.seed(seed);
         bench()([&]() { mha.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
