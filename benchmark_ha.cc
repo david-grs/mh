@@ -52,6 +52,7 @@ void benchmark_ha(long unsigned seed)
         bench_stats()([&]() { mic_hs2.insert(std::make_pair(rng(gen), 222.0)); }, "mic insert");
     }
 #endif
+
     {
         gen.seed(seed);
         bench()([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
