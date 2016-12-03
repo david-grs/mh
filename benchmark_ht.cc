@@ -12,7 +12,6 @@ void benchmark_ht(long unsigned seed)
     std::cout << "hash_table benchmark\n";
     std::cout << "============================" << std::endl;
 
-    geiger::init();
     mem_timer::clear();
 
     std::mt19937 gen(seed);

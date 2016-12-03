@@ -10,6 +10,8 @@ double mem_timer::_elapsed_time = {};
 
 int main(int argc, char** argv)
 {
+    geiger::init();
+
     if (argc == 2)
     {
         long unsigned seed = std::atoll(argv[1]);

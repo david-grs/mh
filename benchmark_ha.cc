@@ -22,7 +22,6 @@ void benchmark_ha(long unsigned seed)
     std::cout << "hash_array benchmark\n";
     std::cout << "============================" << std::endl;
 
-    geiger::init();
     mem_timer::clear();
 
     std::mt19937 gen(seed);
