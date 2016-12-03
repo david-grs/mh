@@ -13,7 +13,7 @@ int main(int argc, char** argv)
         std::cout << "seed = " << seed << std::endl;
 
         probes(seed);
-        benchmark(seed);
+        benchmark_ht(seed);
     }
     else
     {
@@ -22,7 +22,7 @@ int main(int argc, char** argv)
         std::cout << "seed = " << seed << std::endl;
 
         probes(seed);
-        benchmark(seed);
+        benchmark_ht(seed);
     }
 
     return 0;

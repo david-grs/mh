@@ -1,12 +1,9 @@
 #include "benchmark.h"
+
 #include "ht.h"
 #include "mic.h"
-#include "stats.h"
-
-#include <geiger/chrono.h>
 
 #include <google/dense_hash_map>
-
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/member.hpp>
@@ -18,56 +15,12 @@
 #include <boost/multi_index/random_access_index.hpp>
 
 #include <random>
-#include <chrono>
 #include <unordered_map>
-#include <array>
 
 using namespace boost::multi_index;
 
-struct bench
-{
-    template <typename Callable>
-    void operator()(Callable operation, const char* desc)
-    {
-        static const int Iterations = 3e6;
 
-        auto start = std::chrono::steady_clock::now();
-        for (int i = 0; i < Iterations; ++i)
-            operation();
-        auto end = std::chrono::steady_clock::now();
-
-        std::cout << desc << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
-    }
-};
-
-struct bench_stats
-{
-    template <typename Callable>
-    void operator()(Callable operation, const char* desc)
-    {
-        _ts.reserve(Iterations);
-
-        geiger::chrono chrono;
-        for (int i = 0; i < Iterations; ++i)
-        {
-            chrono.start();
-            operation();
-            _ts[i] = chrono.elapsed();
-            chrono.restart();
-        }
-
-        stats st;
-        for (int i = 0; i < Iterations; ++i)
-            st.add(_ts[i]);
-
-        std::cout << desc << ": " << st << std::endl;
-    }
-
-    static constexpr const int Iterations = 3000000;
-    std::vector<int64_t> _ts;
-};
-
-void benchmark(long unsigned seed)
+void benchmark_ht(long unsigned seed)
 {
     geiger::init();
 
