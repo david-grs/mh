@@ -57,7 +57,7 @@ void benchmark_ha(long unsigned seed)
         {
             mtrace<mem_timer> m;
             gen.seed(seed);
-            bench_stats()([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
+            bench()([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
 
             std::cout << mem_timer::elapsed_time().count() << "ns in memory operations" << std::endl;
         }
