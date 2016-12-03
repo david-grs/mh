@@ -12,7 +12,7 @@ int main(int argc, char** argv)
         long unsigned seed = std::atoll(argv[1]);
         std::cout << "seed = " << seed << std::endl;
 
-        probes(seed);
+        //probes(seed);
         benchmark_ht(seed);
     }
     else
@@ -21,7 +21,7 @@ int main(int argc, char** argv)
         long unsigned seed = rd();
         std::cout << "seed = " << seed << std::endl;
 
-        probes(seed);
+        //probes(seed);
         benchmark_ht(seed);
     }
 
