@@ -14,6 +14,7 @@ int main(int argc, char** argv)
 
         //probes(seed);
         benchmark_ht(seed);
+        benchmark_ha(seed);
     }
     else
     {
@@ -23,6 +24,7 @@ int main(int argc, char** argv)
 
         //probes(seed);
         benchmark_ht(seed);
+        benchmark_ha(seed);
     }
 
     return 0;

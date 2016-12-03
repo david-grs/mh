@@ -7,6 +7,7 @@
 #include <chrono>
 #include <vector>
 #include <iostream>
+#include <random>
 
 static constexpr const int Iterations = 3000000;
 
@@ -54,3 +55,4 @@ struct bench_stats
 
 
 void benchmark_ht(long unsigned seed);
+void benchmark_ha(long unsigned seed);

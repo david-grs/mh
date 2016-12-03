@@ -7,4 +7,4 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 include_directories(.)
 add_executable(mic mic.cc)
-add_executable(benchmark benchmark.cc stats.cc benchmark_ht.cc)
+add_executable(benchmark benchmark.cc stats.cc benchmark_ht.cc benchmark_ha.cc)
