@@ -46,7 +46,7 @@ struct bench_stats
     void operator()(Callable operation, const char* desc)
     {
         _ts.reserve(Iterations);
-        
+
         geiger::chrono chrono;
         for (int i = 0; i < Iterations; ++i)
         {
@@ -73,7 +73,7 @@ void benchmark(long unsigned seed)
 
     std::mt19937 gen(seed);
 
-    //std::unordered_map<int, double> umap;
+    std::unordered_map<int, double> umap, umap2;
     ht<int, double, empty_key<int, 0>> mh, mh2;
     hash_array<int, double, empty_key<int, 0>> mha, mha2;
 
@@ -102,10 +102,11 @@ void benchmark(long unsigned seed)
     std::cout << "mha2 = " << (void*)mha2._hashtable._table.get() << std::endl;
     std::cout << "mha2 = " << (void*)mha2._sequence.data() << std::endl;
 #endif
+
 //TODO see why mha outputs diff results with/without mha/mha2
     {
         //gen.seed(seed);
-        //bench()([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
+        //bench_stats()([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
 
         gen.seed(seed);
         bench_stats()([&]() { mh2.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
