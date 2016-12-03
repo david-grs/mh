@@ -46,20 +46,9 @@ void benchmark_ht(long unsigned seed)
 
     std::uniform_int_distribution<> rng(1, 1e9);
 
-#if 0
-    std::cout << "mh = " << (void*)mh._table.get() << std::endl;
-    std::cout << "mha = " << (void*)mha._hashtable._table.get() << std::endl;
-    std::cout << "mha = " << (void*)mha._sequence.data() << std::endl;
-
-    std::cout << "mh2 = " << (void*)mh2._table.get() << std::endl;
-    std::cout << "mha2 = " << (void*)mha2._hashtable._table.get() << std::endl;
-    std::cout << "mha2 = " << (void*)mha2._sequence.data() << std::endl;
-#endif
-
-//TODO see why mha outputs diff results with/without mha/mha2
     {
-        //gen.seed(seed);
-        //bench_stats()([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
+        gen.seed(seed);
+        bench_stats()([&]() { umap2.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
 
         gen.seed(seed);
         bench_stats()([&]() { mh2.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
@@ -75,8 +64,8 @@ void benchmark_ht(long unsigned seed)
     }
 
     {
-        //gen.seed(seed);
-        //bench()([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
+        gen.seed(seed);
+        bench()([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
 
         gen.seed(seed);
         bench()([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
@@ -90,25 +79,6 @@ void benchmark_ht(long unsigned seed)
         gen.seed(seed);
         bench()([&]() { gd.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
     }
-
-#if 0
-    {
-        //gen.seed(seed);
-        //bench()([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
-
-        gen.seed(seed);
-        bench()([&]() { mh2.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
-
-        gen.seed(seed);
-        bench()([&]() { mha2.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
-
-        gen.seed(seed);
-        bench()([&]() { mic_hs2.insert(std::make_pair(rng(gen), 222.0)); }, "mic insert");
-
-        gen.seed(seed);
-        bench()([&]() { gd2.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
-    }
-#endif
 
     volatile int i = 0;
 
