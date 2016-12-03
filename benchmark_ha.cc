@@ -23,6 +23,7 @@ void benchmark_ha(long unsigned seed)
     std::cout << "============================" << std::endl;
 
     geiger::init();
+    mem_timer::clear();
 
     std::mt19937 gen(seed);
 
@@ -54,8 +55,13 @@ void benchmark_ha(long unsigned seed)
 #endif
 
     {
-        gen.seed(seed);
-        bench()([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
+        {
+            mtrace<mem_timer> m;
+            gen.seed(seed);
+            bench_stats()([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
+
+            std::cout << mem_timer::elapsed_time().count() << "ns in memory operations" << std::endl;
+        }
 
         gen.seed(seed);
         bench()([&]() { mha.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");

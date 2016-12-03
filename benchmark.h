@@ -3,6 +3,7 @@
 #include "stats.h"
 
 #include <geiger/chrono.h>
+#include <mtrace>
 
 #include <chrono>
 #include <vector>
@@ -53,6 +54,49 @@ struct bench_stats
     std::vector<int64_t> _ts;
 };
 
+struct mem_timer
+{
+    static void pre_malloc(size_t)
+    {
+        _chrono.start();
+    }
+
+    static void post_malloc(size_t, const void*)
+    {
+        _elapsed_time += _chrono.elapsed();
+    }
+
+    static void pre_free(const void*)
+    {
+        _chrono.start();
+    }
+
+    static void post_free(const void*)
+    {
+        _elapsed_time += _chrono.elapsed();
+    }
+
+    static void pre_realloc(const void*, size_t)
+    {
+        _chrono.start();
+    }
+
+    static void post_realloc(const void*, size_t, const void*)
+    {
+        _elapsed_time += _chrono.elapsed();
+    }
+
+    static std::chrono::nanoseconds elapsed_time()
+    {
+        return geiger::chrono::from_cycles(_elapsed_time);
+    }
+
+    static void clear() { _elapsed_time = {}; }
+
+private:
+    static geiger::chrono _chrono;
+    static double _elapsed_time;
+};
 
 void benchmark_ht(long unsigned seed);
 void benchmark_ha(long unsigned seed);

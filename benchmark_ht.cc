@@ -13,6 +13,7 @@ void benchmark_ht(long unsigned seed)
     std::cout << "============================" << std::endl;
 
     geiger::init();
+    mem_timer::clear();
 
     std::mt19937 gen(seed);
 
@@ -40,8 +41,13 @@ void benchmark_ht(long unsigned seed)
         gen.seed(seed);
         bench()([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
 
-        gen.seed(seed);
-        bench()([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
+        {
+            mtrace<mem_timer> m;
+            gen.seed(seed);
+            bench_stats()([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
+
+            std::cout << mem_timer::elapsed_time().count() << "ns in memory operations" << std::endl;
+        }
 
         gen.seed(seed);
         bench()([&]() { gd.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");

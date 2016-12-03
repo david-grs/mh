@@ -5,6 +5,9 @@
 #include <random>
 #include <iostream>
 
+geiger::chrono mem_timer::_chrono = {};
+double mem_timer::_elapsed_time = {};
+
 int main(int argc, char** argv)
 {
     if (argc == 2)
