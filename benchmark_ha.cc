@@ -59,7 +59,9 @@ void benchmark_ha(long unsigned seed)
             gen.seed(seed);
             bench()([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
 
-            std::cout << mem_timer::elapsed_time().count() << "ns in memory operations" << std::endl;
+            std::cout << std::chrono::duration_cast<std::chrono::microseconds>(mem_timer::elapsed_time_malloc()).count() << "us in malloc()" << std::endl;
+            std::cout << std::chrono::duration_cast<std::chrono::microseconds>(mem_timer::elapsed_time_free()).count() << "us in free()" << std::endl;
+            std::cout << std::chrono::duration_cast<std::chrono::microseconds>(mem_timer::elapsed_time_realloc()).count() << "us in realloc()" << std::endl;
         }
 
         gen.seed(seed);

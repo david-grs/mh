@@ -6,7 +6,9 @@
 #include <iostream>
 
 geiger::chrono mem_timer::_chrono = {};
-double mem_timer::_elapsed_time = {};
+double mem_timer::_elapsed_time_malloc = {};
+double mem_timer::_elapsed_time_free = {};
+double mem_timer::_elapsed_time_realloc = {};
 
 int main(int argc, char** argv)
 {
