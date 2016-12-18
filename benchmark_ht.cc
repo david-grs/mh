@@ -23,6 +23,7 @@ void benchmark_ht(long unsigned seed)
 
     std::uniform_int_distribution<> rng(1, 1e9);
 
+#if 0
     {
         gen.seed(seed);
         bench_stats()([&]() { umap2.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
@@ -33,6 +34,7 @@ void benchmark_ht(long unsigned seed)
         gen.seed(seed);
         bench_stats()([&]() { gd2.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
     }
+#endif
 
     {
         gen.seed(seed);
