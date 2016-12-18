@@ -14,25 +14,12 @@ int main(int argc, char** argv)
 {
     geiger::init();
 
-    if (argc == 2)
-    {
-        long unsigned seed = std::atoll(argv[1]);
-        std::cout << "seed = " << seed << std::endl;
+    long unsigned seed = argc == 2 ? std::atoll(argv[1]) : std::random_device()();
+    std::cout << "seed = " << seed << std::endl;
 
-        //probes(seed);
-        benchmark_ht(seed);
-        benchmark_ha(seed);
-    }
-    else
-    {
-        std::random_device rd;
-        long unsigned seed = rd();
-        std::cout << "seed = " << seed << std::endl;
-
-        //probes(seed);
-        benchmark_ht(seed);
-        benchmark_ha(seed);
-    }
+    //probes(seed);
+    benchmark_ht(seed);
+    benchmark_ha(seed);
 
     return 0;
 }
