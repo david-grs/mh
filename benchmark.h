@@ -2,13 +2,12 @@
 
 #include "stats.h"
 
-#include <geiger/chrono.h>
-#include <mtrace>
-
 #include <chrono>
 #include <vector>
 #include <iostream>
 #include <random>
+
+#include <geiger/chrono.h>
 
 static constexpr const int Iterations = 3000000;
 
@@ -52,69 +51,6 @@ struct bench_stats
     }
 
     std::vector<int64_t> _ts;
-};
-
-struct mem_timer
-{
-    static void pre_malloc(size_t)
-    {
-        _chrono.start();
-    }
-
-    static void post_malloc(size_t, const void*)
-    {
-        _elapsed_time_malloc += _chrono.elapsed();
-    }
-
-    static void pre_free(const void*)
-    {
-        _chrono.start();
-    }
-
-    static void post_free(const void*)
-    {
-        _elapsed_time_free += _chrono.elapsed();
-    }
-
-    static void pre_realloc(const void*, size_t)
-    {
-        _chrono.start();
-    }
-
-    static void post_realloc(const void*, size_t, const void*)
-    {
-        _elapsed_time_realloc += _chrono.elapsed();
-    }
-
-    static std::chrono::nanoseconds elapsed_time_malloc()
-    {
-        return geiger::chrono::from_cycles(_elapsed_time_malloc);
-    }
-
-
-    static std::chrono::nanoseconds elapsed_time_free()
-    {
-        return geiger::chrono::from_cycles(_elapsed_time_free);
-    }
-
-
-    static std::chrono::nanoseconds elapsed_time_realloc()
-    {
-        return geiger::chrono::from_cycles(_elapsed_time_realloc);
-    }
-
-    static void clear()
-    {
-        _elapsed_time_malloc = {};
-        _elapsed_time_free = {};
-        _elapsed_time_realloc = {};
-    }
-
-private:
-    static geiger::chrono _chrono;
-    static double _elapsed_time_malloc;
-    static double _elapsed_time_free;
-    static double _elapsed_time_realloc;
 };
 
 void benchmark_ht(long unsigned seed);

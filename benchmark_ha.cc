@@ -22,8 +22,6 @@ void benchmark_ha(long unsigned seed)
     std::cout << "hash_array benchmark\n";
     std::cout << "============================" << std::endl;
 
-    mem_timer::clear();
-
     std::mt19937 gen(seed);
 
     ht<int, double, empty_key<int, 0>> mh, mh2;
@@ -54,15 +52,9 @@ void benchmark_ha(long unsigned seed)
 #endif
 
     {
-        {
-            mtrace<mem_timer> m;
-            gen.seed(seed);
-            bench()([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
+        gen.seed(seed);
+        bench()([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
 
-            std::cout << std::chrono::duration_cast<std::chrono::microseconds>(mem_timer::elapsed_time_malloc()).count() << "us in malloc()" << std::endl;
-            std::cout << std::chrono::duration_cast<std::chrono::microseconds>(mem_timer::elapsed_time_free()).count() << "us in free()" << std::endl;
-            std::cout << std::chrono::duration_cast<std::chrono::microseconds>(mem_timer::elapsed_time_realloc()).count() << "us in realloc()" << std::endl;
-        }
 
         gen.seed(seed);
         bench()([&]() { mha.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
