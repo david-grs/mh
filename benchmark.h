@@ -42,12 +42,14 @@ struct bench_stats
             _ts[i] = chrono.elapsed();
             chrono.restart();
         }
-
+#if 0
         stats st;
         for (int i = 0; i < Iterations; ++i)
             st.add(_ts[i]);
 
         std::cout << desc << ": " << st << std::endl;
+#endif
+        
     }
 
     std::vector<int64_t> _ts;

@@ -1,5 +1,7 @@
 #include "stats.h"
 
+#include <algorithm>
+
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/median.hpp>
@@ -10,19 +12,36 @@
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/statistics/extended_p_square_quantile.hpp>
 
-namespace impl
-{
+namespace stats { namespace detail {
 
 namespace acc = boost::accumulators;
 
-struct stats
+struct lazy_acc
 {
-    stats() :
-      _acc(acc::extended_p_square_probabilities = ::stats::percentiles)
-    {}
+    void add(double d) { _points.push_back(d); }
 
-    void add(double d) { _acc(d); }
+    samples process()
+    {
+        using Acc = acc::accumulator_set<double,
+                                        acc::stats<acc::tag::median,
+                                                    acc::tag::mean,
+                                                    acc::tag::min,
+                                                    acc::tag::max,
+                                                    acc::tag::count,
+                                                    acc::tag::variance,
+                                                    acc::tag::extended_p_square_quantile>>;
 
+        Acc acc(acc::extended_p_square_probabilities = samples::percentiles);
+        std::for_each(std::cbegin(_points), std::cend(_points), acc);
+
+        return {};
+    }
+
+    void reserve(std::size_t n)
+    {
+        _points.reserve(n);
+    }
+#if 0
     double percentile(double p)  { return acc::quantile(_acc, acc::quantile_probability = p); }
     double median() const { return acc::median(_acc); }
     double mean() const { return acc::mean(_acc); }
@@ -30,49 +49,26 @@ struct stats
     double max() const { return acc::max(_acc); }
     double stddev() const { return std::sqrt(acc::variance(_acc)); }
     std::size_t count() const { return acc::count(_acc); }
+#endif
 
 private:
-    using Acc = acc::accumulator_set<double,
-                                     acc::stats<acc::tag::median,
-                                                acc::tag::mean,
-                                                acc::tag::min,
-                                                acc::tag::max,
-                                                acc::tag::count,
-                                                acc::tag::variance,
-                                                acc::tag::extended_p_square_quantile>>;
-    Acc _acc;
+    std::vector<double> _points;
 };
 
-
-inline std::ostream& operator<<(std::ostream& oss, stats& s)
-{
-    oss << "count: " << s.count() << " stddev: " << s.stddev() << " - min: " << s.min() << " - ";
-    for (double d : ::stats::percentiles)
-        oss << d << "%: " << s.percentile(d) << " - ";
-    return oss << "max: " << s.max();
 }
 
-}
+constexpr const std::array<double, 24> samples::percentiles;
 
-constexpr const std::array<double, 24> stats::percentiles;
-
-stats::stats() :
-  _stats(std::make_unique<impl::stats>())
+lazy_acc::lazy_acc() :
+  _acc(std::make_unique<detail::lazy_acc>())
 {}
 
-stats::~stats()
+lazy_acc::~lazy_acc()
 {}
 
-void stats::add(double d) { _stats->add(d); }
-double stats::percentile(double p) const { return _stats->percentile(p); }
-double stats::median() const { return _stats->median(); }
-double stats::mean() const { return _stats->mean(); }
-double stats::min() const { return _stats->min(); }
-double stats::max() const  { return _stats->max(); }
-double stats::stddev() const  { return _stats->stddev(); }
-std::size_t stats::count() const  { return _stats->count(); }
+void lazy_acc::add(double d) { _acc->add(d); }
+void lazy_acc::reserve(std::size_t n) { _acc->reserve(n); }
+samples lazy_acc::process() { return _acc->process(); }
 
-std::ostream& operator<<(std::ostream& oss, stats& s)
-{
-    return oss << *s._stats;
 }
+
