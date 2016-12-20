@@ -18,7 +18,7 @@ namespace acc = boost::accumulators;
 struct stats
 {
     stats() :
-      _acc(acc::extended_p_square_probabilities = percentiles)
+      _acc(acc::extended_p_square_probabilities = ::stats::percentiles)
     {}
 
     void add(double d) { _acc(d); }
@@ -30,9 +30,6 @@ struct stats
     double max() const { return acc::max(_acc); }
     double stddev() const { return std::sqrt(acc::variance(_acc)); }
     std::size_t count() const { return acc::count(_acc); }
-
-    static constexpr const std::array<double, 24> percentiles = {{0.001, 0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.5,
-                                                                   0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 0.99, 0.999}};
 
 private:
     using Acc = acc::accumulator_set<double,
@@ -46,17 +43,18 @@ private:
     Acc _acc;
 };
 
-constexpr const std::array<double, 24> stats::percentiles;
 
-}
-
-inline std::ostream& operator<<(std::ostream& oss, impl::stats& s)
+inline std::ostream& operator<<(std::ostream& oss, stats& s)
 {
     oss << "count: " << s.count() << " stddev: " << s.stddev() << " - min: " << s.min() << " - ";
-    for (double d : impl::stats::percentiles)
+    for (double d : ::stats::percentiles)
         oss << d << "%: " << s.percentile(d) << " - ";
     return oss << "max: " << s.max();
 }
+
+}
+
+constexpr const std::array<double, 24> stats::percentiles;
 
 stats::stats() :
   _stats(std::make_unique<impl::stats>())
