@@ -17,6 +17,7 @@ struct stats
 
     double percentile(double p) const;
     double median() const;
+    double mean() const;
     double min() const;
     double max() const;
     double stddev() const;
