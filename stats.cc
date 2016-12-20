@@ -14,42 +14,33 @@
 
 namespace stats { namespace detail {
 
-namespace acc = boost::accumulators;
-
 struct lazy_acc
 {
     void add(double d) { _points.push_back(d); }
 
     samples process()
     {
+        namespace acc = boost::accumulators;
         using Acc = acc::accumulator_set<double,
                                         acc::stats<acc::tag::median,
-                                                    acc::tag::mean,
-                                                    acc::tag::min,
-                                                    acc::tag::max,
-                                                    acc::tag::count,
-                                                    acc::tag::variance,
-                                                    acc::tag::extended_p_square_quantile>>;
+                                                   acc::tag::mean,
+                                                   acc::tag::min,
+                                                   acc::tag::max,
+                                                   acc::tag::count,
+                                                   acc::tag::variance,
+                                                   acc::tag::extended_p_square_quantile>>;
 
-        Acc acc(acc::extended_p_square_probabilities = samples::percentiles);
-        std::for_each(std::cbegin(_points), std::cend(_points), acc);
+        Acc accum(acc::extended_p_square_probabilities = samples::percentiles);
+        std::for_each(std::cbegin(_points), std::cend(_points), accum);
 
-        return {};
+        return {count_t(acc::count(accum)), min_t(acc::min(accum)), max_t(acc::max(accum)),
+                median_t(acc::median(accum)), mean_t(acc::mean(accum)), stddev_t(std::sqrt(acc::variance(accum)))};
     }
 
     void reserve(std::size_t n)
     {
         _points.reserve(n);
     }
-#if 0
-    double percentile(double p)  { return acc::quantile(_acc, acc::quantile_probability = p); }
-    double median() const { return acc::median(_acc); }
-    double mean() const { return acc::mean(_acc); }
-    double min() const { return acc::min(_acc); }
-    double max() const { return acc::max(_acc); }
-    double stddev() const { return std::sqrt(acc::variance(_acc)); }
-    std::size_t count() const { return acc::count(_acc); }
-#endif
 
 private:
     std::vector<double> _points;
