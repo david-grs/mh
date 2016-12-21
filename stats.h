@@ -4,6 +4,7 @@
 #include <array>
 #include <cstddef>
 #include <sstream>
+#include <vector>
 
 #include <boost/serialization/strong_typedef.hpp>
 
@@ -21,12 +22,13 @@ BOOST_STRONG_TYPEDEF(int, max_t);
 BOOST_STRONG_TYPEDEF(int, median_t);
 BOOST_STRONG_TYPEDEF(int, mean_t);
 BOOST_STRONG_TYPEDEF(int, stddev_t);
+BOOST_STRONG_TYPEDEF(double, quantile_t);
 
 struct samples
 {
-    samples(count_t count, min_t min, max_t max, median_t median, mean_t mean, stddev_t stddev) :
-     _count(count), _min(min), _max(max), _median(median), _mean(mean), _stddev(stddev)
-     {}
+    samples(count_t count, min_t min, max_t max, median_t median, mean_t mean, stddev_t stddev, std::initializer_list<quantile_t>&& quantiles) :
+     _count(count), _min(min), _max(max), _median(median), _mean(mean), _stddev(stddev), _quantiles(quantiles)
+    {}
 
     double percentile(double p) const;
     double median() const;
@@ -49,6 +51,7 @@ private:
     median_t _median;
     mean_t _mean;
     stddev_t _stddev;
+    std::vector<quantile_t> _quantiles;
 };
 
 
