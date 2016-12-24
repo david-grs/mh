@@ -1,6 +1,7 @@
 #include "stats.h"
 #include "benchmark.h"
 #include "probes.h"
+#include "tsc_chrono.h"
 
 #include <random>
 #include <iostream>
@@ -13,7 +14,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    geiger::init();
+    tsc_chrono::init();
 
     long unsigned seed = argc == 3 ? std::atoll(argv[2]) : std::random_device()();
     std::cout << "seed = " << seed << std::endl;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "tsc_chrono.h"
 #include "stats.h"
 
 #include <chrono>
@@ -7,52 +8,32 @@
 #include <iostream>
 #include <random>
 
-#include <geiger/chrono.h>
-
 static constexpr const int Iterations = 3000000;
 
 struct bench
 {
-    template <typename Callable>
-    void operator()(Callable operation, const char* desc)
-    {
-        auto start = std::chrono::steady_clock::now();
-        for (int i = 0; i < Iterations; ++i)
-            operation();
-        auto end = std::chrono::steady_clock::now();
-
-        std::cout << desc << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
-    }
-};
-
-struct bench_stats
-{
-    bench_stats() :
-      _ts(Iterations)
+    bench(std::size_t iterations) :
+      _acc(iterations)
     {}
 
     template <typename Callable>
     void operator()(Callable operation, const char* desc)
     {
-        geiger::chrono chrono;
+        auto start = std::chrono::steady_clock::now();
+
+        tsc_chrono chrono;
+        chrono.start();
+
         for (int i = 0; i < Iterations; ++i)
         {
-            chrono.start();
             operation();
-            _ts[i] = chrono.elapsed();
-            chrono.restart();
+            _acc.add(chrono.elapsed_and_restart());
         }
-#if 0
-        stats st;
-        for (int i = 0; i < Iterations; ++i)
-            st.add(_ts[i]);
-
-        std::cout << desc << ": " << st << std::endl;
-#endif
-        
+        auto end = std::chrono::steady_clock::now();
     }
 
-    std::vector<int64_t> _ts;
+private:
+    lazy_acc _acc;
 };
 
 void benchmark_ht(long unsigned seed);
