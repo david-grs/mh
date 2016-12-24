@@ -18,9 +18,6 @@ constexpr auto make_array(T t, Ts... ts)
     return std::array<T, sizeof...(Ts) + 1>{t, ts...};
 }
 
-namespace acc
-{
-
 static constexpr auto quantiles =
     make_array(0.001, 0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.5,
                0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 0.99, 0.999);
@@ -57,6 +54,4 @@ stats lazy_acc::process()
     std::for_each(std::cbegin(_samples), std::cend(_samples), accum);
 
     return get_stats(accum, quantiles, std::make_index_sequence<quantiles.size()>());
-}
-
 }

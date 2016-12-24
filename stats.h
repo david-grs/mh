@@ -10,14 +10,6 @@
 #include <sstream>
 #include <vector>
 
-namespace acc
-{
-
-namespace detail
-{
-struct lazy_acc;
-}
-
 BOOST_STRONG_TYPEDEF(int, count_t);
 BOOST_STRONG_TYPEDEF(int, min_t);
 BOOST_STRONG_TYPEDEF(int, max_t);
@@ -76,5 +68,3 @@ private:
     std::vector<double> _samples;
     std::size_t _size;
 };
-
-}
