@@ -78,6 +78,14 @@ struct tsc_chrono
         return detail::rdtsc() - m_start;
     }
 
+    int64_t elapsed_and_restart()
+    {
+        uint64_t now = detail::rdtsc();
+        int64_t ts = now - m_start;
+        m_start = now;
+        return ts;
+    }
+
     std::chrono::nanoseconds elapsed_time() const
     {
         const int64_t cycles = detail::rdtsc() - m_start;
