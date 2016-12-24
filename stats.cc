@@ -26,8 +26,15 @@ static constexpr auto quantiles =
 
 struct lazy_acc
 {
-    void add(double d)          { _points.push_back(d); }
-    void reserve(std::size_t n) { _points.reserve(n); }
+    lazy_acc(std::size_t reserve)
+     : _points(reserve, .0),
+       _size(0)
+    {}
+
+    void add(double d)
+    {
+        _points[_size++] = d;
+    }
 
     stats process()
     {
@@ -65,19 +72,19 @@ private:
     }
 
     std::vector<double> _points;
+    std::size_t _size;
 };
 
 }
 
-lazy_acc::lazy_acc() :
-  _acc(std::make_unique<detail::lazy_acc>())
+lazy_acc::lazy_acc(std::size_t reserve) :
+  _acc(std::make_unique<detail::lazy_acc>(reserve))
 {}
 
 lazy_acc::~lazy_acc()
 {}
 
 void lazy_acc::add(double d) { _acc->add(d); }
-void lazy_acc::reserve(std::size_t n) { _acc->reserve(n); }
 stats lazy_acc::process() { return _acc->process(); }
 
 }

@@ -53,10 +53,8 @@ inline std::ostream& operator<<(std::ostream& oss, stats& s)
 
 struct lazy_acc
 {
-    lazy_acc();
+    lazy_acc(std::size_t reserve);
     ~lazy_acc();
-
-    void reserve(std::size_t n);
 
     void add(double d);
     stats process();
