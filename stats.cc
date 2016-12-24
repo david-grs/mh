@@ -53,9 +53,15 @@ private:
     stats get_stats(AccumulatorT&& accum, QuantilesT&& quantiles, std::index_sequence<Is...>)
     {
         namespace boost_acc = boost::accumulators;
-        return {count_t(boost_acc::count(accum)), min_t(boost_acc::min(accum)), max_t(boost_acc::max(accum)),
-                median_t(boost_acc::median(accum)), mean_t(boost_acc::mean(accum)), stddev_t(std::sqrt(boost_acc::variance(accum))),
-                {quantile_t(boost_acc::quantile(accum, boost_acc::quantile_probability = quantiles[Is]))...}};
+        return {
+            count_t(boost_acc::count(accum)),
+            min_t(boost_acc::min(accum)),
+            max_t(boost_acc::max(accum)),
+            median_t(boost_acc::median(accum)),
+            mean_t(boost_acc::mean(accum)),
+            stddev_t(std::sqrt(boost_acc::variance(accum))),
+            {quantile_t(quantiles[Is], boost_acc::quantile(accum, boost_acc::quantile_probability = quantiles[Is]))...}
+        };
     }
 
     std::vector<double> _points;

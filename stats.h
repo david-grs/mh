@@ -24,13 +24,16 @@ BOOST_STRONG_TYPEDEF(int, max_t);
 BOOST_STRONG_TYPEDEF(int, median_t);
 BOOST_STRONG_TYPEDEF(int, mean_t);
 BOOST_STRONG_TYPEDEF(int, stddev_t);
-BOOST_STRONG_TYPEDEF(double, quantile_t);
-BOOST_STRONG_TYPEDEF(std::vector<quantile_t>, quantiles_t);
+BOOST_STRONG_TYPEDEF(double, quantile_prob_t);
+BOOST_STRONG_TYPEDEF(double, quantile_value_t);
+
+using quantile_t = std::pair<quantile_prob_t, quantile_value_t>;
+using quantiles_t = std::vector<quantile_t>;
 
 struct stats
 {
     stats(count_t count, min_t min, max_t max, median_t median, mean_t mean, stddev_t stddev, std::initializer_list<quantile_t>&& quantiles) :
-     _stats(count, min, max, median, mean, stddev, quantiles_t(quantiles))
+     _stats(count, min, max, median, mean, stddev, quantiles)
     {}
 
     template <typename T>
