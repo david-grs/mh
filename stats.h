@@ -29,26 +29,33 @@ BOOST_STRONG_TYPEDEF(double, quantile_value_t);
 
 using quantile_t = std::pair<quantile_prob_t, quantile_value_t>;
 using quantiles_t = std::vector<quantile_t>;
+using stats = typemap<count_t, min_t, max_t, median_t, mean_t, stddev_t, quantiles_t>;
 
-struct stats
+inline std::ostream& operator<<(std::ostream& os, quantiles_t& quantiles)
 {
-    stats(count_t count, min_t min, max_t max, median_t median, mean_t mean, stddev_t stddev, std::initializer_list<quantile_t>&& quantiles) :
-     _stats(count, min, max, median, mean, stddev, quantiles)
-    {}
+    for(const quantile_t& q : quantiles)
+        os << q.first << " " << q.second << " ";
+    return os;
+}
 
-    template <typename T>
-    const T& get() const { return _stats.get<T>(); }
-
-    friend std::ostream& operator<<(std::ostream& oss, stats& s);
-
-private:
-    typemap<count_t, min_t, max_t, median_t, mean_t, stddev_t, quantiles_t> _stats;
-};
-
-
-inline std::ostream& operator<<(std::ostream& oss, stats& s)
+inline std::istream& operator>>(std::istream& is, quantiles_t& quantiles)
 {
-    return oss;
+    double d1, d2;
+    while (is >> d1 >> d2)
+        quantiles.emplace_back(d1, d1);
+    return is;
+}
+
+inline std::ostream& operator<<(std::ostream& os, stats& s)
+{
+    s.for_each([&](auto x) { os << x << " "; });
+    return os;
+}
+
+inline std::istream& operator>>(std::istream& is, stats& s)
+{
+    s.for_each([&](auto& x) { is >> x; });
+    return is;
 }
 
 struct lazy_acc
