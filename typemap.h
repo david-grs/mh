@@ -31,7 +31,7 @@ private:
 
   template <std::size_t I, typename F>
   std::enable_if_t<I == sizeof...(Ts)>
-  for_each_arg(F&& f) {}
+  for_each_arg(F&&) {}
 
   template <typename T>
   static constexpr std::size_t get_index() { return index<std::tuple<Ts...>, T, 0>(); }
