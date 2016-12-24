@@ -24,8 +24,8 @@ void benchmark_ha(long unsigned seed)
 
     std::mt19937 gen(seed);
 
-    ht<int, double, empty_key<int, 0>> mh, mh2;
-    hash_array<int, double, empty_key<int, 0>> mha, mha2;
+    ht<int, double, empty_key<int, 0>> mh;
+    hash_array<int, double, empty_key<int, 0>> mha;
 
     boost::multi_index_container<
       std::pair<int, double>,
@@ -35,31 +35,22 @@ void benchmark_ha(long unsigned seed)
         >,
         sequenced<>
       >
-    > mic_hs, mic_hs2;
+    > mic_hs;
+
+    benchmark bench(Iterations);
 
     std::uniform_int_distribution<> rng(1, 1e9);
-#if 0
-    {
-        gen.seed(seed);
-        bench_stats()([&]() { mh2.insert(std::make_pair(rng(gen), 222.0)); }, "mh insert");
 
-        gen.seed(seed);
-        bench_stats()([&]() { mha2.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
-
-        gen.seed(seed);
-        bench_stats()([&]() { mic_hs2.insert(std::make_pair(rng(gen), 222.0)); }, "mic insert");
-    }
-#endif
 
     {
         gen.seed(seed);
-        bench()([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
+        bench([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
 
 
         gen.seed(seed);
-        bench()([&]() { mha.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
+        bench([&]() { mha.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
 
         gen.seed(seed);
-        bench()([&]() { mic_hs.insert(std::make_pair(rng(gen), 222.0)); }, "mic insert");
+        bench([&]() { mic_hs.insert(std::make_pair(rng(gen), 222.0)); }, "mic insert");
     }
 }

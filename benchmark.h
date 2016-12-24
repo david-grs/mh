@@ -10,9 +10,9 @@
 
 static constexpr const int Iterations = 3000000;
 
-struct bench
+struct benchmark
 {
-    bench(std::size_t iterations) :
+    benchmark(std::size_t iterations) :
       _acc(iterations)
     {}
 
@@ -30,6 +30,9 @@ struct bench
             _acc.add(chrono.elapsed_and_restart());
         }
         auto end = std::chrono::steady_clock::now();
+
+        stats s = _acc.process();
+        std::cout << desc << ": " << s << std::endl;
     }
 
 private:
