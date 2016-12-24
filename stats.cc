@@ -18,7 +18,7 @@ constexpr auto make_array(T t, Ts... ts)
     return std::array<T, sizeof...(Ts) + 1>{t, ts...};
 }
 
-namespace stats { namespace detail {
+namespace acc { namespace detail {
 
 static constexpr auto quantiles =
     make_array(0.001, 0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.5,
@@ -29,19 +29,20 @@ struct lazy_acc
     void add(double d)          { _points.push_back(d); }
     void reserve(std::size_t n) { _points.reserve(n); }
 
-    samples process()
+    stats process()
     {
-        namespace acc = boost::accumulators;
-        using Acc = acc::accumulator_set<double,
-                                        acc::stats<acc::tag::median,
-                                                   acc::tag::mean,
-                                                   acc::tag::min,
-                                                   acc::tag::max,
-                                                   acc::tag::count,
-                                                   acc::tag::variance,
-                                                   acc::tag::extended_p_square_quantile>>;
+        namespace boost_acc = boost::accumulators;
+        using Acc = boost_acc::accumulator_set<double,
+                                               boost_acc::stats<
+                                                 boost_acc::tag::median,
+                                                 boost_acc::tag::mean,
+                                                 boost_acc::tag::min,
+                                                 boost_acc::tag::max,
+                                                 boost_acc::tag::count,
+                                                 boost_acc::tag::variance,
+                                                 boost_acc::tag::extended_p_square_quantile>>;
 
-        Acc accum(acc::extended_p_square_probabilities = quantiles);
+        Acc accum(boost_acc::extended_p_square_probabilities = quantiles);
         std::for_each(std::cbegin(_points), std::cend(_points), accum);
 
         return get_stats(accum, quantiles, std::make_index_sequence<quantiles.size()>());
@@ -49,12 +50,12 @@ struct lazy_acc
 
 private:
     template <typename AccumulatorT, typename QuantilesT, std::size_t... Is>
-    samples get_stats(AccumulatorT&& accum, QuantilesT&& quantiles, std::index_sequence<Is...>)
+    stats get_stats(AccumulatorT&& accum, QuantilesT&& quantiles, std::index_sequence<Is...>)
     {
-        namespace acc = boost::accumulators;
-        return {count_t(acc::count(accum)), min_t(acc::min(accum)), max_t(acc::max(accum)),
-                median_t(acc::median(accum)), mean_t(acc::mean(accum)), stddev_t(std::sqrt(acc::variance(accum))),
-                {quantile_t(acc::quantile(accum, acc::quantile_probability = quantiles[Is]))...}};
+        namespace boost_acc = boost::accumulators;
+        return {count_t(boost_acc::count(accum)), min_t(boost_acc::min(accum)), max_t(boost_acc::max(accum)),
+                median_t(boost_acc::median(accum)), mean_t(boost_acc::mean(accum)), stddev_t(std::sqrt(boost_acc::variance(accum))),
+                {quantile_t(boost_acc::quantile(accum, boost_acc::quantile_probability = quantiles[Is]))...}};
     }
 
     std::vector<double> _points;
@@ -71,6 +72,6 @@ lazy_acc::~lazy_acc()
 
 void lazy_acc::add(double d) { _acc->add(d); }
 void lazy_acc::reserve(std::size_t n) { _acc->reserve(n); }
-samples lazy_acc::process() { return _acc->process(); }
+stats lazy_acc::process() { return _acc->process(); }
 
 }
