@@ -14,7 +14,6 @@ struct typemap
   template <typename T>
   void set(T&& t) { std::get<get_index<T>()>(_ts) = std::forward<T>(t); }
 
-
   template <typename F>
   void for_each(F&& f)
   {
