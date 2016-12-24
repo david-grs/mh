@@ -12,7 +12,17 @@
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/statistics/extended_p_square_quantile.hpp>
 
+template <typename T, typename... Ts>
+constexpr auto make_array(T t, Ts... ts)
+{
+    return std::array<T, sizeof...(Ts) + 1>{t, ts...};
+}
+
 namespace stats { namespace detail {
+
+static constexpr auto quantiles =
+    make_array(0.001, 0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.5,
+               0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 0.99, 0.999);
 
 struct lazy_acc
 {
@@ -35,10 +45,10 @@ struct lazy_acc
                                                    acc::tag::variance,
                                                    acc::tag::extended_p_square_quantile>>;
 
-        Acc accum(acc::extended_p_square_probabilities = samples::percentiles);
+        Acc accum(acc::extended_p_square_probabilities = quantiles);
         std::for_each(std::cbegin(_points), std::cend(_points), accum);
 
-        return get_samples(accum, samples::percentiles);
+        return get_samples(accum, quantiles);
     }
 
 private:
@@ -61,8 +71,6 @@ private:
 };
 
 }
-
-constexpr const std::array<double, 24> samples::percentiles;
 
 lazy_acc::lazy_acc() :
   _acc(std::make_unique<detail::lazy_acc>())
