@@ -26,12 +26,8 @@ static constexpr auto quantiles =
 
 struct lazy_acc
 {
-    void add(double d) { _points.push_back(d); }
-
-    void reserve(std::size_t n)
-    {
-        _points.reserve(n);
-    }
+    void add(double d)          { _points.push_back(d); }
+    void reserve(std::size_t n) { _points.reserve(n); }
 
     samples process()
     {
