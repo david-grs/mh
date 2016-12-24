@@ -1,12 +1,14 @@
 #pragma once
 
+#include "typemap.h"
+
+#include <boost/serialization/strong_typedef.hpp>
+
 #include <memory>
 #include <array>
 #include <cstddef>
 #include <sstream>
 #include <vector>
-
-#include <boost/serialization/strong_typedef.hpp>
 
 namespace stats
 {
@@ -23,20 +25,16 @@ BOOST_STRONG_TYPEDEF(int, median_t);
 BOOST_STRONG_TYPEDEF(int, mean_t);
 BOOST_STRONG_TYPEDEF(int, stddev_t);
 BOOST_STRONG_TYPEDEF(double, quantile_t);
+BOOST_STRONG_TYPEDEF(std::vector<quantile_t>, quantiles_t);
 
 struct samples
 {
     samples(count_t count, min_t min, max_t max, median_t median, mean_t mean, stddev_t stddev, std::initializer_list<quantile_t>&& quantiles) :
-     _count(count), _min(min), _max(max), _median(median), _mean(mean), _stddev(stddev), _quantiles(quantiles)
+     _stats(count, min, max, median, mean, stddev, quantiles_t(quantiles))
     {}
 
-    double percentile(double p) const;
-    double median() const;
-    double mean() const;
-    double min() const;
-    double max() const;
-    double stddev() const;
-    std::size_t count() const;
+    template <typename T>
+    const T& get() const { return _stats.get<T>(); }
 
     static constexpr const std::array<double, 24> percentiles =
         {{0.001, 0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.5,
@@ -45,22 +43,13 @@ struct samples
     friend std::ostream& operator<<(std::ostream& oss, samples& s);
 
 private:
-    count_t _count;
-    min_t _min;
-    max_t _max;
-    median_t _median;
-    mean_t _mean;
-    stddev_t _stddev;
-    std::vector<quantile_t> _quantiles;
+    typemap<count_t, min_t, max_t, median_t, mean_t, stddev_t, quantiles_t> _stats;
 };
 
 
 inline std::ostream& operator<<(std::ostream& oss, samples& s)
 {
-    oss << "count: " << s.count() << " stddev: " << s.stddev() << " - min: " << s.min() << " - ";
-    for (double d : samples::percentiles)
-        oss << d << "%: " << s.percentile(d) << " - ";
-    return oss << "max: " << s.max();
+    return oss;
 }
 
 struct lazy_acc
