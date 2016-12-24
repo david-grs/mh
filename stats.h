@@ -53,14 +53,21 @@ inline std::ostream& operator<<(std::ostream& oss, stats& s)
 
 struct lazy_acc
 {
-    lazy_acc(std::size_t reserve);
-    ~lazy_acc();
+    lazy_acc(std::size_t reserve) :
+      _samples(reserve, -1.0),
+      _size(0)
+    {}
 
-    void add(double d);
+    void add(double d)
+    {
+        _samples[_size++] = d;
+    }
+
     stats process();
 
 private:
-    std::unique_ptr<detail::lazy_acc> _acc;
+    std::vector<double> _samples;
+    std::size_t _size;
 };
 
 }
