@@ -48,23 +48,17 @@ struct lazy_acc
         Acc accum(acc::extended_p_square_probabilities = quantiles);
         std::for_each(std::cbegin(_points), std::cend(_points), accum);
 
-        return get_samples(accum, quantiles);
+        return get_stats(accum, quantiles, std::make_index_sequence<quantiles.size()>());
     }
 
 private:
-    template <typename AccumulatorT, typename PercentilesT, std::size_t... Is>
-    samples get_samples(AccumulatorT&& accum, PercentilesT&& percentiles, std::index_sequence<Is...>)
+    template <typename AccumulatorT, typename QuantilesT, std::size_t... Is>
+    samples get_stats(AccumulatorT&& accum, QuantilesT&& quantiles, std::index_sequence<Is...>)
     {
         namespace acc = boost::accumulators;
         return {count_t(acc::count(accum)), min_t(acc::min(accum)), max_t(acc::max(accum)),
                 median_t(acc::median(accum)), mean_t(acc::mean(accum)), stddev_t(std::sqrt(acc::variance(accum))),
-                {quantile_t(acc::quantile(accum, acc::quantile_probability = percentiles[Is]))...}};
-    }
-
-    template <typename AccumulatorT, std::size_t N>
-    samples get_samples(AccumulatorT&& accum, const std::array<double, N>& percentiles)
-    {
-        return get_samples(std::forward<AccumulatorT>(accum), percentiles, std::make_index_sequence<N>());
+                {quantile_t(acc::quantile(accum, acc::quantile_probability = quantiles[Is]))...}};
     }
 
     std::vector<double> _points;
