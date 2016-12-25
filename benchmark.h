@@ -26,7 +26,7 @@ struct benchmark
         tsc_chrono chrono;
         chrono.start();
 
-        for (int i = 0; i < _iterations; ++i)
+        for (int i = 0; i < (int)_iterations; ++i)
         {
             operation();
             _acc.add(chrono.elapsed_and_restart());
