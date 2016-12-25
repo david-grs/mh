@@ -62,6 +62,11 @@ struct lazy_acc
         _samples[_size++] = d;
     }
 
+    void clear()
+    {
+        _size = 0;
+    }
+
     stats process();
 
 private:

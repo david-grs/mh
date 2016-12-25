@@ -33,6 +33,7 @@ struct benchmark
 
         stats s = _acc.process();
         std::cout << desc << ": " << s << std::endl;
+        _acc.clear();
     }
 
 private:
