@@ -2,6 +2,7 @@
 
 #include <tuple>
 #include <type_traits>
+#include <sstream>
 
 template <typename... Ts>
 struct typemap
