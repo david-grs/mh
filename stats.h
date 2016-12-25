@@ -53,13 +53,13 @@ inline std::istream& operator>>(std::istream& is, stats& s)
 struct lazy_acc
 {
     lazy_acc(std::size_t reserve) :
-      _samples(reserve, -1.0),
+      _samples(reserve, -1),
       _size(0)
     {}
 
-    void add(double d)
+    void add(int64_t x)
     {
-        _samples[_size++] = d;
+        _samples[_size++] = x;
     }
 
     void clear()
@@ -70,6 +70,6 @@ struct lazy_acc
     stats process();
 
 private:
-    std::vector<double> _samples;
+    std::vector<int64_t> _samples;
     std::size_t _size;
 };
