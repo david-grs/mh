@@ -6,6 +6,7 @@
 #include <chrono>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 #include <random>
 
 static constexpr const int Iterations = 3000000;
@@ -30,6 +31,10 @@ struct benchmark
             _acc.add(chrono.elapsed_and_restart());
         }
         auto end = std::chrono::steady_clock::now();
+
+        // from TSC to nanoseconds
+        auto& data = _acc.data();
+        std::transform(std::begin(data), std::end(data), std::begin(data), [&](int64_t cycles) { return tsc_chrono::from_cycles(cycles).count(); });
 
         stats s = _acc.process();
         std::cout << desc << ": " << s << std::endl;

@@ -6,9 +6,11 @@
 
 #include <memory>
 #include <array>
-#include <cstddef>
 #include <sstream>
 #include <vector>
+
+#include <cstddef>
+#include <cassert>
 
 BOOST_STRONG_TYPEDEF(int, count_t);
 BOOST_STRONG_TYPEDEF(int, min_t);
@@ -59,13 +61,12 @@ struct lazy_acc
 
     void add(int64_t x)
     {
+        assert(_size < _samples.size());
         _samples[_size++] = x;
     }
 
-    void clear()
-    {
-        _size = 0;
-    }
+    void clear() { _size = 0; }
+    std::vector<int64_t>& data() { return _samples; }
 
     stats process();
 
