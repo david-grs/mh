@@ -14,7 +14,8 @@ static constexpr const int Iterations = 3000000;
 struct benchmark
 {
     benchmark(std::size_t iterations) :
-      _acc(iterations)
+      _acc(iterations),
+      _iterations(iterations)
     {}
 
     template <typename Callable>
@@ -25,7 +26,7 @@ struct benchmark
         tsc_chrono chrono;
         chrono.start();
 
-        for (int i = 0; i < Iterations; ++i)
+        for (int i = 0; i < _iterations; ++i)
         {
             operation();
             _acc.add(chrono.elapsed_and_restart());
@@ -43,6 +44,7 @@ struct benchmark
 
 private:
     lazy_acc _acc;
+    std::size_t _iterations;
 };
 
 void benchmark_ht(long unsigned seed);
