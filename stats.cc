@@ -51,7 +51,8 @@ stats lazy_acc::process()
                                                 boost_acc::tag::extended_p_square_quantile>>;
 
     Acc accum(boost_acc::extended_p_square_probabilities = quantiles);
-    std::for_each(std::cbegin(_samples), std::cend(_samples), accum);
+    for (const auto& sample : _samples)
+        accum(sample);
 
     return get_stats(accum, quantiles, std::make_index_sequence<quantiles.size()>());
 }
