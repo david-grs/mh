@@ -40,18 +40,6 @@ inline std::istream& operator>>(std::istream& is, quantiles_t& quantiles)
     return is;
 }
 
-inline std::ostream& operator<<(std::ostream& os, stats& s)
-{
-    s.for_each([&](auto x) { os << x << " "; });
-    return os;
-}
-
-inline std::istream& operator>>(std::istream& is, stats& s)
-{
-    s.for_each([&](auto& x) { is >> x; });
-    return is;
-}
-
 struct lazy_acc
 {
     lazy_acc(std::size_t reserve) :

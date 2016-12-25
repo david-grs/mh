@@ -51,7 +51,16 @@ private:
   std::tuple<Ts...> _ts;
 };
 
+template <typename... Ts>
+inline std::ostream& operator<<(std::ostream& os, typemap<Ts...>& m)
+{
+    m.for_each([&](auto x) { os << x << " "; });
+    return os;
+}
 
-
-
-
+template <typename... Ts>
+inline std::istream& operator>>(std::istream& is, typemap<Ts...>& m)
+{
+    m.for_each([&](auto& x) { is >> x; });
+    return is;
+}
