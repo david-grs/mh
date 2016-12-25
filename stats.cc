@@ -40,7 +40,7 @@ stats get_stats(AccumulatorT&& accum, QuantilesT&& quantiles, std::index_sequenc
 stats lazy_acc::process()
 {
     namespace boost_acc = boost::accumulators;
-    using Acc = boost_acc::accumulator_set<double,
+    using Acc = boost_acc::accumulator_set<int64_t,
                                             boost_acc::stats<
                                                 boost_acc::tag::median,
                                                 boost_acc::tag::mean,
