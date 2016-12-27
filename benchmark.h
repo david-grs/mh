@@ -21,12 +21,11 @@ struct benchmark
     template <typename Callable>
     void operator()(Callable operation, const char* desc)
     {
-        auto start = std::chrono::high_resolution_clock::now();
-
         tsc_chrono chrono;
         chrono.start();
 
-        for (int i = 0; i < (int)_iterations; ++i)
+        auto start = std::chrono::high_resolution_clock::now();
+        for (std::size_t i = 0; i < _iterations; ++i)
         {
             operation();
             _acc.add(chrono.elapsed_and_restart());
