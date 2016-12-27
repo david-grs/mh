@@ -37,7 +37,7 @@ void benchmark_ha(long unsigned seed)
       >
     > mic_hs;
 
-    benchmark bench(Iterations);
+    benchmark bench;
 
     std::uniform_int_distribution<> rng(1, 1e9);
 

@@ -21,7 +21,7 @@ void benchmark_ht(long unsigned seed)
     gd.set_empty_key(0);
 
     std::uniform_int_distribution<> rng(1, 1e9);
-    benchmark bench(Iterations);
+    benchmark bench;
 
     {
         gen.seed(seed);

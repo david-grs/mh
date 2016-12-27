@@ -10,12 +10,13 @@
 #include <random>
 
 static constexpr const int Iterations = 3000000;
+static constexpr const int K = 16;
 
 struct benchmark
 {
-    benchmark(std::size_t iterations) :
-      _acc(iterations),
-      _iterations(iterations)
+    benchmark() :
+      _iterations(Iterations / K),
+      _acc(_iterations)
     {}
 
     template <typename Callable>
@@ -27,9 +28,12 @@ struct benchmark
         auto start = std::chrono::high_resolution_clock::now();
         for (std::size_t i = 0; i < _iterations; ++i)
         {
-            operation();
+            for (int j = 0; j < K; ++j)
+              operation();
+
             _acc.add(chrono.elapsed_and_restart());
         }
+
         auto end = std::chrono::high_resolution_clock::now();
 
         // from TSC to nanoseconds
@@ -42,8 +46,8 @@ struct benchmark
     }
 
 private:
-    lazy_acc _acc;
     std::size_t _iterations;
+    lazy_acc _acc;
 };
 
 void benchmark_ht(long unsigned seed);
