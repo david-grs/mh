@@ -8,6 +8,7 @@
 #include <iostream>
 #include <algorithm>
 #include <random>
+#include <type_traits>
 
 static constexpr const int Iterations = 3000000;
 static constexpr const int K = 16;
@@ -25,7 +26,11 @@ struct benchmark
         tsc_chrono chrono;
         chrono.start();
 
-        auto start = std::chrono::high_resolution_clock::now();
+        using Clock = std::conditional_t<std::chrono::high_resolution_clock::is_steady,
+                                         std::chrono::high_resolution_clock,
+                                         std::chrono::steady_clock>;
+
+        auto start = Clock::now();
         for (std::size_t i = 0; i < _iterations; ++i)
         {
             for (int j = 0; j < K; ++j)
@@ -33,8 +38,7 @@ struct benchmark
 
             _acc.add(chrono.elapsed_and_restart());
         }
-
-        auto end = std::chrono::high_resolution_clock::now();
+        auto end = Clock::now();
 
         // from TSC to nanoseconds
         auto& data = _acc.data();
