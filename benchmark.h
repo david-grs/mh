@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <random>
 #include <type_traits>
+#include <cassert>
 
 static constexpr const int Iterations = 3000000;
 static constexpr const int K = 16;
@@ -45,6 +46,8 @@ struct benchmark
         std::transform(std::begin(data), std::end(data), std::begin(data), [&](int64_t cycles) { return tsc_chrono::from_cycles(cycles).count(); });
 
         stats s = _acc.process();
+        assert(std::llabs((int64_t)s.get<sum_t>() - (end - start).count()) > 1e6);
+
         std::cout << desc << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " - " << s << std::endl;
         _acc.clear();
     }
