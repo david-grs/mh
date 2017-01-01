@@ -8,23 +8,21 @@
 
 int main(int argc, char** argv)
 {
-    if (argc != 2 && argc != 3)
+    if (argc != 4 && argc != 5)
     {
-        std::cerr << argv[0] << ": -ht|-ha [seed]" << std::endl;
+        std::cerr << argv[0] << ": -ht|-ha [-gen|-cmp] N [seed]" << std::endl;
         return 1;
     }
 
     tsc_chrono::init();
 
-    long unsigned seed = argc == 3 ? std::atoll(argv[2]) : std::random_device()();
-    std::cout << "seed = " << seed << std::endl;
+    auto benchmark = argv[1] == std::string("-ht") ? benchmark_ht : benchmark_ha;
+    const bool gen = argv[2] == std::string("-gen");
+    const int n = std::atoi(argv[3]);
+    long unsigned seed = argc == 5 ? std::atoll(argv[4]) : std::random_device()();
 
-    //probes(seed);
-
-    if (argv[1] == std::string("-ht"))
-        benchmark_ht(seed);
-    else
-        benchmark_ha(seed);
+    std::cout << "options: n=" << n << " seed=" << seed << " gen=" << std::boolalpha << gen << std::endl;
+    benchmark(seed);
 
     return 0;
 }
