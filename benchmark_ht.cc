@@ -34,16 +34,23 @@ void benchmark_ht(long unsigned seed)
         bench([&]() { gd.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
     }
 
+    assert_throw(umap.size() == mh.size() && mh.size() == gd.size(), "diff number of elements in compared hashtables");
+
     {
         bench([&]() { x += umap.find(rng(gen)) != umap.end(); }, "umap lookup ex");
         bench([&]() { x += mh.find(rng(gen)); }, "mh lookup ex");
         bench([&]() { x += gd.find(rng(gen)) != gd.end(); }, "google lookup ex");
     }
 
+    //assert_throw(x == (int)umap.size() * 3, "lookup ex failed");
+
     {
+        x = 0;
         rng = std::uniform_int_distribution<>(1e9 + 1, 2e9);
         bench([&]() { x += umap.find(rng(gen)) != umap.end(); }, "umap lookup inex");
         bench([&]() { x += mh.find(rng(gen)); }, "mh lookup inex");
         bench([&]() { x += gd.find(rng(gen)) != gd.end(); }, "google lookup inex");
     }
+
+    assert_throw(x == 0, "lookup unex failed");
 }
