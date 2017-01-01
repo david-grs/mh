@@ -27,6 +27,7 @@ stats get_stats(AccumulatorT&& accum, QuantilesT&& quantiles, std::index_sequenc
 {
     namespace boost_acc = boost::accumulators;
     return {
+        total_t(boost_acc::sum(accum)),
         count_t(boost_acc::count(accum)),
         min_t(boost_acc::min(accum)),
         max_t(boost_acc::max(accum)),
@@ -42,6 +43,7 @@ stats lazy_acc::process()
     namespace boost_acc = boost::accumulators;
     using Acc = boost_acc::accumulator_set<int64_t,
                                             boost_acc::stats<
+                                                boost_acc::tag::sum,
                                                 boost_acc::tag::median,
                                                 boost_acc::tag::mean,
                                                 boost_acc::tag::min,
