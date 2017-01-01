@@ -21,44 +21,32 @@ void benchmark_ht(long unsigned seed)
     gd.set_empty_key(0);
 
     std::uniform_int_distribution<> rng(1, 1e9);
+    volatile int x = 0;
+
     benchmark bench;
+    bench.tear_down([&](const stats& s, const char* desc)
+    {
+        std::cout << desc << " " << seed << " " << s << std::endl;
+        gen.seed(seed);
+    });
 
     {
-        gen.seed(seed);
         bench([&]() { umap.insert(std::make_pair(rng(gen), 222.0)); }, "umap insert");
-
-        gen.seed(seed);
         bench([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
-
-        gen.seed(seed);
         bench([&]() { gd.insert(std::make_pair(rng(gen), 222.0)); }, "google insert");
     }
 
-    volatile int i = 0;
-
     {
         //std::uniform_int_distribution<> rng(1, std::min(umap.size(), mh.size()) - 1);
-
-        gen.seed(seed);
-        bench([&]() { i += umap.find(rng(gen)) != umap.end(); }, "umap lookup ex");
-
-        gen.seed(seed);
-        bench([&]() { i += mh.find(rng(gen)); }, "mh lookup ex");
-
-        gen.seed(seed);
-        bench([&]() { i += gd.find(rng(gen)) != gd.end(); }, "google lookup ex");
+        bench([&]() { x += umap.find(rng(gen)) != umap.end(); }, "umap lookup ex");
+        bench([&]() { x += mh.find(rng(gen)); }, "mh lookup ex");
+        bench([&]() { x += gd.find(rng(gen)) != gd.end(); }, "google lookup ex");
     }
 
     {
         std::uniform_int_distribution<> rng2(1e9 + 1, 2e9);
-
-        gen.seed(seed);
-        bench([&]() { i += umap.find(rng2(gen)) != umap.end(); }, "umap lookup inex");
-
-        gen.seed(seed);
-        bench([&]() { i += mh.find(rng2(gen)); }, "mh lookup inex");
-
-        gen.seed(seed);
-        bench([&]() { i += gd.find(rng2(gen)) != gd.end(); }, "google lookup inex");
+        bench([&]() { x += umap.find(rng2(gen)) != umap.end(); }, "umap lookup inex");
+        bench([&]() { x += mh.find(rng2(gen)); }, "mh lookup inex");
+        bench([&]() { x += gd.find(rng2(gen)) != gd.end(); }, "google lookup inex");
     }
 }
