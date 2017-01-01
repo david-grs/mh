@@ -20,10 +20,6 @@ using namespace boost::multi_index;
 
 void benchmark_ha(long unsigned seed)
 {
-    std::cout << "============================\n";
-    std::cout << "hash_array benchmark\n";
-    std::cout << "============================" << std::endl;
-
     std::mt19937 gen(seed);
 
     ht<int32_t, double, empty_key<int32_t, 0>> mh;
