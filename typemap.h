@@ -10,10 +10,10 @@ struct typemap
   typemap(const Ts&... ts) : _ts(ts...) {}
 
   template <typename T>
-  T get() { return std::get<get_index<T>()>(_ts); }
+  const T& get() const { return std::get<get_index<T>()>(_ts); }
 
   template <typename T>
-  void set(T&& t) { std::get<get_index<T>()>(_ts) = std::forward<T>(t); }
+  T& get() { return std::get<get_index<T>()>(_ts); }
 
   template <typename F>
   void for_each(F&& f)
