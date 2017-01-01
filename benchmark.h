@@ -64,5 +64,13 @@ private:
     std::function<void(const stats&, const char*)> _tear_down;
 };
 
-void benchmark_ht(long unsigned seed);
-void benchmark_ha(long unsigned seed);
+struct test
+{
+    std::string name;
+    unsigned long seed;
+    stats results;
+};
+
+std::vector<test> benchmark_ht(long unsigned seed);
+std::vector<test> benchmark_ha(long unsigned seed);
+

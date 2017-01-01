@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <unordered_map>
 
-void benchmark_ht(long unsigned seed)
+std::vector<test> benchmark_ht(long unsigned seed)
 {
     std::mt19937 gen(seed);
 
@@ -22,8 +22,11 @@ void benchmark_ht(long unsigned seed)
     volatile int x = 0;
 
     benchmark bench;
+    std::vector<test> tests;
+
     bench.tear_down([&](const stats& s, const char* desc)
     {
+        tests.push_back({desc, seed, s});
         std::cout << desc << "," << seed << "," << s << std::endl;
         gen.seed(seed);
     });
@@ -53,4 +56,6 @@ void benchmark_ht(long unsigned seed)
     }
 
     assert_throw(x == 0, "lookup unex failed");
+
+    return tests;
 }
