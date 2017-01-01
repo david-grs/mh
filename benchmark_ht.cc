@@ -8,10 +8,6 @@
 
 void benchmark_ht(long unsigned seed)
 {
-    std::cout << "============================\n";
-    std::cout << "hash_table benchmark\n";
-    std::cout << "============================" << std::endl;
-
     std::mt19937 gen(seed);
 
     std::unordered_map<int32_t, double> umap;
