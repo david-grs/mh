@@ -36,15 +36,17 @@ inline void init()
     if (tsc_freq_ghz)
         return;
 
-    using clock = std::chrono::high_resolution_clock;
+    using Clock = std::conditional_t<std::chrono::high_resolution_clock::is_steady,
+                                     std::chrono::high_resolution_clock,
+                                     std::chrono::steady_clock>;
 
-    auto start = clock::now();
+    auto start = Clock::now();
 
     uint64_t rdtsc_start = detail::rdtsc();
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     uint64_t rdtsc_end = detail::rdtsc();
 
-    auto end = clock::now();
+    auto end = Clock::now();
 
     auto duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
     uint64_t cycles = rdtsc_end - rdtsc_start;
