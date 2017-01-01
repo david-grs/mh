@@ -4,6 +4,8 @@
 #include "mic.h"
 
 #include <google/dense_hash_map>
+
+#include <cstdint>
 #include <unordered_map>
 
 void benchmark_ht(long unsigned seed)
