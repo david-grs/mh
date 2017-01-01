@@ -3,6 +3,7 @@
 #include <chrono>
 #include <thread>
 #include <cmath>
+#include <type_traits>
 
 namespace detail
 {
