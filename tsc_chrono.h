@@ -22,6 +22,15 @@ static inline uint64_t rdtscp()
     return ((uint64_t)rdx << 32) + (uint64_t)rax;
 }
 
+static inline uint64_t rdtscp(int& chip, int& core)
+{
+    uint32_t rax, rdx, rcx;
+    __asm__ __volatile__("rdtscp" : "=a"(rax), "=d"(rdx), "=c"(rcx));
+    chip = (rcx & 0xFFF000) >> 12;
+    core = rcx & 0xFFF;
+    return ((uint64_t)rdx << 32) + (uint64_t)rax;
+}
+
 struct tsc
 {
     static double& get_freq_ghz()
