@@ -50,13 +50,18 @@ inline void init()
                                      std::chrono::high_resolution_clock,
                                      std::chrono::steady_clock>;
 
+    int chip, core, chip2, core2;
+
     auto start = Clock::now();
+    uint64_t rdtsc_start = detail::rdtscp(chip, core);
 
-    uint64_t rdtsc_start = detail::rdtsc();
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    uint64_t rdtsc_end = detail::rdtsc();
 
+    uint64_t rdtsc_end = detail::rdtscp(chip2, core2);
     auto end = Clock::now();
+
+    if (core != core2 || chip != chip2)
+        throw std::runtime_error("please set this executable to a specific core");
 
     auto duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
     uint64_t cycles = rdtsc_end - rdtsc_start;
