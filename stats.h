@@ -12,7 +12,7 @@
 #include <cstddef>
 #include <cassert>
 
-BOOST_STRONG_TYPEDEF(int64_t, total_t);
+BOOST_STRONG_TYPEDEF(int64_t, sum_t);
 BOOST_STRONG_TYPEDEF(int, count_t);
 BOOST_STRONG_TYPEDEF(int, min_t);
 BOOST_STRONG_TYPEDEF(int, max_t);
@@ -24,7 +24,7 @@ BOOST_STRONG_TYPEDEF(double, quantile_value_t);
 
 using quantile_t = std::pair<quantile_prob_t, quantile_value_t>;
 using quantiles_t = std::vector<quantile_t>;
-using stats = typemap<total_t, count_t, min_t, max_t, median_t, mean_t, stddev_t, quantiles_t>;
+using stats = typemap<sum_t, count_t, min_t, max_t, median_t, mean_t, stddev_t, quantiles_t>;
 
 inline std::ostream& operator<<(std::ostream& os, quantiles_t& quantiles)
 {

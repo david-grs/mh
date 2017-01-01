@@ -27,7 +27,7 @@ stats get_stats(AccumulatorT&& accum, QuantilesT&& quantiles, std::index_sequenc
 {
     namespace boost_acc = boost::accumulators;
     return {
-        total_t(boost_acc::sum(accum)),
+        sum_t(boost_acc::sum(accum)),
         count_t(boost_acc::count(accum)),
         min_t(boost_acc::min(accum)),
         max_t(boost_acc::max(accum)),
