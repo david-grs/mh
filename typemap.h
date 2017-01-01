@@ -53,7 +53,7 @@ private:
 };
 
 template <typename... Ts>
-inline std::ostream& operator<<(std::ostream& os, typemap<Ts...>& m)
+inline std::ostream& operator<<(std::ostream& os, const typemap<Ts...>& m)
 {
     m.for_each([&](auto x) { os << x << " "; });
     return os;
