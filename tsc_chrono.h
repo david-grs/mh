@@ -114,9 +114,9 @@ struct tsc_chrono
         return std::chrono::nanoseconds(std::llround(cycles / detail::tsc::get_freq_ghz()));
     }
 
-    static double from_cycles(double cycles)
+    static double get_freq_ghz()
     {
-        return cycles / detail::tsc::get_freq_ghz();
+        return detail::tsc::get_freq_ghz();
     }
 
     template <typename _DurationT>
