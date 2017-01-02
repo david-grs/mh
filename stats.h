@@ -1,8 +1,7 @@
 #pragma once
 
 #include "typemap.h"
-
-#include <boost/serialization/strong_typedef.hpp>
+#include "strong_typedef.h"
 
 #include <memory>
 #include <array>
@@ -12,15 +11,15 @@
 #include <cstddef>
 #include <cassert>
 
-BOOST_STRONG_TYPEDEF(int64_t, sum_t);
-BOOST_STRONG_TYPEDEF(int, count_t);
-BOOST_STRONG_TYPEDEF(int, min_t);
-BOOST_STRONG_TYPEDEF(int, max_t);
-BOOST_STRONG_TYPEDEF(int, median_t);
-BOOST_STRONG_TYPEDEF(int, mean_t);
-BOOST_STRONG_TYPEDEF(int, stddev_t);
-BOOST_STRONG_TYPEDEF(double, quantile_prob_t);
-BOOST_STRONG_TYPEDEF(double, quantile_value_t);
+STRONG_TYPEDEF(int64_t, sum_t);
+STRONG_TYPEDEF(int, count_t);
+STRONG_TYPEDEF(int, min_t);
+STRONG_TYPEDEF(int, max_t);
+STRONG_TYPEDEF(int, median_t);
+STRONG_TYPEDEF(int, mean_t);
+STRONG_TYPEDEF(int, stddev_t);
+STRONG_TYPEDEF(double, quantile_prob_t);
+STRONG_TYPEDEF(double, quantile_value_t);
 
 using quantile_t = std::pair<quantile_prob_t, quantile_value_t>;
 using quantiles_t = std::vector<quantile_t>;
