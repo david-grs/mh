@@ -3,6 +3,8 @@
 #include "probes.h"
 #include "tsc_chrono.h"
 
+#include "ext/rang.hpp"
+
 #include <boost/tokenizer.hpp>
 
 #include <sstream>
@@ -66,6 +68,8 @@ int main(int argc, char** argv)
         {
             auto it = std::find_if(std::cbegin(ref_tests), std::cend(ref_tests), [&](const test& x) { return x.name == t.name && x.seed == t.seed; });
             assert_throw(it != ref_tests.end(), "ref test not found");
+
+            std::cout << t.name << std::endl;
         }
     }
 
