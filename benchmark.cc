@@ -40,6 +40,19 @@ auto load_ref_file(const std::string& filename)
     return ref_tests;
 }
 
+struct visitor
+{
+    template <typename SampleT>
+    std::enable_if_t<std::is_arithmetic<typename SampleT::value_type>::value>
+    operator()(SampleT sample)
+    {
+    }
+
+    void operator()(const quantiles_t& qs)
+    {
+    }
+};
+
 int main(int argc, char** argv)
 {
     if (argc != 4 && argc != 5)

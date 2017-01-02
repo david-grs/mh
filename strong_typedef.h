@@ -7,6 +7,7 @@
         : boost::totally_ordered1<D                                 \
         , boost::totally_ordered2<D, T>>                            \
     {                                                               \
+        using value_type = T;                                       \
         T t;                                                        \
         explicit D(const T t_) : t(t_) {}                           \
         D(): t() {}                                                 \
