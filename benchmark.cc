@@ -10,9 +10,9 @@
 #include <random>
 #include <iostream>
 
-template <typename StringT, typename Callable>
-void load_file(StringT&& filename, Callable f)
+auto load_ref_file(const std::string& filename)
 {
+    std::vector<test> ref_tests;
     std::ifstream ifs(filename);
     boost::char_separator<char> sep(",");
 
@@ -32,8 +32,10 @@ void load_file(StringT&& filename, Callable f)
         std::istringstream iss(*it);
         iss >> s;
 
-        f(std::move(desc), seed, std::move(s));
+        ref_tests.push_back({std::move(desc), seed, std::move(s)});
     }
+
+    return ref_tests;
 }
 
 int main(int argc, char** argv)
@@ -53,18 +55,13 @@ int main(int argc, char** argv)
 
     //std::cout << "options: n=" << n << " seed=" << seed << " gen=" << std::boolalpha << gen << std::endl;
 
+    std::vector<test> ref_tests = cmp ? load_ref_file("foo.txt") : std::vector<test>();
+
     std::uniform_int_distribution<> rng(1, std::numeric_limits<int>::max());
     std::vector<test> tests = benchmark(seed);
 
     if (cmp)
     {
-        std::vector<test> ref_tests;
-        load_file("foo.txt", [&](std::string&& desc, unsigned long seed, stats&& s)
-        {
-            std::cout << "loading " << desc << " seed " << seed << " stats " << s.get<sum_t>() << std::endl;
-            ref_tests.push_back({std::move(desc), seed, std::move(s)});
-        });
-
         for (const test& t : tests)
         {
             auto it = std::find_if(std::cbegin(ref_tests), std::cend(ref_tests), [&](const test& x) { return x.name == t.name && x.seed == t.seed; });
