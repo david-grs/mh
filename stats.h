@@ -25,7 +25,7 @@ using quantile_t = std::pair<quantile_prob_t, quantile_value_t>;
 using quantiles_t = std::vector<quantile_t>;
 using stats = typemap<sum_t, count_t, min_t, max_t, median_t, mean_t, stddev_t, quantiles_t>;
 
-inline std::ostream& operator<<(std::ostream& os, quantiles_t& quantiles)
+inline std::ostream& operator<<(std::ostream& os, const quantiles_t& quantiles)
 {
     for(const quantile_t& q : quantiles)
         os << q.first << " " << q.second << " ";
