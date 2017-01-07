@@ -127,9 +127,19 @@ int main(int argc, char** argv)
     {
         tests = benchmark_google(seed);
         cmp_tests(seed, tests, ref_tests);
+
+        std::ofstream ofs("foo.txt");
+        for (auto& t : tests)
+            ofs << t.name << "," << t.seed << "," << t.results << std::endl;
     }
     else
+    {
         waitpid(child, 0, 0);
+
+        std::ofstream ofs("foo.txt", std::ios::app);
+        for (auto& t : tests)
+            ofs << t.name << "," << t.seed << "," << t.results << std::endl;
+    }
 
     return 0;
 }
