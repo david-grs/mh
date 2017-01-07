@@ -13,6 +13,12 @@
 #include <iomanip>
 #include <iostream>
 
+extern "C"
+{
+    #include <sys/types.h>
+    #include <sys/wait.h>
+}
+
 auto load_ref_file(const std::string& filename)
 {
     std::vector<test> ref_tests;
@@ -41,6 +47,57 @@ auto load_ref_file(const std::string& filename)
     return ref_tests;
 }
 
+void cmp_tests(long unsigned seed, const std::vector<test>& tests, const std::vector<test>& ref_tests)
+{
+    std::cout << std::setw(20) << std::left << "test";
+
+    for (const test& t : tests)
+        if (t.seed == seed)
+            std::cout << std::setw(20) << std::left << t.name;
+    std::cout << std::endl;
+
+    auto format = [&](double sample, double ref)
+    {
+        double diff = -100.0 + (100.0 * sample) / ref;
+
+        auto out = [&](auto& ss)
+        {
+            ss << std::fixed << std::setprecision(2) << sample << " (";
+
+            if (diff <= .0)
+                ss << rang::fg::green;
+            else
+                ss << rang::fg::red << '+';
+
+            ss << std::setprecision(2) << std::fixed << diff << rang::fg::reset << ")";
+        };
+
+        // rang doesn't support ostringstream yet, so we have to format the string twice (to get its size)... :(
+        std::ostringstream oss;
+        out(oss);
+        out(std::cout);
+        std::cout << std::string(20 - oss.str().size(), ' ');
+    };
+
+    typemap<median_t, mean_t, stddev_t, sum_t>().visit([&](auto field)
+    {
+        using SampleT = decltype(field);
+
+        std::cout << std::setw(20) << std::left << SampleT::name();
+        for (const test& t : tests)
+        {
+            if (t.seed == seed)
+            {
+                auto it = std::find_if(std::cbegin(ref_tests), std::cend(ref_tests), [&](const test& x) { return x.name == t.name && x.seed == t.seed; });
+                double ref = it != std::cend(ref_tests) ? it->results.template get<SampleT>() : .0;
+
+                format(t.results.template get<SampleT>(), ref);
+            }
+        }
+        std::cout << std::endl;
+    });
+}
+
 int main(int argc, char** argv)
 {
     if (argc != 4 && argc != 5)
@@ -51,9 +108,9 @@ int main(int argc, char** argv)
 
     tsc_chrono::init();
 
-    auto benchmark = argv[1] == std::string("-ht") ? benchmark_ht : benchmark_ha;
+    //auto benchmark = argv[1] == std::string("-ht") ? benchmark_ht : benchmark_ha;
     const bool cmp = argv[2] == std::string("-cmp");
-    const int n = std::atoi(argv[3]);
+    //const int n = std::atoi(argv[3]);
     long unsigned seed = argc == 5 ? std::atoll(argv[4]) : std::random_device()();
 
     //std::cout << "options: n=" << n << " seed=" << seed << " gen=" << std::boolalpha << gen << std::endl;
@@ -61,58 +118,18 @@ int main(int argc, char** argv)
     std::vector<test> ref_tests = cmp ? load_ref_file("foo.txt") : std::vector<test>();
 
     std::uniform_int_distribution<> rng(1, std::numeric_limits<int>::max());
-    std::vector<test> tests = benchmark(seed);
+    std::vector<test> tests = benchmark_ht(seed);
 
-    if (cmp)
+    cmp_tests(seed, tests, ref_tests);
+    pid_t child = fork();
+
+    if (!child)
     {
-        std::cout << std::setw(20) << std::left << "test";
-
-        for (const test& t : tests)
-            if (t.seed == seed)
-                std::cout << std::setw(20) << std::left << t.name;
-        std::cout << std::endl;
-
-        auto format = [&](double sample, double ref)
-        {
-            double diff = -100.0 + (100.0 * sample) / ref;
-
-            auto out = [&](auto& ss)
-            {
-                ss << std::fixed << std::setprecision(2) << sample << " (";
-
-                if (diff <= .0)
-                    ss << rang::fg::green;
-                else
-                    ss << rang::fg::red << '+';
-
-                ss << std::setprecision(2) << std::fixed << diff << rang::fg::reset << ")";
-            };
-
-            // rang doesn't support ostringstream yet, so we have to format the string twice (to get its size)... :(
-            std::ostringstream oss;
-            out(oss);
-            out(std::cout);
-            std::cout << std::string(20 - oss.str().size(), ' ');
-        };
-
-        typemap<median_t, mean_t, stddev_t, sum_t>().visit([&](auto field)
-        {
-            using SampleT = decltype(field);
-
-            std::cout << std::setw(20) << std::left << SampleT::name();
-            for (const test& t : tests)
-            {
-                if (t.seed == seed)
-                {
-                    auto it = std::find_if(std::cbegin(ref_tests), std::cend(ref_tests), [&](const test& x) { return x.name == t.name && x.seed == t.seed; });
-                    double ref = it != std::cend(ref_tests) ? it->results.template get<SampleT>() : .0;
-
-                    format(t.results.template get<SampleT>(), ref);
-                }
-            }
-            std::cout << std::endl;
-        });
+        tests = benchmark_google(seed);
+        cmp_tests(seed, tests, ref_tests);
     }
+    else
+        waitpid(child, 0, 0);
 
     return 0;
 }

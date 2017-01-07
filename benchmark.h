@@ -71,5 +71,6 @@ private:
 };
 
 std::vector<test> benchmark_ht(long unsigned seed);
+std::vector<test> benchmark_google(long unsigned seed);
 std::vector<test> benchmark_ha(long unsigned seed);
 
