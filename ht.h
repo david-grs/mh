@@ -108,6 +108,12 @@ struct ht
         return true;
     }
 
+    template <typename... Ts>
+    bool count(Ts&&... ts)
+    {
+        return find(ts...);
+    }
+
     Value& operator[](const Key& key)
     {
         std::size_t pos = Hash()(key) & (_table_sz - 1);
