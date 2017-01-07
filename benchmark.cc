@@ -52,8 +52,24 @@ struct stats_cmp
     operator()(SampleT sample)
     {
         SampleT ref = _ref.get<SampleT>();
+        print(SampleT::name(), sample, ref);
+    }
+
+    void operator()(const quantiles_t& qs)
+    {
+        const quantiles_t& ref = _ref.get<quantiles_t>();
+        assert(qs.size() == ref.size());
+
+        for (int i = 0; i < (int)ref.size(); ++i)
+          print("q" + std::to_string(ref[i].first), qs[i].second, ref[i].second);
+    }
+
+private:
+    template <typename StringT>
+    void print(StringT&& name, double sample, double ref)
+    {
         double diff = -100.0 + (100.0 * sample) / ref;
-        std::cout << SampleT::name() << "=" << sample << " (";
+        std::cout << name << "=" << sample << " (";
 
         if (diff <= 0)
             std::cout << rang::fg::green;
@@ -63,12 +79,6 @@ struct stats_cmp
         std::cout << std::setw(2) << std::setprecision(2) << std::fixed << diff << rang::fg::reset << ") ";
     }
 
-    void operator()(const quantiles_t& qs)
-    {
-        //std::cout << qs << std::endl;
-    }
-
-private:
     const stats& _ref;
 };
 
