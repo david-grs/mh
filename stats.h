@@ -56,7 +56,7 @@ struct lazy_acc
     void clear() { _size = 0; }
     std::vector<int64_t>& data() { return _samples; }
 
-    stats process();
+    stats process(int nb_samples);
 
 private:
     std::vector<int64_t> _samples;

@@ -38,7 +38,7 @@ stats get_stats(AccumulatorT&& accum, QuantilesT&& quantiles, std::index_sequenc
     };
 }
 
-stats lazy_acc::process()
+stats lazy_acc::process(int nb_samples)
 {
     namespace boost_acc = boost::accumulators;
     using Acc = boost_acc::accumulator_set<int64_t,
@@ -53,8 +53,8 @@ stats lazy_acc::process()
                                                 boost_acc::tag::extended_p_square_quantile>>;
 
     Acc accum(boost_acc::extended_p_square_probabilities = quantiles);
-    for (const auto& sample : _samples)
-        accum(sample);
+    for (int i = 0; i < nb_samples; ++i)
+        accum(_samples[i]);
 
     return get_stats(accum, quantiles, std::make_index_sequence<quantiles.size()>());
 }
