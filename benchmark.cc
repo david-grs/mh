@@ -118,6 +118,7 @@ int main(int argc, char** argv)
     //std::cout << "options: n=" << n << " seed=" << seed << " gen=" << std::boolalpha << gen << std::endl;
 
     std::vector<test> ref_tests = cmp ? load_ref_file("foo.txt") : std::vector<test>();
+    const bool write = false;
 
     std::uniform_int_distribution<> rng(1, std::numeric_limits<int>::max());
     std::vector<test> tests = benchmark_ht(seed);
@@ -132,17 +133,23 @@ int main(int argc, char** argv)
         tests = benchmark_google(seed);
         cmp_tests(seed, tests, ref_tests);
 
-        std::ofstream ofs("foo.txt");
-        for (auto& t : tests)
-            ofs << t.name << "," << t.seed << "," << t.results << std::endl;
+        if (write)
+        {
+            std::ofstream ofs("foo.txt");
+            for (auto& t : tests)
+                ofs << t.name << "," << t.seed << "," << t.results << std::endl;
+        }
     }
     else
     {
         waitpid(child, 0, 0);
 
-        std::ofstream ofs("foo.txt", std::ios::app);
-        for (auto& t : tests)
-            ofs << t.name << "," << t.seed << "," << t.results << std::endl;
+        if (write)
+        {
+            std::ofstream ofs("foo.txt", std::ios::app);
+            for (auto& t : tests)
+                ofs << t.name << "," << t.seed << "," << t.results << std::endl;
+        }
     }
 
     return 0;
