@@ -68,6 +68,12 @@ private:
 };
 
 template <typename... Ts>
+auto make_typemap(Ts&&... ts)
+{
+    return typemap<Ts...>(std::forward<Ts>(ts)...);
+}
+
+template <typename... Ts>
 inline std::ostream& operator<<(std::ostream& os, const typemap<Ts...>& m)
 {
     m.visit([&](auto x) { os << x << " "; });
