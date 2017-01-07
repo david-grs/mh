@@ -53,6 +53,7 @@ struct benchmark
         std::transform(std::begin(data), std::end(data), std::begin(data), [&](int64_t cycles) { return tsc_chrono::from_cycles(cycles).count(); });
 
         stats s = _acc.process(nb_samples);
+        //TODO temp
         s.get<sum_t>() = (end - start).count();
         assert_throw(std::llabs((int64_t)s.get<sum_t>() - (end - start).count()) < 1e6, "tsc_chrono and std::chrono::clock not synced");
 
