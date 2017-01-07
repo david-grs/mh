@@ -28,15 +28,7 @@ std::vector<test> benchmark_container(std::string desc, Container&& c, long unsi
     bench(900000, [&]() { c.insert(std::make_pair(rng(gen), 222.0)); }, desc + " insert 100K-1M");
     bench(100000, [&]() { x += c.count(rng(gen)); }, desc + " lookup 1M");
 
-    std::cout << c.size() << std::endl;
 #if 0
-    {
-        bench([&]() { x += gd.find(rng(gen)) != gd.end(); }, "google lookup ex");
-        bench([&]() { x += mh.find(rng(gen)); }, "ht lookup ex");
-    }
-
-    //assert_throw(x == (int)umap.size() * 3, "lookup ex failed");
-
     {
         x = 0;
         rng = std::uniform_int_distribution<>(1e9 + 1, 2e9);
@@ -46,6 +38,7 @@ std::vector<test> benchmark_container(std::string desc, Container&& c, long unsi
 
     assert_throw(x == 0, "lookup unex failed");
 #endif
+
     return bench.tests();
 }
 
