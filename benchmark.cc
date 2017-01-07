@@ -58,10 +58,12 @@ struct stats_cmp
     void operator()(const quantiles_t& qs)
     {
         const quantiles_t& ref = _ref.get<quantiles_t>();
-        assert(qs.size() == ref.size());
 
-        for (int i = 0; i < (int)ref.size(); ++i)
-          print("q" + std::to_string(ref[i].first), qs[i].second, ref[i].second);
+        for (int i = 0; i < (int)qs.size(); ++i)
+        {
+            auto ref_qs = std::find_if(std::cbegin(ref), std::cend(ref), [&](auto& p) { return p.first == qs[i].first; });
+            print("q" + std::to_string(qs[i].first), qs[i].second, ref_qs->second);
+        }
     }
 
 private:

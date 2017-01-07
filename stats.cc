@@ -18,9 +18,9 @@ constexpr auto make_array(T t, Ts... ts)
     return std::array<T, sizeof...(Ts) + 1>{t, ts...};
 }
 
-static constexpr auto quantiles =
-    make_array(0.001, 0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.5,
-               0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 0.99, 0.999);
+static constexpr auto quantiles = make_array(0.01, 0.25, 0.50, 0.75, 0.99);
+    //make_array(0.001, 0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.5,
+    //           0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 0.99, 0.999);
 
 template <typename AccumulatorT, typename QuantilesT, std::size_t... Is>
 stats get_stats(AccumulatorT&& accum, QuantilesT&& quantiles, std::index_sequence<Is...>)
