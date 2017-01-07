@@ -37,20 +37,15 @@ std::vector<test> benchmark_ha(long unsigned seed)
 
     std::uniform_int_distribution<> rng(1, 1e9);
 
-    benchmark bench;
+    //benchmark bench;
     std::vector<test> tests;
-    bench.tear_down([&](const stats& s, const char* desc)
-    {
-        tests.push_back({desc, seed, s});
-        std::cout << desc << "," << seed << "," << s << std::endl;
-        gen.seed(seed);
-    });
-
+#if 0
     {
         bench([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
         bench([&]() { mha.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
         bench([&]() { mic_hs.insert(std::make_pair(rng(gen), 222.0)); }, "mic insert");
     }
+#endif
 
     return tests;
 }

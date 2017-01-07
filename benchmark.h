@@ -10,37 +10,39 @@
 #include <random>
 #include <type_traits>
 
-static constexpr const int Iterations = 3000000;
-static constexpr const int K = 16;
+static constexpr const int K = 32;
 
 #define assert_throw(x, msg) if(!(x)) throw std::runtime_error(msg)
 
+struct test
+{
+    std::string name;
+    unsigned long seed;
+    stats results;
+};
+
 struct benchmark
 {
-    benchmark() :
-      _iterations(Iterations / K),
-      _acc(_iterations)
+    benchmark(int total_iterations, long unsigned seed) :
+      _acc(total_iterations / K),
+      _seed(seed)
     {}
 
-    template <typename Callable>
-    void tear_down(Callable c)
+    template <typename Callable, typename StringT>
+    void operator()(int iterations, Callable operation, StringT&& desc)
     {
-        _tear_down = c;
-    }
+        const int nb_samples = iterations / K;
 
-    template <typename Callable>
-    void operator()(Callable operation, const char* desc)
-    {
         using Clock = std::conditional_t<std::chrono::high_resolution_clock::is_steady,
                                          std::chrono::high_resolution_clock,
                                          std::chrono::steady_clock>;
 
         auto start = Clock::now();
         _chrono.start();
-        for (std::size_t i = 0; i < _iterations; ++i)
+        for (int i = 0; i < nb_samples; ++i)
         {
             for (int j = 0; j < K; ++j)
-              operation();
+                operation();
 
             _acc.add(_chrono.elapsed_and_restart());
         }
@@ -50,25 +52,22 @@ struct benchmark
         auto& data = _acc.data();
         std::transform(std::begin(data), std::end(data), std::begin(data), [&](int64_t cycles) { return tsc_chrono::from_cycles(cycles).count(); });
 
-        stats s = _acc.process();
-        assert_throw(std::llabs((int64_t)s.get<sum_t>() - (end - start).count()) < 1e6, "tsc_chrono and std::chrono::clock not synced");
+        stats s = _acc.process(nb_samples);
+        std::cout << (end - start).count() << std::endl;
+//        assert_throw(std::llabs((int64_t)s.get<sum_t>() - (end - start).count()) < 1e6, "tsc_chrono and std::chrono::clock not synced");
 
-        _tear_down(s, desc);
+        _tests.push_back({desc, _seed, s});
         _acc.clear();
     }
+
+    auto& tests() const { return _tests; }
 
 private:
     tsc_chrono _chrono;
     std::size_t _iterations;
     lazy_acc _acc;
-    std::function<void(const stats&, const char*)> _tear_down;
-};
-
-struct test
-{
-    std::string name;
-    unsigned long seed;
-    stats results;
+    long unsigned _seed;
+    std::vector<test> _tests;
 };
 
 std::vector<test> benchmark_ht(long unsigned seed);

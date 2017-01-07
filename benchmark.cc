@@ -95,15 +95,19 @@ int main(int argc, char** argv)
             std::cout << std::string(20 - oss.str().size(), ' ');
         };
 
-        typemap<median_t, mean_t, stddev_t>().visit([&](auto field)
+        typemap<median_t, mean_t, stddev_t, sum_t>().visit([&](auto field)
         {
-            std::cout << std::setw(20) << std::left << field.name();
+            using SampleT = decltype(field);
+
+            std::cout << std::setw(20) << std::left << SampleT::name();
             for (const test& t : tests)
             {
                 if (t.seed == seed)
                 {
                     auto it = std::find_if(std::cbegin(ref_tests), std::cend(ref_tests), [&](const test& x) { return x.name == t.name && x.seed == t.seed; });
-                    format(t.results.template get<decltype(field)>(), it->results.template get<decltype(field)>());
+                    double ref = it != std::cend(ref_tests) ? it->results.template get<SampleT>() : .0;
+
+                    format(t.results.template get<SampleT>(), ref);
                 }
             }
             std::cout << std::endl;
