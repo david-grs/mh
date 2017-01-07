@@ -76,7 +76,9 @@ void cmp_tests(long unsigned seed, const std::vector<test>& tests, const std::ve
         std::ostringstream oss;
         out(oss);
         out(std::cout);
-        std::cout << std::string(20 - oss.str().size(), ' ');
+
+        if (oss.str().size() < 20)
+            std::cout << std::string(20 - oss.str().size(), ' ');
     };
 
     typemap<median_t, mean_t, stddev_t, sum_t>().visit([&](auto field)
@@ -121,6 +123,8 @@ int main(int argc, char** argv)
     std::vector<test> tests = benchmark_ht(seed);
 
     cmp_tests(seed, tests, ref_tests);
+    std::cout << std::endl;
+
     pid_t child = fork();
 
     if (!child)
