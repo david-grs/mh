@@ -36,7 +36,7 @@ inline std::istream& operator>>(std::istream& is, quantiles_t& quantiles)
 {
     double d1, d2;
     while (is >> d1 >> d2)
-        quantiles.emplace_back(d1, d1);
+        quantiles.emplace_back(d1, d2);
     return is;
 }
 
