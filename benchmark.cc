@@ -10,6 +10,7 @@
 #include <sstream>
 #include <fstream>
 #include <random>
+#include <iomanip>
 #include <iostream>
 
 auto load_ref_file(const std::string& filename)
@@ -40,17 +41,35 @@ auto load_ref_file(const std::string& filename)
     return ref_tests;
 }
 
-struct visitor
+struct stats_cmp
 {
+    explicit stats_cmp(const stats& ref) :
+      _ref(ref)
+    {}
+
     template <typename SampleT>
     std::enable_if_t<std::is_arithmetic<typename SampleT::value_type>::value>
     operator()(SampleT sample)
     {
+        SampleT ref = _ref.get<SampleT>();
+        double diff = -100.0 + (100.0 * sample) / ref;
+        std::cout << SampleT::name() << "=" << sample << " (";
+
+        if (diff <= 0)
+            std::cout << rang::fg::green;
+        else
+            std::cout << rang::fg::red << '+';
+
+        std::cout << std::setw(2) << std::setprecision(2) << std::fixed << diff << rang::fg::reset << ") ";
     }
 
     void operator()(const quantiles_t& qs)
     {
+        //std::cout << qs << std::endl;
     }
+
+private:
+    const stats& _ref;
 };
 
 int main(int argc, char** argv)
@@ -82,7 +101,10 @@ int main(int argc, char** argv)
             auto it = std::find_if(std::cbegin(ref_tests), std::cend(ref_tests), [&](const test& x) { return x.name == t.name && x.seed == t.seed; });
             assert_throw(it != ref_tests.end(), "ref test not found");
 
-            std::cout << t.name << std::endl;
+            const test& ref_test = *it;
+            std::cout << ref_test.name << ": ";
+            t.results.visit(stats_cmp(ref_test.results));
+            std::cout << "\n";
         }
     }
 
