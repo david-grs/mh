@@ -41,49 +41,6 @@ auto load_ref_file(const std::string& filename)
     return ref_tests;
 }
 
-struct stats_cmp
-{
-    explicit stats_cmp(const stats& ref) :
-      _ref(ref)
-    {}
-
-    template <typename SampleT>
-    std::enable_if_t<std::is_arithmetic<typename SampleT::value_type>::value>
-    operator()(SampleT sample)
-    {
-        SampleT ref = _ref.get<SampleT>();
-        print(SampleT::name(), sample, ref);
-    }
-
-    void operator()(const quantiles_t& qs)
-    {
-        const quantiles_t& ref = _ref.get<quantiles_t>();
-
-        for (int i = 0; i < (int)qs.size(); ++i)
-        {
-            auto ref_qs = std::find_if(std::cbegin(ref), std::cend(ref), [&](auto& p) { return p.first == qs[i].first; });
-            print("q" + std::to_string(qs[i].first), qs[i].second, ref_qs->second);
-        }
-    }
-
-private:
-    template <typename StringT>
-    void print(StringT&& name, double sample, double ref)
-    {
-        double diff = -100.0 + (100.0 * sample) / ref;
-        std::cout << name << "=" << sample << " (";
-
-        if (diff <= 0)
-            std::cout << rang::fg::green;
-        else
-            std::cout << rang::fg::red << '+';
-
-        std::cout << std::setw(2) << std::setprecision(2) << std::fixed << diff << rang::fg::reset << ") ";
-    }
-
-    const stats& _ref;
-};
-
 int main(int argc, char** argv)
 {
     if (argc != 4 && argc != 5)
@@ -108,16 +65,49 @@ int main(int argc, char** argv)
 
     if (cmp)
     {
-        for (const test& t : tests)
-        {
-            auto it = std::find_if(std::cbegin(ref_tests), std::cend(ref_tests), [&](const test& x) { return x.name == t.name && x.seed == t.seed; });
-            assert_throw(it != ref_tests.end(), "ref test not found");
+        std::cout << std::setw(20) << std::left << "test";
 
-            const test& ref_test = *it;
-            std::cout << ref_test.name << ": ";
-            t.results.visit(stats_cmp(ref_test.results));
-            std::cout << "\n";
-        }
+        for (const test& t : tests)
+            if (t.seed == seed)
+                std::cout << std::setw(20) << std::left << t.name;
+        std::cout << std::endl;
+
+        auto format = [&](double sample, double ref)
+        {
+            double diff = -100.0 + (100.0 * sample) / ref;
+
+            auto out = [&](auto& ss)
+            {
+                ss << std::fixed << std::setprecision(2) << sample << " (";
+
+                if (diff <= .0)
+                    ss << rang::fg::green;
+                else
+                    ss << rang::fg::red << '+';
+
+                ss << std::setprecision(2) << std::fixed << diff << rang::fg::reset << ")";
+            };
+
+            // rang doesn't support ostringstream yet, so we have to format the string twice (to get its size)... :(
+            std::ostringstream oss;
+            out(oss);
+            out(std::cout);
+            std::cout << std::string(20 - oss.str().size(), ' ');
+        };
+
+        typemap<median_t, mean_t, stddev_t>().visit([&](auto field)
+        {
+            std::cout << std::setw(20) << std::left << field.name();
+            for (const test& t : tests)
+            {
+                if (t.seed == seed)
+                {
+                    auto it = std::find_if(std::cbegin(ref_tests), std::cend(ref_tests), [&](const test& x) { return x.name == t.name && x.seed == t.seed; });
+                    format(t.results.template get<decltype(field)>(), it->results.template get<decltype(field)>());
+                }
+            }
+            std::cout << std::endl;
+        });
     }
 
     return 0;
