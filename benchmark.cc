@@ -118,7 +118,7 @@ int main(int argc, char** argv)
     //std::cout << "options: n=" << n << " seed=" << seed << " gen=" << std::boolalpha << gen << std::endl;
 
     std::vector<test> ref_tests = cmp ? load_ref_file("foo.txt") : std::vector<test>();
-    const bool write = false;
+    const bool write = true;
 
     std::uniform_int_distribution<> rng(1, std::numeric_limits<int>::max());
     std::vector<test> tests = benchmark_ht(seed);

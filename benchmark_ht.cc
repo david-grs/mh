@@ -29,14 +29,8 @@ std::vector<test> benchmark_container(std::string desc, Container&& c, long unsi
     bench(100000, [&]() { x += c.count(rng(gen)); }, desc + " lookup 1M");
 
 #if 0
-    {
-        x = 0;
-        rng = std::uniform_int_distribution<>(1e9 + 1, 2e9);
-        bench([&]() { x += gd.find(rng(gen)) != gd.end(); }, "google lookup inex");
-        bench([&]() { x += mh.find(rng(gen)); }, "ht lookup inex");
-    }
-
-    assert_throw(x == 0, "lookup unex failed");
+    rng = std::uniform_int_distribution<>(1e9 + 1, 2e9);
+    bench([&]() { x += gd.find(rng(gen)) != gd.end(); }, "google lookup inex");
 #endif
 
     return bench.tests();
