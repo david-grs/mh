@@ -8,6 +8,7 @@
 #include <iostream>
 #include <algorithm>
 #include <random>
+#include <fstream>
 #include <type_traits>
 
 static constexpr const int K = 32;
@@ -48,8 +49,15 @@ struct benchmark
         }
         auto end = Clock::now();
 
-        // from TSC to nanoseconds
         auto& data = _acc.data();
+
+        {
+            std::ofstream ofs(desc + ".stat");
+            for (int i = 0; i < nb_samples; ++i)
+                ofs << std::to_string(data[i]) << ",";
+        }
+
+        // from TSC to nanoseconds
         std::transform(std::begin(data), std::end(data), std::begin(data), [&](int64_t cycles) { return tsc_chrono::from_cycles(cycles).count(); });
 
         stats s = _acc.process(nb_samples);
