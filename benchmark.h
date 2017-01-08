@@ -38,13 +38,13 @@ struct benchmark
                                          std::chrono::steady_clock>;
 
         auto start = Clock::now();
-        _chrono.start();
         for (int i = 0; i < nb_samples; ++i)
         {
+            _chrono.start();
             for (int j = 0; j < K; ++j)
                 operation();
 
-            _acc.add(_chrono.elapsed_and_restart());
+            _acc.add(_chrono.elapsed());
         }
         auto end = Clock::now();
 
