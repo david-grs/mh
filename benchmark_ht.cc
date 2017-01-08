@@ -4,7 +4,7 @@
 #include "mic.h"
 
 #include <google/dense_hash_map>
-
+#include <unordered_map>
 #include <cstdint>
 
 namespace detail
@@ -44,6 +44,11 @@ std::vector<test> benchmark_google(long unsigned seed)
     gd.set_empty_key(0);
 
     return detail::benchmark_container("google", gd, seed);
+}
+
+std::vector<test> benchmark_umap(long unsigned seed)
+{
+    return detail::benchmark_container("umap", std::unordered_map<int32_t, double>(), seed);
 }
 
 std::vector<test> benchmark_ht(long unsigned seed)
