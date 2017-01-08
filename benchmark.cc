@@ -100,6 +100,13 @@ void cmp_tests(long unsigned seed, const std::vector<test>& tests, const std::ve
     });
 }
 
+inline std::ostream& operator<<(std::ostream& oss, const std::vector<test>& tests)
+{
+    for (auto& t : tests)
+        oss << t.name << "," << t.seed << "," << t.results << std::endl;
+    return oss;
+}
+
 int main(int argc, char** argv)
 {
     if (argc != 4 && argc != 5)
@@ -116,42 +123,41 @@ int main(int argc, char** argv)
     long unsigned seed = argc == 5 ? std::atoll(argv[4]) : std::random_device()();
 
     //std::cout << "options: n=" << n << " seed=" << seed << " gen=" << std::boolalpha << gen << std::endl;
-    static const std::string ref_filename("samples.ref");
+    const std::string ref_filename("samples.ref");
 
     std::vector<test> ref_tests = cmp ? load_ref_file(ref_filename) : std::vector<test>();
     const bool write = true;
 
-    std::uniform_int_distribution<> rng(1, std::numeric_limits<int>::max());
-    std::vector<test> tests = benchmark_ht(seed);
+    if (write)
+        unlink(ref_filename.c_str());
 
-    cmp_tests(seed, tests, ref_tests);
-    std::cout << std::endl;
+    auto benchmarks = {benchmark_ht, benchmark_google, benchmark_umap};
+    using BenchmarkIt = decltype(benchmarks)::iterator;
 
-    pid_t child = fork();
-
-    if (!child)
+    std::function<void(BenchmarkIt)> benchmark_and_fork = [&](auto it)
     {
-        tests = benchmark_google(seed);
+        if (it == std::cend(benchmarks))
+            return;
+
+        std::vector<test> tests = (*it)(seed);
         cmp_tests(seed, tests, ref_tests);
+        std::cout << std::endl;
 
         if (write)
         {
-            std::ofstream ofs(ref_filename);
-            for (auto& t : tests)
-                ofs << t.name << "," << t.seed << "," << t.results << std::endl;
+            std::ofstream ofs(ref_filename, std::ios_base::app | std::ios_base::out);
+            ofs << tests;
         }
-    }
-    else
-    {
-        waitpid(child, 0, 0);
 
-        if (write)
-        {
-            std::ofstream ofs(ref_filename, std::ios::app);
-            for (auto& t : tests)
-                ofs << t.name << "," << t.seed << "," << t.results << std::endl;
-        }
-    }
+        pid_t child = fork();
+
+        if (!child)
+            benchmark_and_fork(++it);
+        else
+            waitpid(child, 0, 0);
+    };
+
+    benchmark_and_fork(std::cbegin(benchmarks));
 
     return 0;
 }
