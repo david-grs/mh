@@ -34,11 +34,10 @@ struct benchmark
     {
         const int nb_samples = iterations / K;
 
-        using Clock = std::conditional_t<std::chrono::high_resolution_clock::is_steady,
-                                         std::chrono::high_resolution_clock,
-                                         std::chrono::steady_clock>;
+        //using Clock = std::conditional_t<std::chrono::high_resolution_clock::is_steady,
+        //                                 std::chrono::high_resolution_clock,
+        //                                 std::chrono::steady_clock>;
 
-        auto start = Clock::now();
         for (int i = 0; i < nb_samples; ++i)
         {
             _chrono.start();
@@ -47,24 +46,24 @@ struct benchmark
 
             _acc.add(_chrono.elapsed());
         }
-        auto end = Clock::now();
 
         auto& data = _acc.data();
 
         {
             std::ofstream ofs(desc + ".stat");
             for (int i = 0; i < nb_samples; ++i)
-                ofs << std::to_string(data[i]) << ",";
+            {
+                ofs << std::to_string(data[i]);
+
+                if (i + 1 != nb_samples)
+                    ofs << ",";
+            }
         }
 
         // from TSC to nanoseconds
         std::transform(std::begin(data), std::end(data), std::begin(data), [&](int64_t cycles) { return tsc_chrono::from_cycles(cycles).count(); });
 
         stats s = _acc.process(nb_samples);
-        //TODO temp
-        s.get<sum_t>() = (end - start).count();
-        assert_throw(std::llabs((int64_t)s.get<sum_t>() - (end - start).count()) < 1e6, "tsc_chrono and std::chrono::clock not synced");
-
         _tests.push_back({desc, _seed, s});
         _acc.clear();
     }
