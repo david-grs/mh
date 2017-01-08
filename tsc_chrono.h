@@ -118,7 +118,7 @@ struct tsc_chrono
         return from_cycles(elapsed());
     }
 
-    static std::chrono::nanoseconds from_cycles(int64_t cycles)
+    static std::chrono::nanoseconds from_cycles(double cycles)
     {
         return std::chrono::nanoseconds(std::llround(cycles / detail::tsc::get_freq_ghz()));
     }

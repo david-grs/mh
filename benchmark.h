@@ -61,7 +61,10 @@ struct benchmark
         }
 
         // from TSC to nanoseconds
-        std::transform(std::begin(data), std::end(data), std::begin(data), [&](int64_t cycles) { return tsc_chrono::from_cycles(cycles).count(); });
+        std::transform(std::cbegin(data), std::cend(data), std::begin(data), [&](int64_t cycles)
+        {
+            return tsc_chrono::from_cycles(cycles / static_cast<double>(K)).count();
+        });
 
         stats s = _acc.process(nb_samples);
         _tests.push_back({desc, _seed, s});
