@@ -1,4 +1,5 @@
 #include "stats.h"
+#include "utils.h"
 
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
@@ -11,12 +12,6 @@
 #include <boost/accumulators/statistics/extended_p_square_quantile.hpp>
 
 #include <algorithm>
-
-template <typename T, typename... Ts>
-constexpr auto make_array(T t, Ts... ts)
-{
-    return std::array<T, sizeof...(Ts) + 1>{t, ts...};
-}
 
 static constexpr auto quantiles = make_array(0.01, 0.25, 0.50, 0.75, 0.99);
     //make_array(0.001, 0.01, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.5,
