@@ -32,7 +32,7 @@ struct benchmark
     template <typename Callable, typename StringT>
     void operator()(int iterations, Callable operation, StringT&& desc)
     {
-        const int nb_samples = iterations / K;
+        int nb_samples = iterations / K;
 
         //using Clock = std::conditional_t<std::chrono::high_resolution_clock::is_steady,
         //                                 std::chrono::high_resolution_clock,
@@ -47,24 +47,26 @@ struct benchmark
             _acc.add(_chrono.elapsed());
         }
 
-        auto& data = _acc.data();
+        auto& samples = _acc.data();
+
+        // from TSC to nanoseconds
+        // we also discard the first samples, they're usually crappy
+        std::transform(std::cbegin(samples) + 3, std::cbegin(samples) + nb_samples, std::begin(samples), [&](int64_t cycles)
+        {
+            return tsc_chrono::from_cycles(cycles / static_cast<double>(K)).count();
+        });
+        nb_samples -= 3;
 
         {
             std::ofstream ofs(desc + ".stat");
             for (int i = 0; i < nb_samples; ++i)
             {
-                ofs << std::to_string(data[i]);
+                ofs << std::to_string(samples[i]);
 
                 if (i + 1 != nb_samples)
                     ofs << ",";
             }
         }
-
-        // from TSC to nanoseconds
-        std::transform(std::cbegin(data), std::cend(data), std::begin(data), [&](int64_t cycles)
-        {
-            return tsc_chrono::from_cycles(cycles / static_cast<double>(K)).count();
-        });
 
         stats s = _acc.process(nb_samples);
         _tests.push_back({desc, _seed, s});

@@ -116,8 +116,9 @@ int main(int argc, char** argv)
     long unsigned seed = argc == 5 ? std::atoll(argv[4]) : std::random_device()();
 
     //std::cout << "options: n=" << n << " seed=" << seed << " gen=" << std::boolalpha << gen << std::endl;
+    static const std::string ref_filename("samples.ref");
 
-    std::vector<test> ref_tests = cmp ? load_ref_file("foo.txt") : std::vector<test>();
+    std::vector<test> ref_tests = cmp ? load_ref_file(ref_filename) : std::vector<test>();
     const bool write = true;
 
     std::uniform_int_distribution<> rng(1, std::numeric_limits<int>::max());
@@ -135,7 +136,7 @@ int main(int argc, char** argv)
 
         if (write)
         {
-            std::ofstream ofs("foo.txt");
+            std::ofstream ofs(ref_filename);
             for (auto& t : tests)
                 ofs << t.name << "," << t.seed << "," << t.results << std::endl;
         }
@@ -146,7 +147,7 @@ int main(int argc, char** argv)
 
         if (write)
         {
-            std::ofstream ofs("foo.txt", std::ios::app);
+            std::ofstream ofs(ref_filename, std::ios::app);
             for (auto& t : tests)
                 ofs << t.name << "," << t.seed << "," << t.results << std::endl;
         }
