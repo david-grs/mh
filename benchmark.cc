@@ -49,11 +49,13 @@ auto load_ref_file(const std::string& filename)
 
 void cmp_tests(long unsigned seed, const std::vector<test>& tests, const std::vector<test>& ref_tests)
 {
-    std::cout << std::setw(20) << std::left << "test";
+    static const int FieldWidth = 22;
+
+    std::cout << std::setw(FieldWidth) << std::left << "test";
 
     for (const test& t : tests)
         if (t.seed == seed)
-            std::cout << std::setw(20) << std::left << t.name;
+            std::cout << std::setw(FieldWidth) << std::left << t.name;
     std::cout << std::endl;
 
     auto format = [&](double sample, double ref)
@@ -77,15 +79,15 @@ void cmp_tests(long unsigned seed, const std::vector<test>& tests, const std::ve
         out(oss);
         out(std::cout);
 
-        if (oss.str().size() < 20)
-            std::cout << std::string(20 - oss.str().size(), ' ');
+        if (oss.str().size() < FieldWidth)
+            std::cout << std::string(FieldWidth - oss.str().size(), ' ');
     };
 
     typemap<median_t, mean_t, stddev_t, sum_t>().visit([&](auto field)
     {
         using SampleT = decltype(field);
 
-        std::cout << std::setw(20) << std::left << SampleT::name();
+        std::cout << std::setw(FieldWidth) << std::left << SampleT::name();
         for (const test& t : tests)
         {
             if (t.seed == seed)
