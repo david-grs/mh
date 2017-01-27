@@ -135,12 +135,12 @@ int main(int argc, char** argv)
     auto benchmarks = {benchmark_ht, benchmark_google, benchmark_umap};
     using BenchmarkIt = decltype(benchmarks)::iterator;
 
-    std::function<void(BenchmarkIt)> benchmark_and_fork = [&](auto it)
+    std::function<void(BenchmarkIt, BenchmarkIt)> benchmark_and_fork = [&](auto it_bench, auto it_bench_end)
     {
-        if (it == std::cend(benchmarks))
+        if (it_bench == it_bench_end)
             return;
 
-        std::vector<test> tests = (*it)(seed);
+        std::vector<test> tests = (*it_bench)(seed);
         cmp_tests(seed, tests, ref_tests);
         std::cout << std::endl;
 
@@ -153,12 +153,12 @@ int main(int argc, char** argv)
         pid_t child = fork();
 
         if (!child)
-            benchmark_and_fork(++it);
+            benchmark_and_fork(++it_bench, it_bench_end);
         else
             waitpid(child, 0, 0);
     };
 
-    benchmark_and_fork(std::cbegin(benchmarks));
+    benchmark_and_fork(std::cbegin(benchmarks), std::cend(benchmarks));
 
     return 0;
 }
