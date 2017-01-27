@@ -12,6 +12,7 @@
 #include <random>
 #include <iomanip>
 #include <iostream>
+#include <unordered_set>
 
 extern "C"
 {
@@ -47,15 +48,14 @@ auto load_ref_file(const std::string& filename)
     return ref_tests;
 }
 
-void cmp_tests(long unsigned seed, const std::vector<test>& tests, const std::vector<test>& ref_tests)
+void cmp_tests(const std::vector<test>& tests, const std::vector<test>& ref_tests)
 {
     static const int FieldWidth = 22;
 
     std::cout << std::setw(FieldWidth) << std::left << "test";
 
     for (const test& t : tests)
-        if (t.seed == seed)
-            std::cout << std::setw(FieldWidth) << std::left << t.name;
+        std::cout << std::setw(FieldWidth) << std::left << t.name;
     std::cout << std::endl;
 
     auto format = [&](double sample, double ref)
@@ -90,13 +90,10 @@ void cmp_tests(long unsigned seed, const std::vector<test>& tests, const std::ve
         std::cout << std::setw(FieldWidth) << std::left << SampleT::name();
         for (const test& t : tests)
         {
-            if (t.seed == seed)
-            {
-                auto it = std::find_if(std::cbegin(ref_tests), std::cend(ref_tests), [&](const test& x) { return x.name == t.name && x.seed == t.seed; });
-                double ref = it != std::cend(ref_tests) ? it->results.template get<SampleT>() : .0;
+            auto it = std::find_if(std::cbegin(ref_tests), std::cend(ref_tests), [&](const test& x) { return x.name == t.name && x.seed == t.seed; });
+            double ref = it != std::cend(ref_tests) ? it->results.template get<SampleT>() : .0;
 
-                format(t.results.template get<SampleT>(), ref);
-            }
+            format(t.results.template get<SampleT>(), ref);
         }
         std::cout << std::endl;
     });
@@ -111,9 +108,9 @@ inline std::ostream& operator<<(std::ostream& oss, const std::vector<test>& test
 
 int main(int argc, char** argv)
 {
-    if (argc != 4 && argc != 5)
+    if (argc != 4)
     {
-        std::cerr << argv[0] << ": -ht|-ha [-gen] N [seed]" << std::endl;
+        std::cerr << argv[0] << ": -ht|-ha [-gen] N" << std::endl;
         return 1;
     }
 
@@ -121,27 +118,49 @@ int main(int argc, char** argv)
 
     //auto benchmark = argv[1] == std::string("-ht") ? benchmark_ht : benchmark_ha;
     const bool write = argv[2] == std::string("-gen");
-    //const int n = std::atoi(argv[3]);
-    long unsigned seed = argc == 5 ? std::atoll(argv[4]) : std::random_device()();
+    int runs = std::atoi(argv[3]);
 
-    //std::cout << "options: n=" << n << " seed=" << seed << " gen=" << std::boolalpha << gen << std::endl;
     const std::string ref_filename("samples.ref");
+    std::vector<test> ref_tests = load_ref_file(ref_filename);
 
-    auto ref_tests = load_ref_file(ref_filename);
+    std::unordered_set<uint64_t> seeds;
+    for (const auto& rt : ref_tests)
+        seeds.insert(rt.seed);
 
     if (write)
+    {
         unlink(ref_filename.c_str());
 
-    auto benchmarks = {benchmark_ht, benchmark_google, benchmark_umap};
-    using BenchmarkIt = decltype(benchmarks)::iterator;
+        for (int i = 0; i < runs; ++i)
+            seeds.insert(std::random_device()());
+    }
 
-    std::function<void(BenchmarkIt, BenchmarkIt)> benchmark_and_fork = [&](auto it_bench, auto it_bench_end)
+    runs = std::min(runs, (int)seeds.size());
+
+    const auto benchmark_fcts = {benchmark_umap, benchmark_ht, benchmark_google};
+
+    using benchmark_fct = std::function<std::vector<test>()>;
+    std::vector<benchmark_fct> benchmarks;
+    benchmarks.reserve(runs * benchmark_fcts.size());
+
+    for (auto f : benchmark_fcts)
     {
-        if (it_bench == it_bench_end)
+        auto seed_it = std::cbegin(seeds);
+
+        for (int i = 0; i < runs; ++i, ++seed_it)
+        {
+            const uint64_t seed = *seed_it;
+            benchmarks.emplace_back([=]() { return f(seed); });
+        }
+    }
+
+    std::function<void(decltype(benchmarks)::const_iterator)> benchmark_and_fork = [&](auto bench_it)
+    {
+        if (bench_it == std::cend(benchmarks))
             return;
 
-        std::vector<test> tests = (*it_bench)(seed);
-        cmp_tests(seed, tests, ref_tests);
+        std::vector<test> tests = (*bench_it)();
+        cmp_tests(tests, ref_tests);
         std::cout << std::endl;
 
         if (write)
@@ -153,12 +172,11 @@ int main(int argc, char** argv)
         pid_t child = fork();
 
         if (!child)
-            benchmark_and_fork(++it_bench, it_bench_end);
+            benchmark_and_fork(++bench_it);
         else
             waitpid(child, 0, 0);
     };
 
-    benchmark_and_fork(std::cbegin(benchmarks), std::cend(benchmarks));
-
+    benchmark_and_fork(std::cbegin(benchmarks));
     return 0;
 }
