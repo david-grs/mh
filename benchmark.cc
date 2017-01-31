@@ -137,7 +137,7 @@ int main(int argc, char** argv)
 
     runs = std::min(runs, (int)seeds.size());
 
-    const auto benchmark_fcts = {benchmark_umap, benchmark_ht, benchmark_google};
+    const auto benchmark_fcts = {benchmark_umap, benchmark_google, benchmark_ht};
 
     using benchmark_fct = std::function<std::vector<test>()>;
     std::vector<benchmark_fct> benchmarks;
