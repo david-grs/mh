@@ -108,17 +108,16 @@ inline std::ostream& operator<<(std::ostream& oss, const std::vector<test>& test
 
 int main(int argc, char** argv)
 {
-    if (argc != 4)
+    if (argc != 3)
     {
-        std::cerr << argv[0] << ": -ht|-ha [-gen] N" << std::endl;
+        std::cerr << argv[0] << ": [-gen] N" << std::endl;
         return 1;
     }
 
     tsc_chrono::init();
 
-    //auto benchmark = argv[1] == std::string("-ht") ? benchmark_ht : benchmark_ha;
-    const bool write = argv[2] == std::string("-gen");
-    int runs = std::atoi(argv[3]);
+    const bool write = argv[1] == std::string("-gen");
+    int runs = std::atoi(argv[2]);
 
     //const std::string ref_filename("../samples.ht.ref");
     //const auto benchmark_fcts = {benchmark_umap, benchmark_google, benchmark_ht};
