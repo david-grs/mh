@@ -3,10 +3,12 @@
 import sys
 import matplotlib.pyplot as plt
 
-samples = open(sys.argv[1]).readlines()[0].split(',')
-for x in samples:
-    x = float(x)
+for arg in sys.argv[1:]:
+    samples = open(arg).readlines()[0].split(',')
+    for x in samples:
+        x = float(x)
 
-plt.plot(samples)
+    plt.plot(samples)
+
 plt.show()
 
