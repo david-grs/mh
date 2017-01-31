@@ -28,11 +28,6 @@ std::vector<test> benchmark_container(std::string desc, Container&& c, long unsi
     bench(900000, [&]() { c.insert(std::make_pair(rng(gen), 222.0)); }, desc + " insert 100K-1M");
     bench(100000, [&]() { x += c.count(rng(gen)); }, desc + " lookup 1M");
 
-#if 0
-    rng = std::uniform_int_distribution<>(1e9 + 1, 2e9);
-    bench([&]() { x += gd.find(rng(gen)) != gd.end(); }, "google lookup inex");
-#endif
-
     return bench.tests();
 }
 
