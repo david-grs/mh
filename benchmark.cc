@@ -120,10 +120,10 @@ int main(int argc, char** argv)
     const bool write = argv[2] == std::string("-gen");
     int runs = std::atoi(argv[3]);
 
-    //const std::string ref_filename("samples.ref");
+    //const std::string ref_filename("../samples.ht.ref");
     //const auto benchmark_fcts = {benchmark_umap, benchmark_google, benchmark_ht};
 
-    const std::string ref_filename("samples.ha.ref");
+    const std::string ref_filename("../samples.ha.ref");
     const auto benchmark_fcts = {benchmark_boost_mic, benchmark_ha};
 
     std::vector<test> ref_tests = load_ref_file(ref_filename);
