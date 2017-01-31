@@ -58,6 +58,18 @@ struct hash_array
         return {end() - 1, true};
     }
 
+    template <typename K>
+    bool find(K&& key)
+    {
+        return _hashtable.find(std::forward<K>(key));
+    }
+
+    template <typename... Ts>
+    bool count(Ts&&... ts)
+    {
+        return find(ts...);
+    }
+
     iterator begin() { return iterator(*this, 0); }
     iterator end()   { return iterator(*this, _sequence.size()); }
 
