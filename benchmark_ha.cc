@@ -16,36 +16,53 @@
 
 #include <cstdint>
 
-using namespace boost::multi_index;
+namespace detail
+{
 
-std::vector<test> benchmark_ha(long unsigned seed)
+template <typename Container>
+std::vector<test> benchmark_container(std::string desc, Container&& c, long unsigned seed)
 {
     std::mt19937 gen(seed);
 
-    ht<int32_t, double, empty_key<int32_t, 0>> mh;
-    hash_array<int32_t, double, empty_key<int32_t, 0>> mha;
+    std::uniform_int_distribution<> rng(1, 1e9);
+    volatile int x = 0;
 
-    boost::multi_index_container<
+    benchmark bench(1000000, seed);
+    bench(1000, [&]() { c.insert(std::make_pair(rng(gen), 222.0)); }, desc + " insert 1K");
+    bench(100000, [&]() { x += c.count(rng(gen)); }, desc + " lookup 1K");
+    bench(9000, [&]() { c.insert(std::make_pair(rng(gen), 222.0)); }, desc + " insert 1-10K");
+    bench(100000, [&]() { x += c.count(rng(gen)); }, desc + " lookup 10K");
+    bench(90000, [&]() { c.insert(std::make_pair(rng(gen), 222.0)); }, desc + " insert 10-100K");
+    bench(100000, [&]() { x += c.count(rng(gen)); }, desc + " lookup 100K");
+    bench(900000, [&]() { c.insert(std::make_pair(rng(gen), 222.0)); }, desc + " insert 100K-1M");
+    bench(100000, [&]() { x += c.count(rng(gen)); }, desc + " lookup 1M");
+
+    return bench.tests();
+}
+
+}
+
+std::vector<test> benchmark_boost_mic(long unsigned seed)
+{
+    namespace mic = boost::multi_index;
+
+    mic::multi_index_container<
       std::pair<int32_t, double>,
-      indexed_by<
-        hashed_unique<
-          member<std::pair<int32_t, double>, int32_t, &std::pair<int32_t, double>::first>
+      mic::indexed_by<
+        mic::hashed_unique<
+          mic::member<std::pair<int32_t, double>, int32_t, &std::pair<int32_t, double>::first>
         >,
-        sequenced<>
+        mic::sequenced<>
       >
     > mic_hs;
 
-    std::uniform_int_distribution<> rng(1, 1e9);
-
-    //benchmark bench;
-    std::vector<test> tests;
-#if 0
-    {
-        bench([&]() { mh.insert(std::make_pair(rng(gen), 222.0)); }, "ht insert");
-        bench([&]() { mha.insert(std::make_pair(rng(gen), 222.0)); }, "mha insert");
-        bench([&]() { mic_hs.insert(std::make_pair(rng(gen), 222.0)); }, "mic insert");
-    }
-#endif
-
-    return tests;
+    return ::detail::benchmark_container("boost.mic", mic_hs, seed);
 }
+
+std::vector<test> benchmark_ha(long unsigned seed)
+{
+    hash_array<int32_t, double, empty_key<int32_t, 0>> mha;
+
+    return ::detail::benchmark_container("ha", mha, seed);
+}
+
