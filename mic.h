@@ -17,7 +17,7 @@ struct hash_array
 
     struct iterator_base
     {
-        iterator_base(hash_array& h, std::size_t i) :
+        iterator_base(hash_array* h, std::size_t i) :
             _h(h),
             _i(i)
         {}
@@ -28,13 +28,13 @@ struct hash_array
         iterator_base& operator++()              { return operator+=(1); }
         iterator_base& operator--()              { return operator+=(-1); }
 
-        difference_type operator-(const iterator_base& it) { assert(&_h == &it._h); return _i - it._i; }
+        difference_type operator-(const iterator_base& it) { assert(_h == it._h); return _i - it._i; }
 
-        bool operator< (const iterator_base& it) const { assert(&_h == &it._h); return _i < it._i; }
-        bool operator==(const iterator_base& it) const { return &_h == &it._h && _i == it._i; }
+        bool operator< (const iterator_base& it) const { assert(_h == it._h); return _i < it._i; }
+        bool operator==(const iterator_base& it) const { return _h == it._h && _i == it._i; }
 
      protected:
-        hash_array& _h;
+        hash_array* _h;
         std::size_t _i;
     };
 
@@ -44,7 +44,7 @@ struct hash_array
     {
         using iterator_base::iterator_base;
 
-        auto& operator*() { return this->_h._hashtable._table[this->_h._sequence[this->_i]]; }
+        auto& operator*() { return this->_h->_hashtable._table[this->_h->_sequence[this->_i]]; }
     };
 
     template <typename Pair>
@@ -70,8 +70,8 @@ struct hash_array
         return find(ts...);
     }
 
-    iterator begin() { return iterator(*this, 0); }
-    iterator end()   { return iterator(*this, _sequence.size()); }
+    iterator begin() { return iterator(this, 0); }
+    iterator end()   { return iterator(this, _sequence.size()); }
 
     hashtable _hashtable;
     std::vector<typename hashtable::iterator> _sequence;
