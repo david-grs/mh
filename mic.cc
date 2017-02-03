@@ -15,4 +15,14 @@ int main()
 
     for (auto& a : mha)
         std::cout << a.first << " " << a.second << std::endl;
+
+    auto it = mha.begin();
+
+    for (int i = 0; i < 10; ++i)
+    {
+        it = (it == mha.end() ? mha.begin() : it);
+        std::cout << (*it).first << std::endl;
+        ++it;
+    }
+
 }
