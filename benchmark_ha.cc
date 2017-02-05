@@ -34,10 +34,10 @@ std::vector<test> benchmark_container(std::string desc, Container&& c, long unsi
     bench(100000, [&]() { it = (it == c.end() ? c.begin() : it); x += (*(it++)).first; }, desc + " walk 1K");
     bench(9000, [&]() { c.insert(std::make_pair(rng(gen), 222.0)); }, desc + " insert 1-10K");
     bench(100000, [&]() { x += c.count(rng(gen)); }, desc + " lookup 10K");
-    bench(100000, [&]() { it == c.end() ? c.begin() : it; x += (*(it++)).first; }, desc + " walk 10K");
+    bench(100000, [&]() { it = (it == c.end() ? c.begin() : it); x += (*(it++)).first; }, desc + " walk 10K");
     bench(990000, [&]() { c.insert(std::make_pair(rng(gen), 222.0)); }, desc + " insert 10K-1M");
     bench(100000, [&]() { x += c.count(rng(gen)); }, desc + " lookup 1M");
-    bench(100000, [&]() { it == c.end() ? c.begin() : it; x += (*(it++)).first; }, desc + " walk 1M");
+    bench(100000, [&]() { it = (it == c.end() ? c.begin() : it); x += (*(it++)).first; }, desc + " walk 1M");
 
     return bench.tests();
 }
