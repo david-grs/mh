@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <iostream>
 #include <unordered_set>
+#include <cstdio>
 
 extern "C"
 {
@@ -20,7 +21,7 @@ extern "C"
     #include <sys/wait.h>
 }
 
-auto load_ref_file(const std::string& filename)
+auto load_tests_file(const std::string& filename)
 {
     std::vector<test> ref_tests;
     std::ifstream ifs(filename);
@@ -118,6 +119,7 @@ int main(int argc, char** argv)
 
     const bool write = argv[1] == std::string("-gen");
     int runs = std::atoi(argv[2]);
+    const std::string tmpf = std::tmpnam(nullptr);
 
     //const std::string ref_filename("../samples.ht.ref");
     //const auto benchmark_fcts = {benchmark_umap, benchmark_google, benchmark_ht};
@@ -125,7 +127,7 @@ int main(int argc, char** argv)
     const std::string ref_filename("../samples.ha.ref");
     const auto benchmark_fcts = {benchmark_boost_mic, benchmark_ha};
 
-    std::vector<test> ref_tests = load_ref_file(ref_filename);
+    std::vector<test> ref_tests = load_tests_file(ref_filename);
 
     std::unordered_set<uint64_t> seeds;
     for (const auto& rt : ref_tests)
@@ -133,8 +135,6 @@ int main(int argc, char** argv)
 
     if (write)
     {
-        unlink(ref_filename.c_str());
-
         for (int i = 0; i < runs; ++i)
             seeds.insert(std::random_device()());
     }
@@ -167,18 +167,35 @@ int main(int argc, char** argv)
 
         if (write)
         {
-            std::ofstream ofs(ref_filename, std::ios_base::app | std::ios_base::out);
+            std::ofstream ofs(tmpf, std::ios_base::app | std::ios_base::out);
             ofs << tests;
         }
 
         pid_t child = fork();
 
         if (!child)
-            benchmark_and_fork(++bench_it);
+        {
+            auto next_it = ++bench_it;
+            benchmark_and_fork(next_it);
+        }
         else
+        {
             waitpid(child, 0, 0);
+            std::exit(0);
+        }
     };
 
     benchmark_and_fork(std::cbegin(benchmarks));
+
+
+    if (write)
+    {
+        std::vector<test> tests = load_tests_file(tmpf);
+        std::cout <<  tests.size() << std::endl;
+        std::ofstream ofs(ref_filename);
+        ofs << tests;
+
+        std::remove(tmpf.c_str());
+    }
     return 0;
 }
