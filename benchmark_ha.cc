@@ -28,16 +28,16 @@ std::vector<test> benchmark_container(std::string desc, Container&& c, long unsi
     volatile int x = 0;
 
     benchmark bench(1000000, seed);
-    bench(1000, [&]() { c.insert(std::make_pair(rng(gen), 222.0)); }, desc + " insert 1K");
-    bench(100000, [&]() { x += c.count(rng(gen)); }, desc + " lookup 1K");
+    bench(1000, [&]() { c.insert(std::make_pair(rng(gen), 222.0)); }, desc, "insert", "1K");
+    bench(100000, [&]() { x += c.count(rng(gen)); }, desc, "lookup", "1K");
     auto it = c.begin();
-    bench(100000, [&]() { it = (it == c.end() ? c.begin() : it); x += (*(it++)).first; }, desc + " walk 1K");
-    bench(9000, [&]() { c.insert(std::make_pair(rng(gen), 222.0)); }, desc + " insert 1-10K");
-    bench(100000, [&]() { x += c.count(rng(gen)); }, desc + " lookup 10K");
-    bench(100000, [&]() { it = (it == c.end() ? c.begin() : it); x += (*(it++)).first; }, desc + " walk 10K");
-    bench(990000, [&]() { c.insert(std::make_pair(rng(gen), 222.0)); }, desc + " insert 10K-1M");
-    bench(100000, [&]() { x += c.count(rng(gen)); }, desc + " lookup 1M");
-    bench(100000, [&]() { it = (it == c.end() ? c.begin() : it); x += (*(it++)).first; }, desc + " walk 1M");
+    bench(100000, [&]() { it = (it == c.end() ? c.begin() : it); x += (*(it++)).first; }, desc, "walk", "1K");
+    bench(9000, [&]() { c.insert(std::make_pair(rng(gen), 222.0)); }, desc, "insert", "1-10K");
+    bench(100000, [&]() { x += c.count(rng(gen)); }, desc, "lookup", "10K");
+    bench(100000, [&]() { it = (it == c.end() ? c.begin() : it); x += (*(it++)).first; }, desc, "walk", "10K");
+    bench(990000, [&]() { c.insert(std::make_pair(rng(gen), 222.0)); }, desc, "insert", "10K-1M");
+    bench(100000, [&]() { x += c.count(rng(gen)); }, desc, "lookup", "1M");
+    bench(100000, [&]() { it = (it == c.end() ? c.begin() : it); x += (*(it++)).first; }, desc, "walk", "1M");
 
     return bench.tests();
 }

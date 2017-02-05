@@ -17,7 +17,11 @@ static constexpr const int K = 32;
 
 struct test
 {
-    std::string name;
+    std::string name() const { return container + " " + operation + " " + description; }
+
+    std::string container;
+    std::string operation;
+    std::string description;
     unsigned long seed;
     stats results;
 };
@@ -29,8 +33,8 @@ struct benchmark
       _seed(seed)
     {}
 
-    template <typename Callable, typename StringT>
-    void operator()(int iterations, Callable operation, StringT&& desc)
+    template <typename Callable>
+    void operator()(int iterations, Callable operation, std::string container, std::string op_desc, std::string desc)
     {
         int nb_samples = iterations / K;
 
@@ -58,7 +62,7 @@ struct benchmark
         nb_samples -= 3;
 
         {
-            std::ofstream ofs(desc + ".stat");
+            std::ofstream ofs(container + "_" + op_desc + "_" + desc + ".stat");
             for (int i = 0; i < nb_samples; ++i)
             {
                 ofs << std::to_string(samples[i]);
@@ -69,7 +73,7 @@ struct benchmark
         }
 
         stats s = _acc.process(nb_samples);
-        _tests.push_back({desc, _seed, s});
+        _tests.push_back({container, op_desc, desc, _seed, s});
         _acc.clear();
     }
 

@@ -30,11 +30,14 @@ auto load_tests_file(const std::string& filename)
     for (std::string line; std::getline(ifs, line); )
     {
         boost::tokenizer<boost::char_separator<char>> tok(line, sep);
-        assert(std::distance(tok.begin(), tok.end()) == 3);
+
+        if (std::distance(tok.begin(), tok.end()) != 5)
+            throw std::runtime_error("wrong test file");
 
         auto it = tok.begin();
-        std::string desc = *it;
-        ++it;
+        std::string container = *it; ++it;
+        std::string operation = *it; ++it;
+        std::string desc = *it; ++it;
 
         unsigned long seed = std::stoll(*it);
         ++it;
@@ -43,7 +46,7 @@ auto load_tests_file(const std::string& filename)
         std::istringstream iss(*it);
         iss >> s;
 
-        ref_tests.push_back({std::move(desc), seed, std::move(s)});
+        ref_tests.push_back({std::move(container), std::move(operation), std::move(desc), seed, std::move(s)});
     }
 
     return ref_tests;
@@ -56,7 +59,7 @@ void cmp_tests(const std::vector<test>& tests, const std::vector<test>& ref_test
     std::cout << std::setw(FieldWidth) << std::left << "test";
 
     for (const test& t : tests)
-        std::cout << std::setw(FieldWidth) << std::left << t.name;
+        std::cout << std::setw(FieldWidth) << std::left << t.name();
     std::cout << std::endl;
 
     auto format = [&](double sample, double ref)
@@ -91,7 +94,7 @@ void cmp_tests(const std::vector<test>& tests, const std::vector<test>& ref_test
         std::cout << std::setw(FieldWidth) << std::left << SampleT::name();
         for (const test& t : tests)
         {
-            auto it = std::find_if(std::cbegin(ref_tests), std::cend(ref_tests), [&](const test& x) { return x.name == t.name && x.seed == t.seed; });
+            auto it = std::find_if(std::cbegin(ref_tests), std::cend(ref_tests), [&](const test& x) { return x.name() == t.name() && x.seed == t.seed; });
             double ref = it != std::cend(ref_tests) ? it->results.template get<SampleT>() : .0;
 
             format(t.results.template get<SampleT>(), ref);
@@ -103,7 +106,7 @@ void cmp_tests(const std::vector<test>& tests, const std::vector<test>& ref_test
 inline std::ostream& operator<<(std::ostream& oss, const std::vector<test>& tests)
 {
     for (auto& t : tests)
-        oss << t.name << "," << t.seed << "," << t.results << std::endl;
+        oss << t.container << "," << t.operation << "," << t.description << "," << t.seed << "," << t.results << std::endl;
     return oss;
 }
 
