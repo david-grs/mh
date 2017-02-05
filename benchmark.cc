@@ -165,18 +165,15 @@ int main(int argc, char** argv)
         cmp_tests(tests, ref_tests);
         std::cout << std::endl;
 
-        if (write)
         {
             std::ofstream ofs(tmpf, std::ios_base::app | std::ios_base::out);
             ofs << tests;
         }
 
         pid_t child = fork();
-
         if (!child)
         {
-            auto next_it = ++bench_it;
-            benchmark_and_fork(next_it);
+            benchmark_and_fork(++bench_it);
         }
         else
         {
@@ -187,14 +184,16 @@ int main(int argc, char** argv)
 
     benchmark_and_fork(std::cbegin(benchmarks));
 
+    std::vector<test> tests = load_tests_file(tmpf);
+    //cmp_tests(tests, ref_tests);
 
     if (write)
     {
-        std::vector<test> tests = load_tests_file(tmpf);
         std::ofstream ofs(ref_filename);
         ofs << tests;
-
-        std::remove(tmpf.c_str());
     }
+
+    std::remove(tmpf.c_str());
+
     return 0;
 }
