@@ -14,6 +14,7 @@
 #include <iostream>
 #include <unordered_set>
 #include <cstdio>
+#include <map>
 
 extern "C"
 {
@@ -103,6 +104,27 @@ void cmp_tests(const std::vector<test>& tests, const std::vector<test>& ref_test
     });
 }
 
+
+void cmp_tests_short(const std::vector<test>& tests, const std::vector<test>&) // TODO ref_tests)
+{
+    using group = std::pair<std::string, std::string>;
+    std::map<group, std::vector<double>> groups;
+
+    for (auto& t : tests)
+    {
+        auto id = std::make_pair(t.container, t.operation);
+        groups[id].emplace_back(t.results.get<median_t>());
+    }
+
+
+    for (auto& g : groups)
+    {
+        double mean = std::accumulate(std::cbegin(g.second), std::cend(g.second), 0) / (double)g.second.size();
+        std::cout << g.first.first << " " << g.first.second << ":" << mean << std::endl;
+    }
+
+}
+
 inline std::ostream& operator<<(std::ostream& oss, const std::vector<test>& tests)
 {
     for (auto& t : tests)
@@ -189,6 +211,7 @@ int main(int argc, char** argv)
 
     std::vector<test> tests = load_tests_file(tmpf);
     //cmp_tests(tests, ref_tests);
+    cmp_tests_short(tests, ref_tests);
 
     if (write)
     {
