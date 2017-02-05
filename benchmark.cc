@@ -191,7 +191,6 @@ int main(int argc, char** argv)
     if (write)
     {
         std::vector<test> tests = load_tests_file(tmpf);
-        std::cout <<  tests.size() << std::endl;
         std::ofstream ofs(ref_filename);
         ofs << tests;
 
