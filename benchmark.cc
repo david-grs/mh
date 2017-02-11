@@ -105,23 +105,29 @@ void cmp_tests(const std::vector<test>& tests, const std::vector<test>& ref_test
 }
 
 
-void cmp_tests_short(const std::vector<test>& tests, const std::vector<test>&) // TODO ref_tests)
+void cmp_tests_short(const std::vector<test>& curr_tests, const std::vector<test>& ref_tests)
 {
-    using group = std::pair<std::string, std::string>;
-    std::map<group, std::vector<double>> groups;
-
-    for (auto& t : tests)
+    auto get_means = [&](const std::vector<test>& tests)
     {
-        auto id = std::make_pair(t.container, t.operation);
-        groups[id].emplace_back(t.results.get<median_t>());
-    }
+        using group = std::pair<std::string, std::string>;
+        std::map<group, std::vector<double>> groups;
+
+        for (auto& t : tests)
+        {
+            auto id = std::make_pair(t.container, t.operation);
+            groups[id].emplace_back(t.results.get<median_t>());
+        }
+
+        std::map<group, double> means;
+        for (auto& g : groups)
+            means[g.first] = std::accumulate(std::cbegin(g.second), std::cend(g.second), 0) / (double)g.second.size();
+
+        return means;
+    };
 
 
-    for (auto& g : groups)
-    {
-        double mean = std::accumulate(std::cbegin(g.second), std::cend(g.second), 0) / (double)g.second.size();
-        std::cout << g.first.first << " " << g.first.second << ":" << mean << std::endl;
-    }
+
+
 
 }
 
