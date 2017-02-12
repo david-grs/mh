@@ -172,7 +172,7 @@ int main(int argc, char** argv)
     tsc_chrono::init();
 
     const bool write = argv[1] == std::string("-gen");
-    int runs = std::atoi(argv[2]);
+    const int cfg_runs = std::atoi(argv[2]);
     const std::string tmpf = std::tmpnam(nullptr);
 
     const std::string ref_filename("../samples.ref");
@@ -182,16 +182,19 @@ int main(int argc, char** argv)
     std::vector<test> ref_tests = load_tests_file(ref_filename);
 
     std::unordered_set<uint64_t> seeds;
-    for (const auto& rt : ref_tests)
-        seeds.insert(rt.seed);
 
     if (write)
     {
-        for (int i = 0; i < runs; ++i)
+        for (int i = 0; i < cfg_runs; ++i)
             seeds.insert(std::random_device()());
     }
+    else
+    {
+        for (const auto& rt : ref_tests)
+            seeds.insert(rt.seed);
+    }
 
-    runs = std::min(runs, (int)seeds.size());
+    const int runs = std::min(cfg_runs, (int)seeds.size());
 
     using benchmark_fct = std::function<std::vector<test>()>;
     std::vector<benchmark_fct> benchmarks;
