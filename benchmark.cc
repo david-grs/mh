@@ -112,23 +112,46 @@ void cmp_tests_short(const std::vector<test>& curr_tests, const std::vector<test
         using group = std::pair<std::string, std::string>;
         std::map<group, std::vector<double>> groups;
 
-        for (auto& t : tests)
+        for (const auto& t : tests)
         {
             auto id = std::make_pair(t.container, t.operation);
             groups[id].emplace_back(t.results.get<median_t>());
         }
 
         std::map<group, double> means;
-        for (auto& g : groups)
+        for (const auto& g : groups)
             means[g.first] = std::accumulate(std::cbegin(g.second), std::cend(g.second), 0) / (double)g.second.size();
 
         return means;
     };
 
+    auto means = get_means(curr_tests);
+    auto ref_means = get_means(ref_tests);
 
+    for (const auto& g : means)
+    {
+        const std::string desc = g.first.first + " " + g.first.second;
+        const double mean = g.second;
 
+        auto it = ref_means.find(g.first);
+        if (it == ref_means.end())
+        {
+            std::cout << "cannot find reference for test " << desc << std::endl;
+            continue;
+        }
 
+        const double ref_mean = it->second;
+        const double diff = -100.0 + (100.0 * mean) / ref_mean;
 
+        std::cout << std::fixed << std::setprecision(2) << mean << " (";
+
+        if (diff <= .0)
+            std::cout << rang::fg::green;
+        else
+            std::cout << rang::fg::red << '+';
+
+        std::cout << std::setprecision(2) << std::fixed << diff << '%' << rang::fg::reset <<  ")" << std::endl;
+    }
 }
 
 inline std::ostream& operator<<(std::ostream& oss, const std::vector<test>& tests)
