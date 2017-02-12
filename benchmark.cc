@@ -143,7 +143,7 @@ void cmp_tests_short(const std::vector<test>& curr_tests, const std::vector<test
         const double ref_mean = it->second;
         const double diff = -100.0 + (100.0 * mean) / ref_mean;
 
-        std::cout << std::fixed << std::setprecision(2) << mean << " (";
+        std::cout << desc << ": " << std::fixed << std::setprecision(2) << mean << " (";
 
         if (diff <= .0)
             std::cout << rang::fg::green;
