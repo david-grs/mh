@@ -185,8 +185,13 @@ int main(int argc, char** argv)
 
     if (write)
     {
+        std::random_device rnd;
+        std::mt19937 gen(rnd());
+
+        std::uniform_int_distribution<> rng;
+
         for (int i = 0; i < cfg_runs; ++i)
-            seeds.insert(std::random_device()());
+            seeds.insert(rng(gen));
     }
     else
     {
