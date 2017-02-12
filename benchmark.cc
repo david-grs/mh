@@ -175,10 +175,8 @@ int main(int argc, char** argv)
     int runs = std::atoi(argv[2]);
     const std::string tmpf = std::tmpnam(nullptr);
 
-    //const std::string ref_filename("../samples.ht.ref");
+    const std::string ref_filename("../samples.ref");
     //const auto benchmark_fcts = {benchmark_umap, benchmark_google, benchmark_ht};
-
-    const std::string ref_filename("../samples.ha.ref");
     const auto benchmark_fcts = {benchmark_boost_mic, benchmark_ha};
 
     std::vector<test> ref_tests = load_tests_file(ref_filename);
