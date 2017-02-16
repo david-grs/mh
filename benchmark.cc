@@ -69,7 +69,7 @@ int main(int argc, char** argv)
     tsc_chrono::init();
 
     const bool verbose = argv[1] == std::string("-v");
-    const bool write = (argc == 3 && argv[1] == std::string("-v"))
+    const bool write = (argc == 3 && argv[1] == std::string("-gen"))
                         || (argc == 4 && argv[2] == std::string("-gen"));
     const int cfg_runs = std::atoi(argv[argc - 1]);
     const std::string tmpf = std::tmpnam(nullptr);
