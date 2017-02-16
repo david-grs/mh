@@ -216,33 +216,21 @@ int main(int argc, char** argv)
         }
     }
 
-    std::function<void(decltype(benchmarks)::const_iterator)> benchmark_and_fork = [&](auto bench_it)
+    for (int i = 0; i < (int)benchmarks.size(); ++i)
     {
-        if (bench_it == std::cend(benchmarks))
-            return;
-
-        std::vector<test> tests = (*bench_it)();
-        cmp_tests(tests, ref_tests);
-        std::cout << std::endl;
-
-        {
-            std::ofstream ofs(tmpf, std::ios_base::app | std::ios_base::out);
-            ofs << tests;
-        }
-
         pid_t child = fork();
-        if (!child)
+        if (child)
         {
-            benchmark_and_fork(++bench_it);
+             waitpid(child, 0, 0);
         }
         else
         {
-            waitpid(child, 0, 0);
+            std::vector<test> tests = benchmarks[i]();
+            std::ofstream ofs(tmpf, std::ios_base::app | std::ios_base::out);
+            ofs << tests;
             std::exit(0);
         }
-    };
-
-    benchmark_and_fork(std::cbegin(benchmarks));
+    }
 
     std::vector<test> tests = load_tests_file(tmpf);
     //cmp_tests(tests, ref_tests);
