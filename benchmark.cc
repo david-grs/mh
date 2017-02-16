@@ -60,16 +60,18 @@ inline std::ostream& operator<<(std::ostream& oss, const std::vector<test>& test
 
 int main(int argc, char** argv)
 {
-    if (argc != 3)
+    if (argc != 3 && argc != 4)
     {
-        std::cerr << argv[0] << ": [-gen] N" << std::endl;
+        std::cerr << argv[0] << ": [-v] [-gen] N" << std::endl;
         return 1;
     }
 
     tsc_chrono::init();
 
-    const bool write = argv[1] == std::string("-gen");
-    const int cfg_runs = std::atoi(argv[2]);
+    const bool verbose = argv[1] == std::string("-v");
+    const bool write = (argc == 3 && argv[1] == std::string("-v"))
+                        || (argc == 4 && argv[2] == std::string("-gen"));
+    const int cfg_runs = std::atoi(argv[argc - 1]);
     const std::string tmpf = std::tmpnam(nullptr);
 
     const std::string ref_filename("../samples.ref");
@@ -130,8 +132,11 @@ int main(int argc, char** argv)
     }
 
     std::vector<test> tests = load_tests_file(tmpf);
-    io::cmp_tests_full(tests, ref_tests);
-    //io::cmp_tests_short(tests, ref_tests);
+
+    if (verbose)
+        io::cmp_tests_full(tests, ref_tests);
+    else
+        io::cmp_tests_short(tests, ref_tests);
 
     if (write)
     {
