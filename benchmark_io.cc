@@ -79,6 +79,7 @@ void cmp_tests_full(const std::vector<test>& tests, const std::vector<test>& ref
         if (i > 0 && curr != last)
         {
             cmp_tests_full_group(group, ref_tests);
+            std::cout << std::endl;
             group.clear();
         }
 
