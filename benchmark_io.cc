@@ -10,11 +10,12 @@
 
 #include <algorithm>
 #include <map>
+#include <tuple>
 
 namespace io
 {
 
-void cmp_tests_full(const std::vector<test>& tests, const std::vector<test>& ref_tests)
+static void cmp_tests_full_group(const std::vector<test>& tests, const std::vector<test>& ref_tests)
 {
     static const int FieldWidth = 22;
 
@@ -65,6 +66,26 @@ void cmp_tests_full(const std::vector<test>& tests, const std::vector<test>& ref
     });
 }
 
+void cmp_tests_full(const std::vector<test>& tests, const std::vector<test>& ref_tests)
+{
+    std::vector<test> group;
+    group.reserve(tests.size());
+
+    std::tuple<std::string /*container*/, unsigned long> last;
+
+    for (int i = 0; i < (int)tests.size(); ++i)
+    {
+        auto curr = std::make_tuple(tests[i].container, tests[i].seed);
+        if (i > 0 && curr != last)
+        {
+            cmp_tests_full_group(group, ref_tests);
+            group.clear();
+        }
+
+        group.push_back(tests[i]);
+        last = std::move(curr);
+    }
+}
 
 void cmp_tests_short(const std::vector<test>& curr_tests, const std::vector<test>& ref_tests)
 {
