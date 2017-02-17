@@ -16,3 +16,6 @@ if (USE_TCMALLOC)
   find_library(TCMALLOC_LIB NAMES tcmalloc_minimal)
   target_link_libraries(benchmark ${TCMALLOC_LIB})
 endif ()
+
+add_subdirectory(tests)
+
