@@ -54,12 +54,13 @@ struct benchmark
         auto& samples = _acc.data();
 
         // from TSC to nanoseconds
-        // we also discard the first samples, they're usually crappy
-        std::transform(std::cbegin(samples) + 3, std::cbegin(samples) + nb_samples, std::begin(samples), [&](int64_t cycles)
+        // we also discard the first samples if we have a lot, because they're usually noisy
+        const int DiscardedSamples = nb_samples > 100 ? 3 : 0;
+        std::transform(std::cbegin(samples) + DiscardedSamples, std::cbegin(samples) + nb_samples, std::begin(samples), [&](int64_t cycles)
         {
             return tsc_chrono::from_cycles(cycles / static_cast<double>(K)).count();
         });
-        nb_samples -= 3;
+        nb_samples -= DiscardedSamples;
 
         {
             std::ofstream ofs(container + "_" + op_desc + "_" + desc + ".stat");
