@@ -16,6 +16,9 @@ int main()
     for (auto& a : mha)
         std::cout << a.first << " " << a.second << std::endl;
 
+    for (auto it = mha.begin(); it != mha.end(); ++it)
+        std::cout << "foo: " << (*it).first << std::endl;
+    
     auto it = mha.begin();
 
     for (int i = 0; i < 10; ++i)
