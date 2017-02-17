@@ -13,10 +13,14 @@
 #define DEBUG(x)
 #endif
 
-template <typename T, T t>
+template <typename T>
 struct empty_key
 {
-    enum { value = t };
+    template <typename X>
+    explicit empty_key(X&& x) :
+        value(std::forward<X>(x)) {}
+
+    T value;
 };
 
 namespace detail
@@ -24,20 +28,21 @@ namespace detail
     auto empty_callback = [](std::size_t) {};
 }
 
-template <typename Key, typename Value, typename EmptyKey, typename Hash = std::hash<Key>, typename Equal = std::equal_to<Key>>
+template <typename Key, typename Value, typename Hash = std::hash<Key>, typename Equal = std::equal_to<Key>>
 struct ht
 {
-    using Container = ht<Key, Value, EmptyKey, Hash, Equal>;
+    using Container = ht<Key, Value, Hash, Equal>;
     using Node = std::pair<Key, Value>;
     using iterator = std::size_t; // TODO
 
-    ht(std::size_t capacity = 16) :
+    explicit ht(empty_key<Key> k, std::size_t capacity = 16) :
+      _empty_key(k.value),
       _elements(0),
       _table_sz(capacity),
       _table(std::make_unique<Node[]>(_table_sz))
     {
         for (std::size_t i = 0; i < _table_sz; ++i)
-            new (&_table[i]) Node(EmptyKey::value, Value());
+            new (&_table[i]) Node(_empty_key, Value());
     }
 
     std::size_t next_quadratic(std::size_t pos, std::size_t& num_probes) const
@@ -64,14 +69,14 @@ struct ht
         resize(1);
 
         DEBUG("inserting " << p.first);
-        assert(!Equal()(p.first, EmptyKey::value));
+        assert(!Equal()(p.first, _empty_key));
 
         std::size_t pos = Hash()(p.first) & (_table_sz - 1);
         std::size_t num_probes = 1;
 
         DEBUG("trying to insert at pos=" << pos);
 
-        while (!Equal()(_table[pos].first, EmptyKey::value))
+        while (!Equal()(_table[pos].first, _empty_key))
         {
             if (Equal()(_table[pos].first, p.first))
                 return {{}, false};
@@ -96,7 +101,7 @@ struct ht
 
         while (!Equal()(_table[pos].first, key))
         {
-            if (Equal()(_table[pos].first, EmptyKey::value))
+            if (Equal()(_table[pos].first, _empty_key))
                 return false;
 
             pos = next(pos, num_probes);
@@ -122,7 +127,7 @@ struct ht
 
         while (!Equal()(_table[pos].first, key))
         {
-            if (Equal()(_table[pos].first, EmptyKey::value))
+            if (Equal()(_table[pos].first, _empty_key))
             {
                 const bool resized = resize(1);
 
@@ -167,10 +172,10 @@ struct ht
         {
             DEBUG("resizing to " << _table_sz * 2  << "...")
 
-            ht h(_table_sz * 2);
+            ht h(empty_key<Key>(_empty_key), _table_sz * 2);
             std::for_each(&_table[0], &_table[_table_sz], [&h](auto&& p)
             {
-                if (!Equal()(p.first, EmptyKey::value))
+                if (!Equal()(p.first, h.get_empty_key()))
                     h.insert(p);
             });
 
@@ -183,6 +188,9 @@ struct ht
         return false;
     }
 
+    const Key& get_empty_key() const { return _empty_key; }
+
+    Key _empty_key;
     std::size_t _elements;
     std::size_t _table_sz;
     std::unique_ptr<Node[]> _table;

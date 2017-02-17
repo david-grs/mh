@@ -4,7 +4,7 @@
 
 int main()
 {
-    hash_array<int, double, empty_key<int, 0>> mha;
+    hash_array<int, double> mha(empty_key<int>(0));
 
     mha.insert(std::make_pair(1, 2.0));
     mha.insert(std::make_pair(2, 2.0));
@@ -18,7 +18,7 @@ int main()
 
     for (auto it = mha.begin(); it != mha.end(); ++it)
         std::cout << "foo: " << (*it).first << std::endl;
-    
+
     auto it = mha.begin();
 
     for (int i = 0; i < 10; ++i)

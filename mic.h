@@ -5,7 +5,7 @@
 #include <boost/operators.hpp>
 #include <vector>
 
-template <typename Key, typename Value, typename EmptyKey>
+template <typename Key, typename Value>
 struct hash_array
 {
     using value_type = Value;
@@ -13,7 +13,11 @@ struct hash_array
     using size_type = std::size_t;
     using difference_type = std::size_t;
 
-    using hashtable = ht<Key, Value, EmptyKey>;
+    using hashtable = ht<Key, Value>;
+
+    explicit hash_array(empty_key<Key> k) :
+        _hashtable(k)
+    {}
 
     struct iterator_base
     {
@@ -72,6 +76,8 @@ struct hash_array
 
     iterator begin() { return iterator(this, 0); }
     iterator end()   { return iterator(this, _sequence.size()); }
+
+    const Key& get_empty_key() const { return _hashtable.get_empty_key(); }
 
     hashtable _hashtable;
     std::vector<typename hashtable::iterator> _sequence;

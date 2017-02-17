@@ -48,7 +48,7 @@ std::vector<test> benchmark_umap(long unsigned seed)
 
 std::vector<test> benchmark_ht(long unsigned seed)
 {
-    ht<int32_t, double, empty_key<int32_t, 0>> mh;
+    ht<int32_t, double> mh(empty_key<int32_t>(0));
 
     return detail::benchmark_container("ht", mh, seed);
 }
