@@ -7,11 +7,10 @@
 #include <cassert>
 #include <iostream>
 
-#if defined NDEBUG
-#define DEBUG(x)
+#if defined HT_DEBUG_IO
+#define DEBUG(x) std::cout << x << std::endl;
 #else
 #define DEBUG(x)
-//#define DEBUG(x) std::cout << x << std::endl;
 #endif
 
 template <typename T, T t>
