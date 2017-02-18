@@ -46,11 +46,16 @@ template <typename Key>
 struct TestHashArray : public ::testing::Test
 {
     explicit TestHashArray() :
-        ha(empty_key("bla"), 2)
+        ha(EmptyKey<Key>(), 2)
     {}
 
-    using ha_type = hash_array<std::string, int>;
+    Key next_key() { return gen(); }
+
+    using ha_type = hash_array<Key, int>;
     ha_type ha;
+
+private:
+    Rand<Key> gen;
 };
 
 TYPED_TEST_CASE_P(TestHashArray);
@@ -59,10 +64,10 @@ TYPED_TEST_P(TestHashArray, empty)
 {
     EXPECT_TRUE(this->ha.empty());
 
-    this->ha.insert(std::make_pair("foo", 1));
+    this->ha.insert(std::make_pair(this->next_key(), 1));
     EXPECT_FALSE(this->ha.empty());
 
-    this->ha = typename TestHashArray<TypeParam>::ha_type(empty_key("bla"), 4);
+    this->ha = hash_array<TypeParam, int>(EmptyKey<TypeParam>(), 4);
     EXPECT_TRUE(this->ha.empty());
 }
 
@@ -71,7 +76,7 @@ TYPED_TEST_P(TestHashArray, size)
     for (int i = 0; i < 100; ++i)
     {
         EXPECT_EQ(i, (int)this->ha.size());
-        this->ha.insert(std::make_pair("foo" + std::to_string(i), 1));
+        this->ha.insert(std::make_pair(this->next_key(), 1));
     }
 }
 
