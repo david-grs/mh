@@ -12,7 +12,7 @@
 template <typename K> auto EmptyKey();
 template <> auto EmptyKey<std::string>() { return empty_key_t<std::string>("bla"); }
 template <> auto EmptyKey<int>() { return empty_key_t<int>(-1); }
-template <> auto EmptyKey<double>() { return empty_key_t<double>(std::nan("1")); }
+template <> auto EmptyKey<double>() { return empty_key_t<double>(-1.0); }
 
 template <typename N>
 struct Rand
