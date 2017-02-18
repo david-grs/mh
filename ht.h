@@ -14,14 +14,17 @@
 #endif
 
 template <typename T>
-struct empty_key
+struct empty_key_t
 {
     template <typename X>
-    explicit empty_key(X&& x) :
+    explicit empty_key_t(X&& x) :
         value(std::forward<X>(x)) {}
 
     T value;
 };
+
+template <typename K>
+auto empty_key(K&& k) { return empty_key_t<K>(std::forward<K>(k)); }
 
 namespace detail
 {
@@ -35,7 +38,8 @@ struct ht
     using Node = std::pair<Key, Value>;
     using iterator = std::size_t; // TODO
 
-    explicit ht(empty_key<Key> k, std::size_t capacity = 16) :
+    template <typename K, typename X = std::enable_if_t<std::is_constructible<Key, K>::value>>
+    explicit ht(empty_key_t<K> k, std::size_t capacity = 16) :
       _empty_key(k.value),
       _elements(0),
       _table_sz(capacity),
@@ -172,7 +176,7 @@ struct ht
         {
             DEBUG("resizing to " << _table_sz * 2  << "...")
 
-            ht h(empty_key<Key>(_empty_key), _table_sz * 2);
+            ht h(empty_key_t<Key>(_empty_key), _table_sz * 2);
             std::for_each(&_table[0], &_table[_table_sz], [&h](auto&& p)
             {
                 if (!Equal()(p.first, h.get_empty_key()))

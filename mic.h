@@ -15,8 +15,9 @@ struct hash_array
 
     using hashtable = ht<Key, Value>;
 
-    explicit hash_array(empty_key<Key> k) :
-        _hashtable(k)
+    template <typename K, typename X = std::enable_if_t<std::is_constructible<Key, K>::value>>
+    hash_array(empty_key_t<K> k, std::size_t capacity = 16) :
+        _hashtable(k, capacity)
     {}
 
     struct iterator_base
