@@ -39,7 +39,7 @@ struct ht
     using iterator = std::size_t; // TODO
 
     template <typename K, typename X = std::enable_if_t<std::is_constructible<Key, K>::value>>
-    explicit ht(empty_key_t<K> k, std::size_t capacity = 16) :
+    ht(empty_key_t<K> k, std::size_t capacity = 16) :
       _empty_key(k.value),
       _elements(0),
       _table_sz(capacity),
@@ -47,6 +47,22 @@ struct ht
     {
         for (std::size_t i = 0; i < _table_sz; ++i)
             new (&_table[i]) Node(_empty_key, Value());
+    }
+
+    ht(const ht& h) :
+        _empty_key(h._empty_key),
+        _elements(h._elements),
+        _table_sz(h._table_sz),
+        _table(std::make_unique<Node[]>(_table_sz))
+    {
+        for (std::size_t i = 0; i < _table_sz; ++i)
+            new (&_table[i]) Node(h._table[i]);
+    }
+
+    ht& operator=(ht h)
+    {
+        std::swap(*this, h);
+        return *this;
     }
 
     std::size_t next_quadratic(std::size_t pos, std::size_t& num_probes) const
