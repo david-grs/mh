@@ -46,7 +46,7 @@ template <typename Key>
 struct TestHashArray : public ::testing::Test
 {
     explicit TestHashArray() :
-        ha(EmptyKey<Key>(), 2)
+        ha(EmptyKey<Key>(), 4)
     {}
 
     Key next_key() { return gen(); }
@@ -60,13 +60,21 @@ private:
 
 TYPED_TEST_CASE_P(TestHashArray);
 
-TYPED_TEST_P(TestHashArray, empty)
+TYPED_TEST_P(TestHashArray, init_empty)
 {
     EXPECT_TRUE(this->ha.empty());
+}
 
+TYPED_TEST_P(TestHashArray, empty)
+{
+    std::cout << this->ha.size() << std::endl;
     this->ha.insert(std::make_pair(this->next_key(), 1));
     EXPECT_FALSE(this->ha.empty());
+}
 
+TYPED_TEST_P(TestHashArray, reinit_empty)
+{
+    this->ha.insert(std::make_pair(this->next_key(), 1));
     this->ha = hash_array<TypeParam, int>(EmptyKey<TypeParam>(), 4);
     EXPECT_TRUE(this->ha.empty());
 }
@@ -89,6 +97,6 @@ TYPED_TEST_P(TestHashArray, walk)
 
 using KeyTypes = testing::Types<std::string, int, double>;
 
-REGISTER_TYPED_TEST_CASE_P(TestHashArray, empty, size, walk);
+REGISTER_TYPED_TEST_CASE_P(TestHashArray, init_empty, empty, reinit_empty, size, walk);
 INSTANTIATE_TYPED_TEST_CASE_P(KeyTypes, TestHashArray, KeyTypes);
 
