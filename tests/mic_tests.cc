@@ -60,19 +60,18 @@ private:
 
 TYPED_TEST_CASE_P(TestHashArray);
 
-TYPED_TEST_P(TestHashArray, init_empty)
+TYPED_TEST_P(TestHashArray, empty_init)
 {
     EXPECT_TRUE(this->ha.empty());
 }
 
-TYPED_TEST_P(TestHashArray, empty)
+TYPED_TEST_P(TestHashArray, empty_insert)
 {
-    std::cout << this->ha.size() << std::endl;
     this->ha.insert(std::make_pair(this->next_key(), 1));
     EXPECT_FALSE(this->ha.empty());
 }
 
-TYPED_TEST_P(TestHashArray, reinit_empty)
+TYPED_TEST_P(TestHashArray, empty_copy)
 {
     this->ha.insert(std::make_pair(this->next_key(), 1));
     this->ha = hash_array<TypeParam, int>(EmptyKey<TypeParam>(), 4);
@@ -90,13 +89,16 @@ TYPED_TEST_P(TestHashArray, size)
 
 TYPED_TEST_P(TestHashArray, walk)
 {
+    for (int i = 0; i < 100; ++i)
+        this->ha.insert(std::make_pair(this->next_key(), i));
+
     int i = 0;
     for (const auto& p : this->ha)
-        std::cout << i++ << ": " << p.first << std::endl;
+        ASSERT_EQ(i++, p.second);
 }
 
 using KeyTypes = testing::Types<std::string, int, double>;
 
-REGISTER_TYPED_TEST_CASE_P(TestHashArray, init_empty, empty, reinit_empty, size, walk);
+REGISTER_TYPED_TEST_CASE_P(TestHashArray, empty_init, empty_insert, empty_copy, size, walk);
 INSTANTIATE_TYPED_TEST_CASE_P(KeyTypes, TestHashArray, KeyTypes);
 
