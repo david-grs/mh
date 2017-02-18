@@ -159,6 +159,7 @@ struct ht
         return _table[pos].second;
     }
 
+    bool empty() const { return _elements == 0; }
     std::size_t size() const { return _elements; }
     std::size_t capacity() const { return _table_sz; }
 

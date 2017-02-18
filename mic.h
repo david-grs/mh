@@ -80,6 +80,10 @@ struct hash_array
 
     const Key& get_empty_key() const { return _hashtable.get_empty_key(); }
 
+    bool empty() const { return _hashtable.empty(); }
+    std::size_t size() const { return _hashtable.size(); }
+    std::size_t capacity() const { return _hashtable.capacity(); }
+
     hashtable _hashtable;
     std::vector<typename hashtable::iterator> _sequence;
 };
