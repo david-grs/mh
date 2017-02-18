@@ -3,7 +3,44 @@
 #include "mic.h"
 
 #include <gtest/gtest.h>
+
 #include <string>
+#include <cmath>
+#include <random>
+#include <type_traits>
+
+template <typename K> auto EmptyKey();
+template <> auto EmptyKey<std::string>() { return empty_key_t<std::string>("bla"); }
+template <> auto EmptyKey<int>() { return empty_key_t<int>(-1); }
+template <> auto EmptyKey<double>() { return empty_key_t<double>(std::nan("1")); }
+
+template <typename N>
+struct Rand
+{
+    explicit Rand() :
+      _gen(_rd())
+      {}
+
+    N operator()() { return _rng(_gen); }
+
+private:
+    using rng_t = std::conditional_t<std::is_floating_point<N>::value,
+                     std::uniform_real_distribution<N>,
+                     std::uniform_int_distribution<N>>;
+
+    std::random_device _rd;
+    std::mt19937 _gen;
+    rng_t _rng;
+};
+
+template <>
+struct Rand<std::string>
+{
+    std::string operator()() { return "foo_" + std::to_string(_rand()); }
+
+private:
+    Rand<int> _rand;
+};
 
 template <typename Key>
 struct TestHashArray : public ::testing::Test
