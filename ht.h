@@ -40,8 +40,10 @@ struct ht
     using Node = std::pair<Key, Value>;
 
     using value_type = std::pair<const Key, Value>;
-    using size_type = std::size_t;
     using difference_type = std::size_t;
+    using size_type = std::size_t;
+    using reference = value_type&; // TODO
+    using pointer = value_type*; // TODO
 
     template <typename K, typename X = std::enable_if_t<std::is_constructible<Key, K>::value>>
     ht(empty_key_t<K> k, std::size_t capacity = 16) :
@@ -245,23 +247,20 @@ struct ht
 
     struct iterator_base
     {
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = ht::value_type;
+        using difference_type = ht::difference_type;
+        using reference = ht::reference;
+        using pointer = ht::pointer;
+
         iterator_base(ht* h, std::size_t pos) :
             _h(h),
-            _pos(0)
-        {
-            if (Equal()(_h->_table[_pos].first, _h->_empty_key))
-                ++_pos;
-
-            advance(pos);
-        }
+            _pos(pos)
+        { }
         virtual ~iterator_base() {}
 
         iterator_base& operator+=(std::size_t inc) { advance(inc); return *this;}
-        iterator_base& operator-=(std::size_t i) { return operator+=(-i); }
-        iterator_base& operator++()              { return operator+=(1); }
-        iterator_base& operator--()              { return operator+=(-1); }
-
-        difference_type operator-(const iterator_base& it) { assert(_h == it._h); return _pos - it._pos; }
+        iterator_base& operator++()                { return operator+=(1); }
 
         bool operator< (const iterator_base& it) const { assert(_h == it._h); return _pos < it._pos; }
         bool operator==(const iterator_base& it) const { return _h == it._h && _pos == it._pos; }
@@ -290,7 +289,16 @@ struct ht
         auto& operator*() { return this->_h->_table[this->_pos]; }
     };
 
-    iterator begin() { return iterator(this, 0); }
+    iterator begin()
+    {
+        std::size_t pos = 0;
+        // TODO cache?
+        if (Equal()(_table[pos].first, _empty_key))
+            ++pos;
+
+        return iterator(this, pos);
+    }
+
     iterator end()   { return iterator(this, _table_sz); }
 
 ///    const_iterator cbegin() { return iterator(this, 0); }
