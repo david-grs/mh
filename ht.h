@@ -82,6 +82,7 @@ struct ht
         swap(lhs._table_sz, rhs._table_sz);
         swap(lhs._table, rhs._table);
     }
+
     std::size_t next_quadratic(std::size_t pos, std::size_t& num_probes) const
     {
         return (pos + (1ULL << num_probes++) + 1) & (_table_sz - 1);
