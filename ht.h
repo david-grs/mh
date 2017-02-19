@@ -260,9 +260,12 @@ struct ht
 
         iterator_base& operator+=(std::size_t inc) { advance(inc); return *this;}
         iterator_base& operator++()                { return operator+=(1); }
+        iterator_base& operator++(int)             { return operator+=(1); }
 
-        bool operator< (const iterator_base& it) const { assert(_h == it._h); return _pos < it._pos; }
+        // TODO not sure if thats mandatory with fwd_it
+        // bool operator< (const iterator_base& it) const { assert(_h == it._h); return _pos < it._pos; }
         bool operator==(const iterator_base& it) const { return _h == it._h && _pos == it._pos; }
+        bool operator!=(const iterator_base& it) const { return !(*this == it); }
 
     private:
         void advance(std::size_t inc)
@@ -284,13 +287,12 @@ struct ht
         std::size_t _pos;
     };
 
-     struct iterator :
-        public iterator_base,
-        public boost::random_access_iterator_helper<iterator, value_type>
+     struct iterator : public iterator_base
     {
         using iterator_base::iterator_base;
 
-        auto& operator*() { return this->_h->_table[this->_pos]; }
+        reference operator*()  { return this->_h->_table[this->_pos]; }
+        pointer   operator->() { return *this->_h->_table[this->_pos]; }
     };
 
     iterator begin()
