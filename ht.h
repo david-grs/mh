@@ -7,6 +7,8 @@
 #include <cassert>
 #include <iostream>
 
+#include <boost/operators.hpp>
+
 #if defined HT_DEBUG_IO
 #define DEBUG(x) std::cout << x << std::endl;
 #else
@@ -36,7 +38,10 @@ struct ht
 {
     using Container = ht<Key, Value, Hash, Equal>;
     using Node = std::pair<Key, Value>;
-    using iterator = std::size_t; // TODO
+
+    using value_type = std::pair<const Key, Value>;
+    using size_type = std::size_t;
+    using difference_type = std::size_t;
 
     template <typename K, typename X = std::enable_if_t<std::is_constructible<Key, K>::value>>
     ht(empty_key_t<K> k, std::size_t capacity = 16) :
@@ -117,7 +122,7 @@ struct ht
         while (!Equal()(_table[pos].first, _empty_key))
         {
             if (Equal()(_table[pos].first, p.first))
-                return {{}, false};
+                return {iterator(this, pos), false}; // TODO check
 
             pos = next(pos, num_probes);
 
@@ -126,7 +131,7 @@ struct ht
         }
 
         insert_element(pos, std::forward<Pair>(p));
-        return {pos, true};
+        return {iterator(this, pos), true};
     }
 
     template <typename F = decltype(detail::empty_callback)>
@@ -228,6 +233,50 @@ struct ht
     }
 
     const Key& get_empty_key() const { return _empty_key; }
+
+
+    struct iterator_base
+    {
+        iterator_base(ht* h, std::size_t i) :
+            _h(h),
+            _i(i)
+        {}
+        virtual ~iterator_base() {}
+
+        iterator_base& operator+=(std::size_t i)
+        {
+            _i += i;
+            return *this;
+        }
+
+        iterator_base& operator-=(std::size_t i) { return operator+=(-i); }
+        iterator_base& operator++()              { return operator+=(1); }
+        iterator_base& operator--()              { return operator+=(-1); }
+
+        difference_type operator-(const iterator_base& it) { assert(_h == it._h); return _i - it._i; }
+
+        bool operator< (const iterator_base& it) const { assert(_h == it._h); return _i < it._i; }
+        bool operator==(const iterator_base& it) const { return _h == it._h && _i == it._i; }
+
+     protected:
+        ht* _h;
+        std::size_t _i;
+    };
+
+     struct iterator :
+        public iterator_base,
+        public boost::random_access_iterator_helper<iterator, value_type>
+    {
+        using iterator_base::iterator_base;
+
+        auto& operator*() { return this->_h->_table[this->_i]; }
+    };
+
+    iterator begin() { return iterator(this, 0); }
+    iterator end()   { return iterator(this, _table_sz); }
+
+///    const_iterator cbegin() { return iterator(this, 0); }
+   // const_iterator cend()   { return iterator(this, _sequence.size()); }
 
     Key _empty_key;
     std::size_t _elements;
