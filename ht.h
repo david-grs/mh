@@ -291,8 +291,8 @@ struct ht
 
     iterator begin()
     {
+        // TODO cache this value in a compressed_pair
         std::size_t pos = 0;
-        // TODO cache?
         if (Equal()(_table[pos].first, _empty_key))
             ++pos;
 
