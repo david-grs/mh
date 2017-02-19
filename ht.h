@@ -65,6 +65,23 @@ struct ht
         return *this;
     }
 
+    ht(ht&& h) noexcept :
+        _empty_key(std::move(h._empty_key)),
+        _elements(h._elements),
+        _table_sz(h._table_sz),
+        _table(std::move(std::make_unique<Node[]>(_table_sz)))
+    {
+    }
+
+    friend void swap(ht& lhs, ht& rhs)
+    {
+        using std::swap;
+
+        swap(lhs._empty_key, rhs._empty_key);
+        swap(lhs._elements, rhs._elements);
+        swap(lhs._table_sz, rhs._table_sz);
+        swap(lhs._table, rhs._table);
+    }
     std::size_t next_quadratic(std::size_t pos, std::size_t& num_probes) const
     {
         return (pos + (1ULL << num_probes++) + 1) & (_table_sz - 1);
@@ -200,7 +217,7 @@ struct ht
                     h.insert(p);
             });
 
-            std::swap(*this, h);
+            swap(*this, h);
 
             DEBUG("resized.")
             return true;
