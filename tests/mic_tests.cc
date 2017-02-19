@@ -75,8 +75,8 @@ TYPED_TEST_P(TestHashArray, empty_copy)
 {
     this->ha.insert(std::make_pair(this->next_key(), 1));
 
-    //auto h = this->ha;
-    //EXPECT_FALSE(h.empty());
+    auto h = this->ha;
+    EXPECT_FALSE(h.empty());
 }
 
 TYPED_TEST_P(TestHashArray, size)
