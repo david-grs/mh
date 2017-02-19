@@ -245,30 +245,40 @@ struct ht
 
     struct iterator_base
     {
-        iterator_base(ht* h, std::size_t i) :
+        iterator_base(ht* h, std::size_t pos) :
             _h(h),
-            _i(i)
-        {}
+            _pos(0)
+        {
+            if (Equal()(_h->_table[_pos].first, _h->_empty_key))
+                ++_pos;
+
+            advance(pos);
+        }
         virtual ~iterator_base() {}
 
-        iterator_base& operator+=(std::size_t i)
-        {
-            _i += i;
-            return *this;
-        }
-
+        iterator_base& operator+=(std::size_t inc) { advance(inc); return *this;}
         iterator_base& operator-=(std::size_t i) { return operator+=(-i); }
         iterator_base& operator++()              { return operator+=(1); }
         iterator_base& operator--()              { return operator+=(-1); }
 
-        difference_type operator-(const iterator_base& it) { assert(_h == it._h); return _i - it._i; }
+        difference_type operator-(const iterator_base& it) { assert(_h == it._h); return _pos - it._pos; }
 
-        bool operator< (const iterator_base& it) const { assert(_h == it._h); return _i < it._i; }
-        bool operator==(const iterator_base& it) const { return _h == it._h && _i == it._i; }
+        bool operator< (const iterator_base& it) const { assert(_h == it._h); return _pos < it._pos; }
+        bool operator==(const iterator_base& it) const { return _h == it._h && _pos == it._pos; }
+
+    private:
+        void advance(std::size_t inc)
+        {
+            for (; inc > 0 && _pos < _h->_table_sz; ++_pos)
+            {
+                if (!Equal()(_h->_table[_pos].first, _h->_empty_key))
+                    --inc;
+            }
+        }
 
      protected:
         ht* _h;
-        std::size_t _i;
+        std::size_t _pos;
     };
 
      struct iterator :
@@ -277,7 +287,7 @@ struct ht
     {
         using iterator_base::iterator_base;
 
-        auto& operator*() { return this->_h->_table[this->_i]; }
+        auto& operator*() { return this->_h->_table[this->_pos]; }
     };
 
     iterator begin() { return iterator(this, 0); }
