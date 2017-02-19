@@ -36,34 +36,33 @@ namespace detail
 template <typename Key, typename Value, typename Hash = std::hash<Key>, typename Equal = std::equal_to<Key>>
 struct ht
 {
-    using Container = ht<Key, Value, Hash, Equal>;
-    using Node = std::pair<Key, Value>;
-
     using value_type = std::pair<const Key, Value>;
     using difference_type = std::size_t;
     using size_type = std::size_t;
     using reference = value_type&; // TODO
     using pointer = value_type*; // TODO
 
+    using node_type = value_type;
+
     template <typename K, typename X = std::enable_if_t<std::is_constructible<Key, K>::value>>
     ht(empty_key_t<K> k, std::size_t capacity = 16) :
       _empty_key(k.value),
       _elements(0),
       _table_sz(capacity),
-      _table(std::make_unique<Node[]>(_table_sz))
+      _table(std::make_unique<node_type[]>(_table_sz))
     {
         for (std::size_t i = 0; i < _table_sz; ++i)
-            new (&_table[i]) Node(_empty_key, Value());
+            new (&_table[i]) node_type(_empty_key, Value());
     }
 
     ht(const ht& h) :
         _empty_key(h._empty_key),
         _elements(h._elements),
         _table_sz(h._table_sz),
-        _table(std::make_unique<Node[]>(_table_sz))
+        _table(std::make_unique<node_type[]>(_table_sz))
     {
         for (std::size_t i = 0; i < _table_sz; ++i)
-            new (&_table[i]) Node(h._table[i]);
+            new (&_table[i]) node_type(h._table[i]);
     }
 
     ht& operator=(ht h)
@@ -76,7 +75,7 @@ struct ht
         _empty_key(std::move(h._empty_key)),
         _elements(h._elements),
         _table_sz(h._table_sz),
-        _table(std::move(std::make_unique<Node[]>(_table_sz)))
+        _table(std::move(std::make_unique<node_type[]>(_table_sz)))
     {
     }
 
@@ -140,7 +139,7 @@ struct ht
             assert(num_probes < _table_sz);
         }
 
-        insert_element(pos, std::make_pair(std::forward<Key>(key), std::forward<Args...>(args)...));
+        insert_element(pos, std::make_pair(std::forward<_Key>(key), std::forward<Args...>(args)...));
         return {iterator(this, pos), true};
     }
 
@@ -216,7 +215,7 @@ struct ht
     template <typename Pair>
     void insert_element(std::size_t pos, Pair&& p)
     {
-        new (&_table[pos]) Node(std::forward<Pair>(p));
+        new (&_table[pos]) node_type(std::forward<Pair>(p));
         ++_elements;
     }
 
@@ -322,5 +321,5 @@ struct ht
     Key _empty_key;
     std::size_t _elements;
     std::size_t _table_sz;
-    std::unique_ptr<Node[]> _table;
+    std::unique_ptr<node_type[]> _table;
 };
