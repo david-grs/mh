@@ -1,8 +1,33 @@
+//#define HT_DEBUG_IO
+
 #include "ht.h"
 #include "utils.h"
 
 #include <gtest/gtest.h>
 #include <iostream>
+#include <unordered_map>
+
+TEST(HashTableTest, emplace)
+{
+    ht<int, A> h(empty_key(-1));
+
+    const int NumElements = 1000;
+    for (int i = 0; i < NumElements; ++i)
+        h.emplace(i, i  * 10);
+
+    {
+        std::unordered_map<int, int> m;
+
+        for (const auto& p : h)
+        {
+            EXPECT_TRUE(m.find(p.first) == m.cend());
+            EXPECT_EQ(p.first * 10, p.second._i);
+            m[p.first] = p.second._i;
+        }
+
+        EXPECT_EQ(NumElements, (int)m.size());
+    }
+}
 
 TEST(HashTableTest, copy_ctor)
 {
