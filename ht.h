@@ -268,10 +268,15 @@ struct ht
     private:
         void advance(std::size_t inc)
         {
-            for (; inc > 0 && _pos < _h->_table_sz; ++_pos)
+            for (; _pos < _h->_table_sz; ++_pos)
             {
                 if (!Equal()(_h->_table[_pos].first, _h->_empty_key))
-                    --inc;
+                {
+                    if (inc)
+                        --inc;
+                    else
+                        break;
+                }
             }
         }
 
