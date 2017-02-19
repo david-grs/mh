@@ -108,28 +108,28 @@ struct ht
 
     struct iterator;
 
-    template <typename... Args>
-    std::pair<iterator, bool> emplace(Args&&... args)
-    {
-        return {begin(), true};
-    }
-
     template <typename Pair>
     std::pair<iterator, bool> insert(Pair&& p)
     {
+        return emplace(p.first, p.second);
+    }
+
+    template <typename _Key, typename... Args>
+    std::pair<iterator, bool> emplace(_Key&& key, Args&&... args)
+    {
         resize(1);
 
-        DEBUG("inserting " << p.first);
-        assert(!Equal()(p.first, _empty_key));
+        DEBUG("inserting " << key);
+        assert(!Equal()(key, _empty_key));
 
-        std::size_t pos = Hash()(p.first) & (_table_sz - 1);
+        std::size_t pos = Hash()(key) & (_table_sz - 1);
         std::size_t num_probes = 1;
 
         DEBUG("trying to insert at pos=" << pos);
 
         while (!Equal()(_table[pos].first, _empty_key))
         {
-            if (Equal()(_table[pos].first, p.first))
+            if (Equal()(_table[pos].first, key))
                 return {iterator(this, pos), false}; // TODO check
 
             pos = next(pos, num_probes);
@@ -138,7 +138,7 @@ struct ht
             assert(num_probes < _table_sz);
         }
 
-        insert_element(pos, std::forward<Pair>(p));
+        insert_element(pos, std::make_pair(std::forward<Key>(key), std::forward<Args...>(args)...));
         return {iterator(this, pos), true};
     }
 
