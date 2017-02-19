@@ -106,6 +106,14 @@ struct ht
 
     template <typename... Args> auto next(Args&&... args) { return next_linear(std::forward<Args>(args)...); }
 
+    struct iterator;
+
+    template <typename... Args>
+    std::pair<iterator, bool> emplace(Args&&... args)
+    {
+        return {begin(), true};
+    }
+
     template <typename Pair>
     std::pair<iterator, bool> insert(Pair&& p)
     {
