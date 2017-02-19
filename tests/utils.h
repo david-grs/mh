@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <random>
+#include <functional>
 
 struct A
 {
@@ -40,6 +41,13 @@ inline std::ostream& operator<<(std::ostream& os, const A& a)
     return os << a._i << " copy_ctor=" << a.copy_ctor << " copy_assign=" << a.copy_assign <<
                          " move_ctor=" << a.move_ctor << " move_assign=" << a.move_assign;
 }
+
+inline bool operator==(const A& a1, const A& a2) { return a1._i == a2._i; }
+
+struct HashA
+{
+    std::size_t operator()(const A& a) const { return std::hash<int>()(a._i); }
+};
 
 
 template <typename N>
