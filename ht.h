@@ -9,7 +9,7 @@
 
 #include <boost/operators.hpp>
 
-#if defined HT_DEBUG_IO
+#if defined _HT_DEBUG_IO
 #define DEBUG(x) std::cout << x << std::endl;
 #else
 #define DEBUG(x)
@@ -300,6 +300,16 @@ struct ht
     }
 
     iterator end()   { return iterator(this, _table_sz); }
+
+#ifdef _HT_DEBUG
+
+    void dump(std::ostream& os)
+    {
+        for (size_type i = 0; i < _table_sz; ++i)
+            os << _table[i].first << " ";
+    }
+
+#endif
 
 ///    const_iterator cbegin() { return iterator(this, 0); }
    // const_iterator cend()   { return iterator(this, _sequence.size()); }

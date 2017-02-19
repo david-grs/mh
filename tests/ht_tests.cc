@@ -1,4 +1,5 @@
-//#define HT_DEBUG_IO
+#define _HT_DEBUG_IO
+#define _HT_DEBUG
 
 #include "ht.h"
 #include "utils.h"
