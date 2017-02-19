@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sstream>
+#include <random>
 
 struct A
 {
@@ -39,3 +40,32 @@ inline std::ostream& operator<<(std::ostream& os, const A& a)
     return os << a._i << " copy_ctor=" << a.copy_ctor << " copy_assign=" << a.copy_assign <<
                          " move_ctor=" << a.move_ctor << " move_assign=" << a.move_assign;
 }
+
+
+template <typename N>
+struct Rand
+{
+    explicit Rand() :
+      _gen(_rd())
+      {}
+
+    N operator()() { return _rng(_gen); }
+
+private:
+    using rng_t = std::conditional_t<std::is_floating_point<N>::value,
+                     std::uniform_real_distribution<N>,
+                     std::uniform_int_distribution<N>>;
+
+    std::random_device _rd;
+    std::mt19937 _gen;
+    rng_t _rng;
+};
+
+template <>
+struct Rand<std::string>
+{
+    std::string operator()() { return "foo_" + std::to_string(_rand()); }
+
+private:
+    Rand<int> _rand;
+};
