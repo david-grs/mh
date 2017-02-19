@@ -117,7 +117,7 @@ TEST(HashTableTest, Emplace_KeyMoveCount)
     ht<A, int, HashA> h(empty_key(A(-1)));
 
     A::reset();
-    h.emplace(1, 2);
+    h.emplace(A(1), 2);
 
     ASSERT_EQ(0, A::copy_ctor);
     ASSERT_EQ(0, A::copy_assign);
