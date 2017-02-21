@@ -49,20 +49,20 @@ struct ht
       _empty_key(k.value),
       _elements(0),
       _table_sz(capacity),
-      _table(std::make_unique<node_type[]>(_table_sz))
+      _table(std::make_unique<value_type[]>(_table_sz))
     {
         for (std::size_t i = 0; i < _table_sz; ++i)
-            new (&_table[i]) node_type(_empty_key, Value());
+            new (&_table[i]) value_type(_empty_key, Value());
     }
 
     ht(const ht& h) :
         _empty_key(h._empty_key),
         _elements(h._elements),
         _table_sz(h._table_sz),
-        _table(std::make_unique<node_type[]>(_table_sz))
+        _table(std::make_unique<value_type[]>(_table_sz))
     {
         for (std::size_t i = 0; i < _table_sz; ++i)
-            new (&_table[i]) node_type(h._table[i]);
+            new (&_table[i]) value_type(h._table[i]);
     }
 
     ht& operator=(ht h)
@@ -75,7 +75,7 @@ struct ht
         _empty_key(std::move(h._empty_key)),
         _elements(h._elements),
         _table_sz(h._table_sz),
-        _table(std::move(std::make_unique<node_type[]>(_table_sz)))
+        _table(std::move(std::make_unique<value_type[]>(_table_sz)))
     {
     }
 
@@ -215,7 +215,7 @@ struct ht
     template <typename Pair>
     void insert_element(std::size_t pos, Pair&& p)
     {
-        new (&_table[pos]) node_type(std::forward<Pair>(p));
+        new (&_table[pos]) value_type(std::forward<Pair>(p));
         ++_elements;
     }
 
@@ -323,5 +323,5 @@ struct ht
     Key _empty_key;
     std::size_t _elements;
     std::size_t _table_sz;
-    std::unique_ptr<node_type[]> _table;
+    std::unique_ptr<value_type[]> _table;
 };
