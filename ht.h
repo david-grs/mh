@@ -33,11 +33,8 @@ namespace detail
     auto empty_callback = [](std::size_t) {};
 }
 
-namespace detail
-{
-
 template <typename _Node>
-struct iterator_base
+struct __iterator_base
 {
     using iterator_category = std::forward_iterator_tag;
 
@@ -46,28 +43,26 @@ struct iterator_base
     using reference       = typename _Node::reference;
     using pointer         = typename _Node::pointer;
 
-    explicit iterator_base(_Node node) :
+    explicit __iterator_base(_Node node) :
         _node(std::move(node))
     { }
-    virtual ~iterator_base() {}
+    virtual ~__iterator_base() {}
 
-    iterator_base& operator+=(std::size_t inc) { _node.advance(inc); return *this;}
-    iterator_base& operator++()                { return operator+=(1); }
-    iterator_base& operator++(int)             { return operator+=(1); }
+    __iterator_base& operator+=(std::size_t inc) { _node.advance(inc); return *this;}
+    __iterator_base& operator++()                { return operator+=(1); }
+    __iterator_base& operator++(int)             { return operator+=(1); }
 
-    bool operator==(const iterator_base& it) const { return _node == it._node; }
-    bool operator!=(const iterator_base& it) const { return !(*this == it); }
+    bool operator==(const __iterator_base& it) const { return _node == it._node; }
+    bool operator!=(const __iterator_base& it) const { return !(*this == it); }
 
-private:
+protected:
     _Node _node;
 };
 
-}
-
 template <typename _Node>
-struct iterator : public detail::iterator_base<_Node>
+struct __iterator : public __iterator_base<_Node>
 {
-    using detail::iterator_base<_Node>::iterator_base;
+    using __iterator_base<_Node>::__iterator_base;
 
     auto operator*()  { return *this->_node.get_ptr(); }
     auto operator->() { return this->_node.get_ptr(); }
@@ -83,7 +78,7 @@ struct ht
     using pointer = value_type*; // TODO
 
 private:
-    struct Node
+    struct __node_type
     {
         using size_type = ht::size_type;
         using value_type = ht::value_type;
@@ -91,21 +86,21 @@ private:
         using reference = ht::reference;
         using pointer = ht::pointer;
 
-        explicit Node(ht* hashtable, size_type pos) :
+        explicit __node_type(ht* hashtable, size_type pos) :
             _hashtable(hashtable),
             _pos(pos)
         {}
 
         pointer get_ptr()
         {
-            return _hashtable->_table[this->_pos];
+            return &_hashtable->_table[this->_pos];
         }
 
         void advance(size_type inc)
         {
-            for (; _pos < _h->_table_sz; ++_pos)
+            for (; _pos < _hashtable->_table_sz; ++_pos)
             {
-                if (!Equal()(_h->_table[_pos].first, _h->_empty_key))
+                if (!Equal()(_hashtable->_table[_pos].first, _hashtable->_empty_key))
                 {
                     if (inc)
                         --inc;
@@ -115,7 +110,7 @@ private:
             }
         }
 
-        bool operator==(const Node& n) const { return _hashtable == n._hashtable && _pos == n._pos; }
+        bool operator==(const __node_type& n) const { return _hashtable == n._hashtable && _pos == n._pos; }
 
     private:
         ht* _hashtable;
@@ -123,8 +118,8 @@ private:
     };
 
 public:
-    using iterator = detail::iterator<__node_type>;
-    using const_iterator = detail::iterator<__node_type>;
+    using iterator = __iterator<__node_type>;
+    using const_iterator = __iterator<__node_type>;
     // TODO local_iterator, const_local_iterator
 
     template <typename K, typename X = std::enable_if_t<std::is_constructible<Key, K>::value>>
@@ -190,8 +185,6 @@ public:
 
     template <typename... Args> auto next(Args&&... args) { return next_linear(std::forward<Args>(args)...); }
 
-    struct iterator;
-
     template <typename Pair>
     std::pair<iterator, bool> insert(Pair&& p)
     {
@@ -214,7 +207,7 @@ public:
         while (!Equal()(_table[pos].first, _empty_key))
         {
             if (Equal()(_table[pos].first, key))
-                return {iterator(this, pos), false}; // TODO check
+                return {iterator(__node_type(this, pos)), false}; // TODO check
 
             pos = next(pos, num_probes);
 
@@ -223,7 +216,7 @@ public:
         }
 
         insert_element(pos, std::make_pair(std::forward<_Key>(key), std::forward<Args...>(args)...));
-        return {iterator(this, pos), true};
+        return {iterator(__node_type(this, pos)), true};
     }
 
     template <typename F = decltype(detail::empty_callback)>
@@ -333,10 +326,10 @@ public:
         if (Equal()(_table[pos].first, _empty_key))
             ++pos;
 
-        return iterator(this, pos);
+        return iterator(__node_type(this, pos));
     }
 
-    iterator end()   { return iterator(this, _table_sz); }
+    iterator end()   { return iterator(__node_type(this, _table_sz)); }
 
 #ifdef _HT_DEBUG
 
