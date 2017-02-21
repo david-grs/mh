@@ -40,8 +40,6 @@ struct __iterator_base
 
     using value_type      = typename _Node::value_type;
     using difference_type = typename _Node::difference_type;
-    using reference       = typename _Node::reference;
-    using pointer         = typename _Node::pointer;
 
     explicit __iterator_base(_Node node) :
         _node(std::move(node))
@@ -62,10 +60,25 @@ protected:
 template <typename _Node>
 struct __iterator : public __iterator_base<_Node>
 {
+    using reference       = typename _Node::value_type&;
+    using pointer         = typename _Node::value_type*;
+
     using __iterator_base<_Node>::__iterator_base;
 
-    auto operator*()  { return *this->_node.get_ptr(); }
-    auto operator->() { return this->_node.get_ptr(); }
+    reference operator*()  { return *this->_node.get_ptr(); }
+    pointer   operator->() { return this->_node.get_ptr(); }
+};
+
+template <typename _Node>
+struct __const_iterator : public __iterator_base<_Node>
+{
+    using reference       = typename _Node::value_type const&;
+    using pointer         = typename _Node::value_type const*;
+
+    using __iterator_base<_Node>::__iterator_base;
+
+    reference operator*()  { return *this->_node.get_ptr(); }
+    pointer   operator->() { return this->_node.get_ptr(); }
 };
 
 template <typename Key, typename Value, typename Hash = std::hash<Key>, typename Equal = std::equal_to<Key>>
@@ -83,8 +96,6 @@ private:
         using size_type = ht::size_type;
         using value_type = ht::value_type;
         using difference_type = ht::difference_type;
-        using reference = ht::reference;
-        using pointer = ht::pointer;
 
         explicit __node_type(ht* hashtable, size_type pos) :
             _hashtable(hashtable),
@@ -119,7 +130,7 @@ private:
 
 public:
     using iterator = __iterator<__node_type>;
-    using const_iterator = __iterator<__node_type>;
+    using const_iterator = __const_iterator<__node_type>;
     // TODO local_iterator, const_local_iterator
 
     template <typename K, typename X = std::enable_if_t<std::is_constructible<Key, K>::value>>
