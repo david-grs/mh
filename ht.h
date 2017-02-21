@@ -77,6 +77,10 @@ struct __const_iterator : public __iterator_base<_Node>
 
     using __iterator_base<_Node>::__iterator_base;
 
+    __const_iterator(__iterator<_Node> it) :
+        __iterator_base<_Node>(it)
+    {}
+
     reference operator*()  { return *this->_node.get_ptr(); }
     pointer   operator->() { return this->_node.get_ptr(); }
 };
@@ -342,6 +346,9 @@ public:
 
     iterator end()   { return iterator(__node_type(this, _table_sz)); }
 
+    const_iterator cbegin() { return begin(); }
+    const_iterator cend()   { return end(); }
+
 #ifdef _HT_DEBUG
 
     void dump(std::ostream& os)
@@ -351,9 +358,6 @@ public:
     }
 
 #endif
-
-///    const_iterator cbegin() { return iterator(this, 0); }
-   // const_iterator cend()   { return iterator(this, _sequence.size()); }
 
     Key _empty_key;
     std::size_t _elements;
