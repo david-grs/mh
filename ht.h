@@ -33,6 +33,46 @@ namespace detail
     auto empty_callback = [](std::size_t) {};
 }
 
+namespace detail
+{
+
+template <typename _Node>
+struct iterator_base
+{
+    using iterator_category = std::forward_iterator_tag;
+
+    using value_type      = typename _Node::value_type;
+    using difference_type = typename _Node::difference_type;
+    using reference       = typename _Node::reference;
+    using pointer         = typename _Node::pointer;
+
+    explicit iterator_base(_Node node) :
+        _node(std::move(node))
+    { }
+    virtual ~iterator_base() {}
+
+    iterator_base& operator+=(std::size_t inc) { _node.advance(inc); return *this;}
+    iterator_base& operator++()                { return operator+=(1); }
+    iterator_base& operator++(int)             { return operator+=(1); }
+
+    bool operator==(const iterator_base& it) const { return _node == it._node; }
+    bool operator!=(const iterator_base& it) const { return !(*this == it); }
+
+private:
+    _Node _node;
+};
+
+}
+
+template <typename _Node>
+struct iterator : public detail::iterator_base<_Node>
+{
+    using detail::iterator_base<_Node>::iterator_base;
+
+    auto operator*()  { return *this->_node.get_ptr(); }
+    auto operator->() { return this->_node.get_ptr(); }
+};
+
 template <typename Key, typename Value, typename Hash = std::hash<Key>, typename Equal = std::equal_to<Key>>
 struct ht
 {
@@ -42,7 +82,50 @@ struct ht
     using reference = value_type&; // TODO
     using pointer = value_type*; // TODO
 
-    using node_type = value_type;
+private:
+    struct Node
+    {
+        using size_type = ht::size_type;
+        using value_type = ht::value_type;
+        using difference_type = ht::difference_type;
+        using reference = ht::reference;
+        using pointer = ht::pointer;
+
+        explicit Node(ht* hashtable, size_type pos) :
+            _hashtable(hashtable),
+            _pos(pos)
+        {}
+
+        pointer get_ptr()
+        {
+            return _hashtable->_table[this->_pos];
+        }
+
+        void advance(size_type inc)
+        {
+            for (; _pos < _h->_table_sz; ++_pos)
+            {
+                if (!Equal()(_h->_table[_pos].first, _h->_empty_key))
+                {
+                    if (inc)
+                        --inc;
+                    else
+                        break;
+                }
+            }
+        }
+
+        bool operator==(const Node& n) const { return _hashtable == n._hashtable && _pos == n._pos; }
+
+    private:
+        ht* _hashtable;
+        size_type _pos;
+    };
+
+public:
+    using iterator = detail::iterator<__node_type>;
+    using const_iterator = detail::iterator<__node_type>;
+    // TODO local_iterator, const_local_iterator
 
     template <typename K, typename X = std::enable_if_t<std::is_constructible<Key, K>::value>>
     ht(empty_key_t<K> k, std::size_t capacity = 16) :
@@ -242,58 +325,6 @@ struct ht
     }
 
     const Key& get_empty_key() const { return _empty_key; }
-
-
-    struct iterator_base
-    {
-        using iterator_category = std::forward_iterator_tag;
-        using value_type = ht::value_type;
-        using difference_type = ht::difference_type;
-        using reference = ht::reference;
-        using pointer = ht::pointer;
-
-        iterator_base(ht* h, std::size_t pos) :
-            _h(h),
-            _pos(pos)
-        { }
-        virtual ~iterator_base() {}
-
-        iterator_base& operator+=(std::size_t inc) { advance(inc); return *this;}
-        iterator_base& operator++()                { return operator+=(1); }
-        iterator_base& operator++(int)             { return operator+=(1); }
-
-        // TODO not sure if thats mandatory with fwd_it
-        // bool operator< (const iterator_base& it) const { assert(_h == it._h); return _pos < it._pos; }
-        bool operator==(const iterator_base& it) const { return _h == it._h && _pos == it._pos; }
-        bool operator!=(const iterator_base& it) const { return !(*this == it); }
-
-    private:
-        void advance(std::size_t inc)
-        {
-            for (; _pos < _h->_table_sz; ++_pos)
-            {
-                if (!Equal()(_h->_table[_pos].first, _h->_empty_key))
-                {
-                    if (inc)
-                        --inc;
-                    else
-                        break;
-                }
-            }
-        }
-
-     protected:
-        ht* _h;
-        std::size_t _pos;
-    };
-
-     struct iterator : public iterator_base
-    {
-        using iterator_base::iterator_base;
-
-        reference operator*()  { return this->_h->_table[this->_pos]; }
-        pointer   operator->() { return *this->_h->_table[this->_pos]; }
-    };
 
     iterator begin()
     {
