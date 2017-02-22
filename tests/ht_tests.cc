@@ -8,6 +8,34 @@
 #include <iostream>
 #include <unordered_map>
 
+TEST(HashTableTest_Iterator, begin)
+{
+    ht<int, A> h(empty_key(-1));
+
+    {
+        auto it = h.cbegin();
+        EXPECT_EQ(h.cend(), it);
+    }
+
+    {
+        auto it = h.emplace(5, A(10)).first;
+        EXPECT_EQ(h.cbegin(), it);
+        EXPECT_EQ(h.begin(), it);
+        EXPECT_EQ(5, it->first);
+        EXPECT_EQ(10, it->second._i);
+    }
+
+    {
+        auto it = h.cbegin();
+
+        const std::pair<const int, A>& p = *it;
+        const A& a = it->second;
+
+        EXPECT_EQ(&p.second, &a);
+        EXPECT_EQ(&p.second, &a);
+    }
+}
+
 TEST(HashTableTest, emplace)
 {
     ht<int, A> h(empty_key(-1));
