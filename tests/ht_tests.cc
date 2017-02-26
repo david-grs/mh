@@ -36,6 +36,31 @@ TEST(HashTableTest_Iterator, begin)
     }
 }
 
+TEST(HashTableTest_Iterator, end)
+{
+    ht<int, A> h(empty_key(-1));
+
+    {
+        auto it = h.begin();
+        EXPECT_EQ(it, h.cend());
+        EXPECT_EQ(h.cbegin(), h.end());
+        EXPECT_EQ(h.cend(), h.end());
+    }
+
+    {
+        auto it = h.end();
+        EXPECT_EQ(h.cend(), it);
+    }
+
+    {
+        auto it = h.emplace(5, A(10)).first;
+        EXPECT_NE(h.cend(), it);
+
+        std::advance(it, 1);
+        EXPECT_EQ(h.cend(), it);
+    }
+}
+
 TEST(HashTableTest, emplace)
 {
     ht<int, A> h(empty_key(-1));
