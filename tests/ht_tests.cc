@@ -8,6 +8,41 @@
 #include <iostream>
 #include <unordered_map>
 
+struct AA
+{
+  AA(int ii=0, double dd=.0) : i(ii), d(dd) {}
+ // operator double() const { return d; }
+  //operator int() const { return d; }
+  int i;
+  double d;
+
+  bool operator==(const AA& aa) const { return i == aa.i; }
+//  std::string str;
+};
+
+struct HashAA
+{
+    std::size_t operator()(const AA& a) const { return std::hash<double>()(a.i + a.d); }
+    std::size_t operator()(const int i) const { return std::hash<int>()(i); }
+};
+
+inline std::ostream& operator<<(std::ostream& os, const AA&) { return os; }
+
+
+TEST(HashTableTest_Emplace, Trivial)
+{
+  ht<AA, int, HashAA> m(empty_key(-1));
+  m.emplace(5, 5);
+
+
+ //   std::map<int, A> m;
+
+  m.emplace(AA(1, .0), 6);
+ // m.emplace(5, AA(1));
+  m.emplace(std::make_pair(5, 3));
+ // m.emplace(std::piecewise_construct, std::forward_as_tuple(5), std::forward_as_tuple(1, .0));
+}
+
 TEST(HashTableTest_Iterator, begin)
 {
     ht<int, A> h(empty_key(-1));
