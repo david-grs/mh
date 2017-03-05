@@ -235,7 +235,7 @@ TEST(HashTableTest, Emplace_KeyMoveCount)
 
     ASSERT_EQ(0, A::copy_ctor);
     ASSERT_EQ(0, A::copy_assign);
-    ASSERT_EQ(0, A::move_ctor);
+    ASSERT_EQ(1, A::move_ctor);
     ASSERT_EQ(0, A::move_assign);
 }
 
