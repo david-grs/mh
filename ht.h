@@ -200,14 +200,75 @@ public:
 
     template <typename... Args> auto next(Args&&... args) { return next_linear(std::forward<Args>(args)...); }
 
-    template <typename Pair>
-    std::pair<iterator, bool> insert(Pair&& p)
+    template <typename... Args>
+    std::pair<iterator, bool> emplace(Args&&... args)
     {
-        return emplace(p.first, p.second);
+        return emplace_unique(std::forward<Args>(args)...);
     }
 
-    template <typename _Key, typename... Args>
-    std::pair<iterator, bool> emplace(_Key&& key, Args&&... args)
+    std::pair<iterator, bool> insert(const value_type& obj)
+    {
+        return emplace_unique(obj.first, obj.second);
+    }
+
+    template <typename Pair>
+    std::pair<iterator, bool> insert(Pair&& obj)
+    {
+        return emplace_unique(std::forward<Pair>(obj));
+    }
+
+private:
+    struct __extract_key_first {};
+    struct __extract_key_self {};
+    struct __extract_key_fail {};
+
+    template <typename K, typename V, typename RawV = typename std::decay<V>::type>
+    struct __can_extract_key
+        : std::conditional<std::is_same<K, RawV>::value, __extract_key_self, __extract_key_fail>::type {};
+
+    template <typename K, typename Pair, typename First, typename Second>
+    struct __can_extract_key<K, Pair, std::pair<First, Second>>
+        : std::conditional<std::is_same<K, typename std::remove_const<First>::type>::value, __extract_key_first, __extract_key_fail>::type {};
+
+    template <typename Pair>
+    std::pair<iterator, bool> emplace_unique(Pair&& p)
+    {
+        return emplace_pair(std::forward<Pair>(p), __can_extract_key<Key, Pair>());
+    }
+
+    template <typename Pair>
+    std::pair<iterator, bool> emplace_pair(Pair&& p, __extract_key_first)
+    {
+        return emplace_unique_key(p.first, std::forward<Pair>(p));
+    }
+
+    template <typename Pair>
+    std::pair<iterator, bool> emplace_pair(Pair&& p, __extract_key_fail)
+    {
+        return emplace_unique_impl(std::forward<Pair>(p));
+    }
+
+    template <typename First, typename Second, typename X = std::enable_if_t<std::is_same<Key, typename std::decay<First>::type>::value>>
+    std::pair<iterator, bool> emplace_unique(First&& first, Second&& second)
+    {
+        return emplace_unique_key(std::forward<First>(first), std::forward<First>(first), std::forward<Second>(second));
+    }
+
+    template <typename... Args>
+    std::pair<iterator, bool> emplace_unique(Args&&... args)
+    {
+        return emplace_unique_impl(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    std::pair<iterator, bool> emplace_unique_impl(Args&&... args)
+    {
+        value_type p(std::forward<Args>(args)...);
+        return emplace_unique_key(p.first, std::move(p));
+    }
+
+    template <typename K, typename... Args>
+    std::pair<iterator, bool> emplace_unique_key(K&& key, Args&&... args)
     {
         resize(1);
 
@@ -230,10 +291,11 @@ public:
             assert(num_probes < _table_sz);
         }
 
-        insert_element(pos, std::make_pair(std::forward<_Key>(key), std::forward<Args...>(args)...));
+        insert_element(pos, std::forward<Args>(args)...);
         return {iterator(__node_type(this, pos)), true};
     }
 
+public:
     template <typename F = decltype(detail::empty_callback)>
     bool find(const Key& key, F f = detail::empty_callback)
     {
@@ -281,7 +343,7 @@ public:
                 else
                 {
                     DEBUG("empty node, inserting value at pos=" << pos);
-                    insert_element(pos, std::make_pair(key, Value{}));
+                    insert_element(pos, key, Value{});
                 }
 
                 break;
@@ -303,10 +365,10 @@ public:
     std::size_t capacity() const { return _table_sz; }
 
 // TODO private:
-    template <typename Pair>
-    void insert_element(std::size_t pos, Pair&& p)
+    template <typename... Args>
+    void insert_element(std::size_t pos, Args&&... args)
     {
-        new (&_table[pos]) value_type(std::forward<Pair>(p));
+        new (&_table[pos]) value_type(std::forward<Args>(args)...);
         ++_elements;
     }
 
