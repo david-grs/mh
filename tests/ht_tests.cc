@@ -5,8 +5,10 @@
 #include "utils.h"
 
 #include <gtest/gtest.h>
+
 #include <iostream>
 #include <unordered_map>
+#include <tuple>
 
 struct AA
 {
@@ -29,18 +31,15 @@ struct HashAA
 inline std::ostream& operator<<(std::ostream& os, const AA&) { return os; }
 
 
-TEST(HashTableTest_Emplace, Trivial)
+TEST(HashTableTest_Emplace, api)
 {
-  ht<AA, int, HashAA> m(empty_key(-1));
-  m.emplace(5, 5);
-
-
- //   std::map<int, A> m;
-
-  m.emplace(AA(1, .0), 6);
- // m.emplace(5, AA(1));
-  m.emplace(std::make_pair(5, 3));
- // m.emplace(std::piecewise_construct, std::forward_as_tuple(5), std::forward_as_tuple(1, .0));
+    ht<AA, int, HashAA> m(empty_key(-1));
+    m.emplace(5, 5);
+    m.emplace(AA(1, .0), 6);
+    m.emplace(1, 3);
+    m.emplace(std::make_pair(5, 3));
+    m.emplace(std::make_pair(AA(2), 3));
+    m.emplace(std::piecewise_construct, std::forward_as_tuple(1, .0), std::forward_as_tuple(5));
 }
 
 TEST(HashTableTest_Iterator, begin)
