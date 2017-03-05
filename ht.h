@@ -323,7 +323,8 @@ public:
         return find(ts...);
     }
 
-    Value& operator[](const Key& key)
+    template <typename K>
+    Value& operator[](K&& key)
     {
         std::size_t pos = Hash()(key) & (_table_sz - 1);
         std::size_t num_probes = 1;
@@ -343,7 +344,7 @@ public:
                 else
                 {
                     DEBUG("empty node, inserting value at pos=" << pos);
-                    insert_element(pos, key, Value{});
+                    insert_element(pos, std::forward<K>(key), Value{});
                 }
 
                 break;
