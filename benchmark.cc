@@ -76,8 +76,8 @@ int main(int argc, char** argv)
 
     const std::string ref_filename("../samples.ref");
     //const auto benchmark_fcts = {benchmark_umap, benchmark_google, benchmark_ht, benchmark_boost_mic, benchmark_ha};
-    //const auto benchmark_fcts = {benchmark_umap, benchmark_google, benchmark_ht};
-    const auto benchmark_fcts = {benchmark_boost_mic, benchmark_ha};
+    const auto benchmark_fcts = {benchmark_umap, benchmark_google, benchmark_ht};
+    //const auto benchmark_fcts = {benchmark_boost_mic, benchmark_ha};
 
     std::vector<test> ref_tests = load_tests_file(ref_filename);
 

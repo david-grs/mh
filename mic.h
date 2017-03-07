@@ -49,7 +49,7 @@ struct hash_array
     {
         using iterator_base::iterator_base;
 
-        auto& operator*() { return this->_h->_hashtable._table[this->_h->_sequence[this->_i]]; }
+        auto& operator*() { return *this->_h->_sequence[this->_i]; }
     };
 
     template <typename Pair>
