@@ -248,10 +248,18 @@ private:
         return emplace_unique_impl(std::forward<Pair>(p));
     }
 
-    template <typename First, typename Second, typename X = std::enable_if_t<std::is_same<Key, typename std::decay<First>::type>::value>>
-    std::pair<iterator, bool> emplace_unique(First&& first, Second&& second)
+    template <typename First, typename Second, typename RawFirst = typename std::decay<First>::type>
+    typename std::enable_if_t<std::is_same<Key, RawFirst>::value, std::pair<iterator, bool>>
+    emplace_unique(First&& first, Second&& second)
     {
         return emplace_unique_key(std::forward<First>(first), std::forward<First>(first), std::forward<Second>(second));
+    }
+
+    template <typename First, typename Second, typename RawFirst = typename std::decay<First>::type>
+    typename std::enable_if_t<!std::is_same<Key, RawFirst>::value && std::is_constructible<Key, RawFirst>::value, std::pair<iterator, bool>>
+    emplace_unique(First&& first, Second&& second)
+    {
+        return emplace_unique_key(Key(first), std::forward<First>(first), std::forward<Second>(second));
     }
 
     template <typename... Args>
