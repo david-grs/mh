@@ -1,7 +1,7 @@
 #include "benchmark.h"
 
 #include "ht.h"
-#include "mic.h"
+#include "mic_old.h"
 
 #include <google/dense_hash_map>
 

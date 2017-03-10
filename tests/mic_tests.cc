@@ -1,6 +1,6 @@
 //#define HT_DEBUG_IO
 
-#include "mic.h"
+#include "mic_old.h"
 #include "utils.h"
 
 #include <gtest/gtest.h>

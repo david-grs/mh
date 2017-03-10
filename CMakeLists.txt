@@ -9,7 +9,6 @@ include_directories(.)
 
 option(USE_TCMALLOC "USE_TCMALLOC" OFF)
 
-add_executable(mic mic.cc)
 add_executable(benchmark benchmark.cc stats.cc benchmark_io.cc benchmark_ht.cc benchmark_ha.cc)
 
 if (USE_TCMALLOC)
