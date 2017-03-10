@@ -170,7 +170,7 @@ public:
         _empty_key(std::move(h._empty_key)),
         _elements(h._elements),
         _table_sz(h._table_sz),
-        _table(std::move(std::make_unique<value_type[]>(_table_sz)))
+        _table(std::move(h._table))
     {
     }
 
