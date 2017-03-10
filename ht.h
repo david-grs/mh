@@ -88,6 +88,8 @@ struct __const_iterator : public __iterator_base<_Node>
 template <typename Key, typename Value, typename Hash = std::hash<Key>, typename Equal = std::equal_to<Key>>
 struct ht
 {
+    using key_type = Key;
+    using mapped_type = Value;
     using value_type = std::pair<const Key, Value>;
     using difference_type = std::size_t;
     using size_type = std::size_t;
