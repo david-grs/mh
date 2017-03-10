@@ -8,7 +8,99 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <unordered_set>
 #include <tuple>
+
+template <typename K> auto EmptyKey();
+template <> auto EmptyKey<std::string>() { return empty_key_t<std::string>(""); }
+template <> auto EmptyKey<int>() { return empty_key_t<int>(-1); }
+template <> auto EmptyKey<double>() { return empty_key_t<double>(-1.0); }
+
+template <typename Key>
+struct TestHashTable : public ::testing::Test
+{
+    using key_type = Key;
+    using mapped_type = int;
+
+    explicit TestHashTable() :
+        _hashtable(EmptyKey<Key>())
+    {}
+
+    key_type next_key() { return gen(); }
+    mapped_type next_value() { return {}; }
+
+protected:
+    ht<key_type, mapped_type> _hashtable;
+
+private:
+    Rand<Key> gen;
+};
+
+TYPED_TEST_CASE_P(TestHashTable);
+
+TYPED_TEST_P(TestHashTable, empty_init)
+{
+    EXPECT_TRUE(this->_hashtable.empty());
+}
+
+TYPED_TEST_P(TestHashTable, empty_insert)
+{
+    this->_hashtable.insert(std::make_pair(this->next_key(), this->next_value()));
+    EXPECT_FALSE(this->_hashtable.empty());
+}
+
+TYPED_TEST_P(TestHashTable, empty_copy)
+{
+    this->_hashtable.insert(std::make_pair(this->next_key(), this->next_value()));
+
+    auto h = this->_hashtable;
+    EXPECT_FALSE(h.empty());
+}
+
+TYPED_TEST_P(TestHashTable, size)
+{
+    for (int i = 0; i < 100; ++i)
+    {
+        EXPECT_EQ(i, (int)this->_hashtable.size());
+        this->_hashtable.insert(std::make_pair(this->next_key(), this->next_value()));
+    }
+}
+
+TYPED_TEST_P(TestHashTable, walk)
+{
+    using key_type = TypeParam;
+
+    std::unordered_set<key_type> s;
+    for (int i = 0; i < 1024; ++i)
+    {
+        const key_type k = this->next_key();
+
+        this->_hashtable.insert(std::make_pair(k, this->next_value()));
+        s.insert(k);
+    }
+
+    for (const auto& p : this->_hashtable)
+        s.erase(p.first);
+
+    EXPECT_TRUE(s.empty());
+}
+
+using KeyTypes = testing::Types<std::string, int, double>;
+
+REGISTER_TYPED_TEST_CASE_P(TestHashTable, empty_init, empty_insert, empty_copy, size, walk);
+INSTANTIATE_TYPED_TEST_CASE_P(KeyTypes, TestHashTable, KeyTypes);
+
+
+
+
+
+
+
+
+
+
+
+// TODO THIS IS NOT A UNIT TEST.
 
 struct AA
 {
@@ -30,7 +122,6 @@ struct HashAA
 
 inline std::ostream& operator<<(std::ostream& os, const AA&) { return os; }
 
-// TODO this is not a unit test.
 TEST(HashTableTest_Emplace, api)
 {
     ht<AA, int, HashAA> m(empty_key(-1));
