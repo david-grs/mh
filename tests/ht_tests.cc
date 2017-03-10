@@ -30,7 +30,7 @@ struct HashAA
 
 inline std::ostream& operator<<(std::ostream& os, const AA&) { return os; }
 
-
+// TODO this is not a unit test.
 TEST(HashTableTest_Emplace, api)
 {
     ht<AA, int, HashAA> m(empty_key(-1));
