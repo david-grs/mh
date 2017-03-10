@@ -50,15 +50,6 @@ TYPED_TEST(TestAllHashtables, empty_init)
     EXPECT_TRUE(this->_hashtable.empty());
 }
 
-TYPED_TEST(TestAllHashtables, empty_ctor)
-{
-    this->_hashtable.emplace(this->next_key(), this->next_value());
-
-    using Hashtable = TypeParam;
-    this->_hashtable = Hashtable(EmptyKey<typename Hashtable::key_type>());
-    EXPECT_TRUE(this->_hashtable.empty());
-}
-
 TYPED_TEST(TestAllHashtables, copy_ctor)
 {
     const auto key = this->next_key();
