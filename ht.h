@@ -417,8 +417,11 @@ public:
 
     iterator end()   { return iterator(__node_type(this, _table_sz)); }
 
-    const_iterator cbegin() { return begin(); }
-    const_iterator cend()   { return end(); }
+    const_iterator begin() const { return const_cast<ht*>(this)->begin(); }
+    const_iterator end()   const { return const_cast<ht*>(this)->end(); }
+
+    const_iterator cbegin() const { return begin(); }
+    const_iterator cend()   const { return end(); }
 
 #ifdef _HT_DEBUG
 
