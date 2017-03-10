@@ -162,7 +162,7 @@ public:
 
     ht& operator=(ht h)
     {
-        std::swap(*this, h);
+        swap(*this, h);
         return *this;
     }
 
