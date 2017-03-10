@@ -50,6 +50,32 @@ TYPED_TEST(TestAllHashtables, empty_init)
     EXPECT_TRUE(this->_hashtable.empty());
 }
 
+TYPED_TEST(TestAllHashtables, empty_ctor)
+{
+    this->_hashtable.emplace(this->next_key(), this->next_value());
+
+    using Hashtable = TypeParam;
+    this->_hashtable = Hashtable(EmptyKey<typename Hashtable::key_type>());
+    EXPECT_TRUE(this->_hashtable.empty());
+}
+
+TYPED_TEST(TestAllHashtables, copy_ctor)
+{
+    const auto key = this->next_key();
+    const auto value = this->next_value();
+
+    this->_hashtable.emplace(key, value);
+
+    using Hashtable = TypeParam;
+    const Hashtable copy = this->_hashtable;
+
+    EXPECT_FALSE(copy.empty());
+    EXPECT_EQ(1, int(copy.size()));
+
+    EXPECT_EQ(key, copy.cbegin()->first);
+    EXPECT_EQ(value, copy.cbegin()->second);
+}
+
 TYPED_TEST(TestAllHashtables, empty_insert)
 {
     this->_hashtable.insert(std::make_pair(this->next_key(), this->next_value()));
