@@ -16,40 +16,47 @@ template <> auto EmptyKey<std::string>() { return empty_key_t<std::string>(""); 
 template <> auto EmptyKey<int>() { return empty_key_t<int>(-1); }
 template <> auto EmptyKey<double>() { return empty_key_t<double>(-1.0); }
 
-template <typename X>
-struct TestHashTable : public ::testing::Test
+template <typename Hashtable>
+struct TestHashtable : public ::testing::Test
 {
-    using key_type = X;
-    using mapped_type = X;
+    using key_type = typename Hashtable::key_type;
+    using mapped_type = typename Hashtable::mapped_type;
 
-    explicit TestHashTable() :
+    explicit TestHashtable() :
         _hashtable(EmptyKey<key_type>())
     {}
 
-    key_type next_key()      { return __gen(); }
-    mapped_type next_value() { return __gen(); }
+    key_type next_key()      { return __kgen(); }
+    mapped_type next_value() { return __vgen(); }
 
 protected:
-    ht<key_type, mapped_type> _hashtable;
+    Hashtable _hashtable;
 
 private:
-    Rand<X> __gen;
+    Rand<key_type>    __kgen;
+    Rand<mapped_type> __vgen;
 };
 
-TYPED_TEST_CASE_P(TestHashTable);
 
-TYPED_TEST_P(TestHashTable, empty_init)
+template <typename Hashtable>
+class TestAllHashtables : public TestHashtable<Hashtable> {};
+
+using AllHashtableTypes = testing::Types<ht<std::string, std::string>, ht<int, double>, ht<double, int>>;
+TYPED_TEST_CASE(TestAllHashtables, AllHashtableTypes);
+
+
+TYPED_TEST(TestAllHashtables, empty_init)
 {
     EXPECT_TRUE(this->_hashtable.empty());
 }
 
-TYPED_TEST_P(TestHashTable, empty_insert)
+TYPED_TEST(TestAllHashtables, empty_insert)
 {
     this->_hashtable.insert(std::make_pair(this->next_key(), this->next_value()));
     EXPECT_FALSE(this->_hashtable.empty());
 }
 
-TYPED_TEST_P(TestHashTable, empty_copy)
+TYPED_TEST(TestAllHashtables, empty_copy)
 {
     this->_hashtable.insert(std::make_pair(this->next_key(), this->next_value()));
 
@@ -57,7 +64,7 @@ TYPED_TEST_P(TestHashTable, empty_copy)
     EXPECT_FALSE(h.empty());
 }
 
-TYPED_TEST_P(TestHashTable, size)
+TYPED_TEST(TestAllHashtables, size)
 {
     for (int i = 0; i < 100; ++i)
     {
@@ -66,18 +73,19 @@ TYPED_TEST_P(TestHashTable, size)
     }
 }
 
-TYPED_TEST_P(TestHashTable, walk)
+TYPED_TEST(TestAllHashtables, walk)
 {
-    using X = TypeParam;
+    using Key = typename TypeParam::key_type;
+    using Value = typename TypeParam::mapped_type;
 
-    std::unordered_map<X, X> m;
+    std::unordered_map<Key, Value> m;
     for (int i = 0; i < 1024; ++i)
     {
-        const X k = this->next_key();
-        const X v = this->next_value();
+        const Key key = this->next_key();
+        const Value value = this->next_value();
 
-        this->_hashtable.emplace(k, v);
-        m.emplace(k, v);
+        this->_hashtable.emplace(key, value);
+        m.emplace(key, value);
     }
 
     for (const auto& p : this->_hashtable)
@@ -92,19 +100,6 @@ TYPED_TEST_P(TestHashTable, walk)
     EXPECT_EQ(0, int(m.size()));
     EXPECT_TRUE(m.empty());
 }
-
-using KeyTypes = testing::Types<std::string, int, double>;
-
-REGISTER_TYPED_TEST_CASE_P(TestHashTable, empty_init, empty_insert, empty_copy, size, walk);
-INSTANTIATE_TYPED_TEST_CASE_P(KeyTypes, TestHashTable, KeyTypes);
-
-
-
-
-
-
-
-
 
 
 
