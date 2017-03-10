@@ -109,6 +109,31 @@ TYPED_TEST(TestAllHashtables, copy_assignment)
     EXPECT_EQ(value, copy.cbegin()->second);
 }
 
+TYPED_TEST(TestAllHashtables, move_assignment)
+{
+    const auto key = this->next_key();
+    const auto value = this->next_value();
+
+    this->_hashtable.emplace(key, value);
+
+    using Hashtable = TypeParam;
+    Hashtable copy(EmptyKey<typename Hashtable::key_type>());
+
+    // to avoid the compiler using copy ctor
+    {
+        copy.emplace(this->next_key(), this->next_value());
+        EXPECT_EQ(1, int(copy.size()));
+
+        copy = std::move(this->_hashtable);
+    }
+
+    EXPECT_FALSE(copy.empty());
+    EXPECT_EQ(1, int(copy.size()));
+
+    EXPECT_EQ(key, copy.cbegin()->first);
+    EXPECT_EQ(value, copy.cbegin()->second);
+}
+
 TYPED_TEST(TestAllHashtables, empty_insert)
 {
     this->_hashtable.insert(std::make_pair(this->next_key(), this->next_value()));
