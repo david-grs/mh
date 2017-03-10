@@ -1,5 +1,5 @@
-#define _HT_DEBUG_IO
-#define _HT_DEBUG
+//#define _HT_DEBUG_IO
+//#define _HT_DEBUG
 
 #include "ht.h"
 #include "utils.h"
@@ -16,24 +16,24 @@ template <> auto EmptyKey<std::string>() { return empty_key_t<std::string>(""); 
 template <> auto EmptyKey<int>() { return empty_key_t<int>(-1); }
 template <> auto EmptyKey<double>() { return empty_key_t<double>(-1.0); }
 
-template <typename Key>
+template <typename X>
 struct TestHashTable : public ::testing::Test
 {
-    using key_type = Key;
-    using mapped_type = int;
+    using key_type = X;
+    using mapped_type = X;
 
     explicit TestHashTable() :
-        _hashtable(EmptyKey<Key>())
+        _hashtable(EmptyKey<key_type>())
     {}
 
-    key_type next_key() { return gen(); }
-    mapped_type next_value() { return {}; }
+    key_type next_key()      { return __gen(); }
+    mapped_type next_value() { return __gen(); }
 
 protected:
     ht<key_type, mapped_type> _hashtable;
 
 private:
-    Rand<Key> gen;
+    Rand<X> __gen;
 };
 
 TYPED_TEST_CASE_P(TestHashTable);
@@ -68,21 +68,29 @@ TYPED_TEST_P(TestHashTable, size)
 
 TYPED_TEST_P(TestHashTable, walk)
 {
-    using key_type = TypeParam;
+    using X = TypeParam;
 
-    std::unordered_set<key_type> s;
+    std::unordered_map<X, X> m;
     for (int i = 0; i < 1024; ++i)
     {
-        const key_type k = this->next_key();
+        const X k = this->next_key();
+        const X v = this->next_value();
 
-        this->_hashtable.insert(std::make_pair(k, this->next_value()));
-        s.insert(k);
+        this->_hashtable.emplace(k, v);
+        m.emplace(k, v);
     }
 
     for (const auto& p : this->_hashtable)
-        s.erase(p.first);
+    {
+        auto it = m.find(p.first);
+        EXPECT_TRUE(it != m.cend());
 
-    EXPECT_TRUE(s.empty());
+        EXPECT_EQ(it->second, p.second);
+        m.erase(p.first);
+    }
+
+    EXPECT_EQ(0, int(m.size()));
+    EXPECT_TRUE(m.empty());
 }
 
 using KeyTypes = testing::Types<std::string, int, double>;
