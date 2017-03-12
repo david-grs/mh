@@ -4,6 +4,7 @@
 #include <random>
 #include <functional>
 #include <type_traits>
+#include <string>
 
 struct A
 {

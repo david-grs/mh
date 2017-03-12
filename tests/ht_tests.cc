@@ -2,7 +2,7 @@
 //#define _HT_DEBUG
 
 #include "ht.h"
-#include "utils.h"
+#include "fixture.h"
 
 #include <gtest/gtest.h>
 
