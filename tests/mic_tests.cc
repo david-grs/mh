@@ -17,7 +17,18 @@ struct TestMultiIndexContainer : public ::testing::Test
     }
 
 protected:
-    mic<Person, unordered<Person, std::string, &Person::first_name>> _mic;
+    struct by_first_name {};
+    struct by_age {};
+
+    mic<Person,
+        unordered<
+            by_first_name,
+            member<Person, std::string, &Person::first_name>
+        >,
+        ordered<
+            by_age,
+            member<Person, int, &Person::age>
+        >> _mic;
 };
 
 TEST_F(TestMultiIndexContainer, bla)
