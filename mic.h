@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ht.h"
+
 #include <vector>
 
 
@@ -35,20 +37,25 @@ struct sequence {};
 template <typename... Args>
 struct mic_index;
 
-template <>
-struct mic_index<>
+template <typename Object>
+struct mic_index<Object>
 {
 };
 
-template <typename Tag, typename Index, typename... Args>
-struct mic_index<unordered<Tag, Index>, Args...> : public mic_index<Args...>
+template <typename Object, typename Tag, typename Index, typename... Args>
+struct mic_index<Object, unordered<Tag, Index>, Args...> : public mic_index<Object, Args...>
 {
+    explicit mic_index() :
+        __hashtable(empty_key_t<index_type>(index_type{}))
+    {}
 
+    using index_type = typename Index::type;
+    ht<index_type, Object*> __hashtable;
 };
 
 
-template <typename Tag, typename Index, typename... Args>
-struct mic_index<ordered<Tag, Index>, Args...> : public mic_index<Args...>
+template <typename Object, typename Tag, typename Index, typename... Args>
+struct mic_index<Object, ordered<Tag, Index>, Args...> : public mic_index<Object, Args...>
 {
 
 };
@@ -57,7 +64,7 @@ struct mic_index<ordered<Tag, Index>, Args...> : public mic_index<Args...>
 template <typename Object, typename... Args>
 struct mic
 {
-    using indices = mic_index<Args...>;
+    using indices = mic_index<Object, Args...>;
 
     template <typename K>
     bool find(K&& k)
