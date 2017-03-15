@@ -41,11 +41,15 @@ struct mic_index;
 template <typename Object>
 struct mic_index<Object>
 {
+    using index_type = void;
 };
 
 template <typename Object, typename Tag, typename Index>
 struct mic_index<Object, unordered<Tag, Index>>
 {
+    using index = Index;
+    using index_type = typename index::type;
+
     explicit mic_index() :
         __hashtable(empty_key_t<index_type>(index_type{}))
     {}
@@ -56,7 +60,6 @@ struct mic_index<Object, unordered<Tag, Index>>
         return true;
     }
 
-    using index_type = typename Index::type;
     ht<index_type, Object*> __hashtable;
 };
 
@@ -64,6 +67,8 @@ struct mic_index<Object, unordered<Tag, Index>>
 template <typename Object, typename Tag, typename Index>
 struct mic_index<Object, ordered<Tag, Index>>
 {
+    using index_type = typename Index::type;
+
     template <typename K>
     bool find(K&& k)
     {
@@ -71,6 +76,21 @@ struct mic_index<Object, ordered<Tag, Index>>
     }
 };
 
+namespace detail
+{
+
+template <typename X, typename TupleT, std::size_t Index = 0>
+struct get_index_from_t
+{
+    static_assert(Index < std::tuple_size<TupleT>::value, "type not found");
+
+    static constexpr const std::size_t value =
+         std::conditional<std::is_same<X, typename std::tuple_element_t<Index, TupleT>::index_type>::value,
+                           std::integral_constant<std::size_t, Index>,
+                           get_index_from_t<X, TupleT, Index + 1>>::type ::value;
+};
+
+}
 
 template <typename Object, typename... Args>
 struct mic
@@ -78,27 +98,14 @@ struct mic
     using indices = std::tuple<mic_index<Object, Args>...>;
 
     template <typename K>
-    bool find(K&& k)
+    std::size_t find(K&& k)
     {
-        constexpr const int index = get_index<K>();
-        return std::get<index>(__indices).find(std::forward<K>(k));
+        constexpr const std::size_t index = get_index<K>();
+        return index;//std::get<index>(__indices).find(std::forward<K>(k));
     }
 
-    template <typename K>
-    constexpr std::size_t get_index() const { return get_index<K, decltype(__indices), 0>(); }
-
-    template <typename X, typename TupleT, std::size_t Index>
-    static constexpr std::enable_if_t<std::is_same<X, std::tuple_element_t<Index, TupleT>>::value, std::size_t> get_index()
-    {
-        return Index;
-    }
-
-    template <typename X, typename TupleT, std::size_t Index>
-    static constexpr std::enable_if_t<!std::is_same<X, std::tuple_element_t<Index, TupleT>>::value, std::size_t> get_index()
-    {
-        static_assert(Index < std:: tuple_size<TupleT>::value, "");
-        return get_index<X, TupleT, Index + 1>();
-    }
+    template <typename T>
+    static constexpr std::size_t get_index() { return detail::get_index_from_t<T, indices>::value; }
 
     std::vector<Object> _data;
     indices __indices;
