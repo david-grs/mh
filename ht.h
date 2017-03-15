@@ -306,25 +306,26 @@ private:
     }
 
 public:
-    template <typename F = decltype(detail::empty_callback)>
-    bool find(const Key& key, F f = detail::empty_callback)
+    const_iterator find(const Key& key) const
+    {
+        return const_cast<ht&>(*this).find(key);
+    }
+
+    iterator find(const Key& key)
     {
         std::size_t pos = Hash()(key) & (_table_sz - 1);
         std::size_t num_probes = 1;
 
-        DEBUG("lookup at pos=" << pos);
-
         while (!Equal()(_table[pos].first, key))
         {
             if (Equal()(_table[pos].first, _empty_key))
-                return false;
+                return iterator(__node_type(this, pos));
 
             pos = next(pos, num_probes);
             assert(num_probes < _table_sz);
         }
 
-        f(num_probes);
-        return true;
+        return end();
     }
 
     template <typename... Ts>
