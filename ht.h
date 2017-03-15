@@ -329,9 +329,9 @@ public:
     }
 
     template <typename... Ts>
-    bool count(Ts&&... ts)
+    std::size_t count(Ts&&... ts)
     {
-        return find(ts...);
+        return find(ts...) != end();
     }
 
     template <typename K>
