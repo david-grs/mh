@@ -28,12 +28,17 @@ protected:
         ordered<
             by_age,
             member<Person, int, &Person::age>
+        >,
+        ordered<
+            by_age,
+            member<Person, int, &Person::age>
         >> _mic;
 };
 
 TEST_F(TestMultiIndexContainer, bla)
 {
     EXPECT_EQ(0, _mic.find(std::string("sasa")));
+    EXPECT_EQ(1, _mic.find(0));
     EXPECT_EQ(1, _mic.find(0));
 }
 

@@ -55,9 +55,9 @@ struct mic_index<Object, unordered<Tag, Index>>
     {}
 
     template <typename K>
-    bool find(K&& k)
+    auto find(K&& k) const
     {
-        return true;
+        return __hashtable.find(std::forward<K>(k));
     }
 
     ht<index_type, Object*> __hashtable;
@@ -70,7 +70,7 @@ struct mic_index<Object, ordered<Tag, Index>>
     using index_type = typename Index::type;
 
     template <typename K>
-    bool find(K&& k)
+    auto find(K&&) const
     {
         return true;
     }
@@ -98,10 +98,10 @@ struct mic
     using indices = std::tuple<mic_index<Object, Args>...>;
 
     template <typename K>
-    std::size_t find(K&& k)
+    auto find(K&& k) const
     {
         constexpr const std::size_t index = get_index<K>();
-        return index;//std::get<index>(__indices).find(std::forward<K>(k));
+        return std::get<index>(__indices).find(std::forward<K>(k));
     }
 
     template <typename T>
