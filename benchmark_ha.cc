@@ -1,7 +1,7 @@
 #include "benchmark.h"
 
 #include "ht.h"
-#include "mic_old.h"
+//#include "mic_old.h"
 
 #include <google/dense_hash_map>
 
@@ -63,8 +63,8 @@ std::vector<test> benchmark_boost_mic(long unsigned seed)
 
 std::vector<test> benchmark_ha(long unsigned seed)
 {
-    hash_array<int32_t, double> mha(empty_key(0));
+    //hash_array<int32_t, double> mha(empty_key(0));
 
-    return ::detail::benchmark_container("ha", mha, seed);
+    return {};//::detail::benchmark_container("ha", mha, seed);
 }
 
