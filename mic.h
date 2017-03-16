@@ -49,6 +49,8 @@ struct mic_index<Object, unordered<Tag, Index>>
 {
     using index = Index;
     using index_type = typename index::type;
+    using iterator = typename ht<index_type, Object*>::iterator;
+    using const_iterator = typename ht<index_type, Object*>::const_iterator;
 
     explicit mic_index() :
         __hashtable(empty_key_t<index_type>(index_type{}))
@@ -58,6 +60,12 @@ struct mic_index<Object, unordered<Tag, Index>>
     auto find(K&& k) const
     {
         return __hashtable.find(std::forward<K>(k));
+    }
+
+    template <typename Pair>
+    std::pair<iterator, bool> insert(Pair&& p)
+    {
+        return __hashtable.insert(std::forward<Pair>(p));
     }
 
     ht<index_type, Object*> __hashtable;
@@ -103,6 +111,13 @@ struct mic
     {
         constexpr const std::size_t index = get_index<K>();
         return std::get<index>(__indices).find(std::forward<K>(k));
+    }
+
+    template <typename Pair>
+    auto insert(Pair&& p)
+    {
+        constexpr const std::size_t index = get_index<typename Pair::first_type>();
+        return std::get<index>(__indices).insert(std::forward<Pair>(p));
     }
 
     size_type size() const { return _size; }
