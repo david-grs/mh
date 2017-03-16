@@ -95,6 +95,7 @@ struct get_index_from_t
 template <typename Object, typename... Args>
 struct mic
 {
+    using size_type = std::size_t;
     using indices = std::tuple<mic_index<Object, Args>...>;
 
     template <typename K>
@@ -104,10 +105,13 @@ struct mic
         return std::get<index>(__indices).find(std::forward<K>(k));
     }
 
+    size_type size() const { return _size; }
+
     template <typename T>
     static constexpr std::size_t get_index() { return detail::get_index_from_t<T, indices>::value; }
 
     std::vector<Object> _data;
+    size_type _size;
     indices __indices;
 };
 
