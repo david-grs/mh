@@ -41,7 +41,71 @@ struct mic_index;
 template <typename Object>
 struct mic_index<Object>
 {
-    using index_type = void;
+    using key_type = void;
+};
+
+template <typename Index>
+struct index_traits;
+
+template <typename Index>
+struct index_base
+{
+    using key_type = typename index_traits<Index>::key_type;
+    using value_type = typename index_traits<Index>::value_type;
+    using iterator = typename index_traits<Index>::iterator;
+    using const_iterator = typename index_traits<Index>::const_iterator;
+
+    template <typename... Args>
+    std::pair<iterator, bool> emplace(Args&&... args)
+    {
+        return emplace_unique(std::forward<Args>(args)...);
+    }
+
+private:
+    template <typename Pair>
+    std::pair<iterator, bool> emplace_unique(Pair&& p)
+    {
+        return emplace_pair(std::forward<Pair>(p), __can_extract_key<key_type, Pair>());
+    }
+
+    template <typename Pair>
+    std::pair<iterator, bool> emplace_pair(Pair&& p, __extract_key_first)
+    {
+        return index_traits<Index>::emplace_unique_key(static_cast<Index&>(*this), p.first, std::forward<Pair>(p));
+    }
+
+    template <typename Pair>
+    std::pair<iterator, bool> emplace_pair(Pair&& p, __extract_key_fail)
+    {
+        return emplace_unique_impl(std::forward<Pair>(p));
+    }
+
+    template <typename First, typename Second, typename RawFirst = typename std::decay<First>::type>
+    typename std::enable_if_t<std::is_same<key_type, RawFirst>::value, std::pair<iterator, bool>>
+    emplace_unique(First&& first, Second&& second)
+    {
+        return index_traits<Index>::emplace_unique_key(static_cast<Index&>(*this), std::forward<First>(first), std::forward<First>(first), std::forward<Second>(second));
+    }
+
+    template <typename First, typename Second, typename RawFirst = typename std::decay<First>::type>
+    typename std::enable_if_t<!std::is_same<key_type, RawFirst>::value && std::is_constructible<key_type, RawFirst>::value, std::pair<iterator, bool>>
+    emplace_unique(First&& first, Second&& second)
+    {
+        return index_traits<Index>::emplace_unique_key(static_cast<Index&>(*this), key_type(first), std::forward<First>(first), std::forward<Second>(second));
+    }
+
+    template <typename... Args>
+    std::pair<iterator, bool> emplace_unique(Args&&... args)
+    {
+        return emplace_unique_impl(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    std::pair<iterator, bool> emplace_unique_impl(Args&&... args)
+    {
+        value_type p(std::forward<Args>(args)...);
+        return index_traits<Index>::emplace_unique_key(static_cast<Index&>(*this), p.first, std::move(p));
+    }
 };
 
 template <typename Object, typename Tag, typename Index>
