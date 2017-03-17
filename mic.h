@@ -111,13 +111,15 @@ private:
 template <typename Object, typename Tag, typename Index>
 struct mic_index<Object, unordered<Tag, Index>> : public index_base<mic_index<Object, unordered<Tag, Index>>>
 {
-    using index = Index;
-    using index_type = typename index::type;
-    using iterator = typename ht<index_type, Object*>::iterator;
-    using const_iterator = typename ht<index_type, Object*>::const_iterator;
+    using base = index_base<mic_index<Object, unordered<Tag, Index>>>;
+
+    using key_type = typename index_traits<mic_index>::key_type;
+    using value_type = typename index_traits<mic_index>::value_type;
+    using iterator = typename index_traits<mic_index>::iterator;
+    using const_iterator = typename index_traits<mic_index>::const_iterator;
 
     explicit mic_index() :
-        __hashtable(empty_key_t<index_type>(index_type{}))
+        __hashtable(empty_key_t<key_type>(key_type{}))
     {}
 
     template <typename K>
@@ -132,14 +134,17 @@ struct mic_index<Object, unordered<Tag, Index>> : public index_base<mic_index<Ob
         return __hashtable.insert(std::forward<Pair>(p));
     }
 
-    ht<index_type, Object*> __hashtable;
+    ht<key_type, Object*> __hashtable;
 };
 
 
 template <typename Object, typename Tag, typename Index>
 struct mic_index<Object, ordered<Tag, Index>> : public index_base<mic_index<Object, ordered<Tag, Index>>>
 {
-    using index_type = typename Index::type;
+    using key_type = typename index_traits<mic_index>::key_type;
+    using value_type = typename index_traits<mic_index>::value_type;
+    using iterator = typename index_traits<mic_index>::iterator;
+    using const_iterator = typename index_traits<mic_index>::const_iterator;
 
     template <typename K>
     auto find(K&&) const
@@ -187,7 +192,7 @@ struct get_index_from_t
     static_assert(Index < std::tuple_size<TupleT>::value, "type not found");
 
     static constexpr const std::size_t value =
-         std::conditional<std::is_same<X, typename std::tuple_element_t<Index, TupleT>::index_type>::value,
+         std::conditional<std::is_same<X, typename std::tuple_element_t<Index, TupleT>::key_type>::value,
                            std::integral_constant<std::size_t, Index>,
                            get_index_from_t<X, TupleT, Index + 1>>::type ::value;
 };
