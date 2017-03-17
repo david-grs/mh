@@ -47,4 +47,5 @@ TEST_F(TestMultiIndexContainer, emplace)
 {
     auto v = _mic.index<0>();
     v.emplace("lalal", new Person{"dada", "dd", 1});
+    EXPECT_EQ(1, int(_mic.size()));
 }
