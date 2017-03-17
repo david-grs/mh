@@ -134,6 +134,12 @@ struct mic_index<Object, unordered<Tag, Index>> : public index_base<mic_index<Ob
         return __hashtable.insert(std::forward<Pair>(p));
     }
 
+    template <typename... Args>
+    auto emplace_unique_key(Args&&... args)
+    {
+        return __hashtable.emplace(std::forward<Args>(args)...);
+    }
+
     ht<key_type, Object*> __hashtable;
 };
 
