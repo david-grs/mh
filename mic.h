@@ -168,7 +168,7 @@ struct index_traits<mic_index<Object, unordered<Tag, Index>>>
     using const_iterator = typename ht<key_type, Object*>::const_iterator;
 
     template <typename... Args>
-    auto emplace_unique_key(mic_index<Object, unordered<Tag, Index>>& index, Args&&... args)
+    static auto emplace_unique_key(mic_index<Object, unordered<Tag, Index>>& index, Args&&... args)
     {
         return index.emplace_unique_key(std::forward<Args>(args)...);
     }
@@ -183,7 +183,7 @@ struct index_traits<mic_index<Object, ordered<Tag, Index>>>
     using const_iterator = int;
 
     template <typename... Args>
-    auto emplace_unique_key(mic_index<Object, ordered<Tag, Index>>& index, Args&&... args)
+    static auto emplace_unique_key(mic_index<Object, ordered<Tag, Index>>& index, Args&&... args)
     {
         return index.emplace_unique_key(std::forward<Args>(args)...);
     }
