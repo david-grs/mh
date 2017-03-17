@@ -109,7 +109,7 @@ private:
 };
 
 template <typename Object, typename Tag, typename Index>
-struct mic_index<Object, unordered<Tag, Index>>
+struct mic_index<Object, unordered<Tag, Index>> : public index_base<mic_index<Object, unordered<Tag, Index>>>
 {
     using index = Index;
     using index_type = typename index::type;
@@ -137,7 +137,7 @@ struct mic_index<Object, unordered<Tag, Index>>
 
 
 template <typename Object, typename Tag, typename Index>
-struct mic_index<Object, ordered<Tag, Index>>
+struct mic_index<Object, ordered<Tag, Index>> : public index_base<mic_index<Object, ordered<Tag, Index>>>
 {
     using index_type = typename Index::type;
 
