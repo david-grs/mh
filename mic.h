@@ -148,6 +148,36 @@ struct mic_index<Object, ordered<Tag, Index>> : public index_base<mic_index<Obje
     }
 };
 
+template <typename Object, typename Tag, typename Index>
+struct index_traits<mic_index<Object, unordered<Tag, Index>>>
+{
+    using key_type = typename Index::type;
+    using value_type = typename ht<key_type, Object*>::value_type;
+    using iterator = typename ht<key_type, Object*>::iterator;
+    using const_iterator = typename ht<key_type, Object*>::const_iterator;
+
+    template <typename... Args>
+    auto emplace_unique_key(mic_index<Object, unordered<Tag, Index>>& index, Args&&... args)
+    {
+        return index.emplace_unique_key(std::forward<Args>(args)...);
+    }
+};
+
+template <typename Object, typename Tag, typename Index>
+struct index_traits<mic_index<Object, ordered<Tag, Index>>>
+{
+    using key_type = typename Index::type;
+    using value_type = std::pair<const key_type, Object*>;
+    using iterator = int;
+    using const_iterator = int;
+
+    template <typename... Args>
+    auto emplace_unique_key(mic_index<Object, ordered<Tag, Index>>& index, Args&&... args)
+    {
+        return index.emplace_unique_key(std::forward<Args>(args)...);
+    }
+};
+
 namespace detail
 {
 
