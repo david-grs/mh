@@ -91,7 +91,7 @@ private:
     typename std::enable_if_t<!std::is_same<key_type, RawFirst>::value && std::is_constructible<key_type, RawFirst>::value, std::pair<iterator, bool>>
     emplace_unique(First&& first, Second&& second)
     {
-        return index_traits<Index>::emplace_unique_key(static_cast<Index&>(*this), key_type(first), std::forward<First>(first), std::forward<Second>(second));
+        return index_traits<Index>::emplace_unique_key(static_cast<Index&>(*this), key_type(first), std::forward<Second>(second));
     }
 
     template <typename... Args>
