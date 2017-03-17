@@ -43,6 +43,8 @@ TEST_F(TestMultiIndexContainer, bla)
 }
 
 
-TEST_F(TestMultiIndexContainer, walk)
+TEST_F(TestMultiIndexContainer, emplace)
 {
+    auto v = _mic.index<0>();
+    v.emplace("lalal", new Person{"dada", "dd", 1});
 }
