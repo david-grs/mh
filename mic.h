@@ -113,11 +113,16 @@ struct mic
         return std::get<index>(__indices).find(std::forward<K>(k));
     }
 
-    template <typename Pair>
-    auto insert(Pair&& p)
+    template <std::size_t Index>
+    auto index()
     {
-        constexpr const std::size_t index = get_index<typename Pair::first_type>();
-        return std::get<index>(__indices).insert(std::forward<Pair>(p));
+        return std::get<Index>(__indices);
+    }
+
+    template <std::size_t Index>
+    auto index() const
+    {
+        return std::get<Index>(__indices);
     }
 
     size_type size() const { return _size; }

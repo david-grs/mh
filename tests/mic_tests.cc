@@ -42,3 +42,7 @@ TEST_F(TestMultiIndexContainer, bla)
     EXPECT_EQ(1, _mic.find(0));
 }
 
+
+TEST_F(TestMultiIndexContainer, walk)
+{
+}
