@@ -234,24 +234,27 @@ struct mic
     }
 
     template <std::size_t Index>
-    auto index()
+    auto index() { return index_view<Index>(*this); }
+
+    // TODO
+    //template <std::size_t Index>
+    //auto index() const { return index_view<Index>(*this) }
+
+    template <std::size_t Index, typename... TArgs>
+    auto emplace(TArgs&&... args)
     {
-        return std::get<Index>(__indices);
+        auto p = std::get<Index>(__indices).emplace(std::forward<TArgs>(args)...);
+        if (p.second)
+            _data.emplace_back(Object{});
+        return p;
     }
 
-    template <std::size_t Index>
-    auto index() const
-    {
-        return std::get<Index>(__indices);
-    }
-
-    size_type size() const { return _size; }
+    size_type size() const { return _data.size(); }
 
     template <typename T>
     static constexpr std::size_t get_index() { return detail::get_index_from_t<T, indices>::value; }
 
-    std::vector<Object> _data;
-    size_type _size;
+    std::vector<Object> _data;;
     indices __indices;
 };
 
