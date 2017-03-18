@@ -211,6 +211,21 @@ struct mic
     using size_type = std::size_t;
     using indices = std::tuple<mic_index<Object, Args>...>;
 
+    template <std::size_t Index>
+    struct index_view
+    {
+        explicit index_view(mic& _t) : t(_t)
+        {}
+
+        static constexpr std::size_t index = Index;
+
+        template <typename... TArgs>
+        auto emplace(TArgs&&... args) { t.template emplace<Index>(std::forward<TArgs>(args)...); }
+
+    private:
+        mic& t;
+    };
+
     template <typename K>
     auto find(K&& k) const
     {
