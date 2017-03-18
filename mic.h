@@ -236,9 +236,9 @@ struct mic
     template <std::size_t Index>
     auto index() { return index_view<Index>(this); }
 
-    // TODO
+    //TODO
     //template <std::size_t Index>
-    //auto index() const { return index_view<Index>(*this) }
+    //auto index() const { return index_view<Index>(this); }
 
     template <std::size_t Index, typename... TArgs>
     auto emplace(TArgs&&... args)
