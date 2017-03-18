@@ -214,16 +214,16 @@ struct mic
     template <std::size_t Index>
     struct index_view
     {
-        explicit index_view(mic& _t) : t(_t)
+        explicit index_view(mic* _t) : t(_t)
         {}
 
         static constexpr std::size_t index = Index;
 
         template <typename... TArgs>
-        auto emplace(TArgs&&... args) { t.template emplace<Index>(std::forward<TArgs>(args)...); }
+        auto emplace(TArgs&&... args) { t->template emplace<Index>(std::forward<TArgs>(args)...); }
 
     private:
-        mic& t;
+        mic* t;
     };
 
     template <typename K>
@@ -234,7 +234,7 @@ struct mic
     }
 
     template <std::size_t Index>
-    auto index() { return index_view<Index>(*this); }
+    auto index() { return index_view<Index>(this); }
 
     // TODO
     //template <std::size_t Index>
