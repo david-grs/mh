@@ -73,6 +73,9 @@ TEST_F(TestMultiIndexContainer, iterator)
 
 TEST_F(TestMultiIndexContainer, clear)
 {
+    _mic.index<0>().emplace("lalal", new Person{"dada", "dd", 1});
+
     _mic.clear();
+    EXPECT_EQ(0, int(_mic.size()));
 }
 

@@ -311,6 +311,7 @@ public:
     void clear()
     {
         detail::for_each_t()(__indices, [](auto&& x) { x.clear(); });
+        _data.clear();
     }
 
 private:
@@ -338,6 +339,6 @@ private:
     template <typename T>
     static constexpr std::size_t get_index() { return detail::get_index_from_t<T, indices>::value; }
 
-    std::vector<Object> _data;;
+    std::vector<Object> _data;
     indices __indices;
 };
