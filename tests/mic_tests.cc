@@ -45,8 +45,22 @@ TEST_F(TestMultiIndexContainer, bla)
 
 TEST_F(TestMultiIndexContainer, emplace)
 {
-    const auto m = _mic;
-    auto v = m.index<0>();
+    auto v = _mic.index<0>();
     v.emplace("lalal", new Person{"dada", "dd", 1});
     EXPECT_EQ(1, int(_mic.size()));
+}
+
+TEST_F(TestMultiIndexContainer, find)
+{
+    auto v = _mic.index<0>();
+    auto p = v.find(std::string("lalal"));
+    EXPECT_EQ(0, int(_mic.size()));
+}
+
+TEST_F(TestMultiIndexContainer, find_const)
+{
+    const auto& m = _mic;
+    auto v = m.index<0>();
+    auto p = v.find(std::string("lalal"));
+    EXPECT_EQ(0, int(_mic.size()));
 }

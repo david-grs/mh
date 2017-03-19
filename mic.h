@@ -221,6 +221,9 @@ private:
         explicit index_view_base(T* _t) : t(_t)
         {}
 
+        template <typename... TArgs>
+        auto find(TArgs&&... args) { return this->t->template find<Index>(std::forward<TArgs>(args)...); }
+
     protected:
         typename std::conditional<IsConst, const mic*, mic*>::type t;
     };
@@ -253,6 +256,18 @@ public:
 
     template <std::size_t Index>
     auto index() const { return const_index_view<Index>(this); }
+
+    template <std::size_t Index, typename K>
+    auto find(K&& k) const
+    {
+        return std::get<Index>(__indices).find(std::forward<K>(k));
+    }
+
+    template <std::size_t Index, typename K>
+    auto find(K&& k)
+    {
+        return std::get<Index>(__indices).find(std::forward<K>(k));
+    }
 
     template <std::size_t Index, typename... TArgs>
     auto emplace(TArgs&&... args)
