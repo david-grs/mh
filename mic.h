@@ -271,6 +271,3 @@ public:
     std::vector<Object> _data;;
     indices __indices;
 };
-
-// unordered< member<Person, std::string, &Person::first_name> >
-// ht<std::string, Person*>
