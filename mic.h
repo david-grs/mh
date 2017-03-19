@@ -244,12 +244,6 @@ public:
         using index_view_base<Index, true>::index_view_base;
     };
 
-    template <typename K>
-    auto find(K&& k) const
-    {
-        constexpr const std::size_t index = get_index<K>();
-        return std::get<index>(__indices).find(std::forward<K>(k));
-    }
 
     template <std::size_t Index>
     auto index() { return index_view<Index>(this); }
@@ -257,6 +251,16 @@ public:
     template <std::size_t Index>
     auto index() const { return const_index_view<Index>(this); }
 
+    template <typename K>
+    auto find(K&& k) const
+    {
+        constexpr const std::size_t index = get_index<K>();
+        return std::get<index>(__indices).find(std::forward<K>(k));
+    }
+
+    size_type size() const { return _data.size(); }
+
+private:
     template <std::size_t Index, typename K>
     auto find(K&& k) const
     {
@@ -277,8 +281,6 @@ public:
             _data.emplace_back(Object{});
         return p;
     }
-
-    size_type size() const { return _data.size(); }
 
     template <typename T>
     static constexpr std::size_t get_index() { return detail::get_index_from_t<T, indices>::value; }

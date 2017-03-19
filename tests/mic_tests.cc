@@ -64,3 +64,4 @@ TEST_F(TestMultiIndexContainer, find_const)
     auto p = v.find(std::string("lalal"));
     EXPECT_EQ(0, int(_mic.size()));
 }
+
