@@ -65,3 +65,9 @@ TEST_F(TestMultiIndexContainer, find_const)
     EXPECT_EQ(0, int(_mic.size()));
 }
 
+TEST_F(TestMultiIndexContainer, iterator)
+{
+    EXPECT_TRUE(_mic.cbegin() == _mic.cend());
+    EXPECT_TRUE(_mic.begin() == _mic.end());
+}
+

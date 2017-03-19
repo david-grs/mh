@@ -140,6 +140,14 @@ struct mic_index<Object, unordered<Tag, Index>> : public index_base<mic_index<Ob
         return __hashtable.emplace(std::forward<Args>(args)...);
     }
 
+    auto begin()        { return __hashtable.begin(); }
+    auto begin() const  { return __hashtable.begin(); }
+    auto cbegin() const { return __hashtable.cbegin(); }
+
+    auto end()        { return __hashtable.end(); }
+    auto end() const  { return __hashtable.end(); }
+    auto cend() const { return __hashtable.cend(); }
+
     ht<key_type, Object*> __hashtable;
 };
 
@@ -224,6 +232,14 @@ private:
         template <typename... TArgs>
         auto find(TArgs&&... args) { return this->t->template find<Index>(std::forward<TArgs>(args)...); }
 
+        auto begin()        { return std::get<Index>(this->t->__indices).begin(); }
+        auto begin() const  { return std::get<Index>(this->t->__indices).begin(); }
+        auto cbegin() const { return std::get<Index>(this->t->__indices).cbegin(); }
+
+        auto end()        { return std::get<Index>(this->t->__indices).end(); }
+        auto end() const  { return std::get<Index>(this->t->__indices).end(); }
+        auto cend() const { return std::get<Index>(this->t->__indices).cend(); }
+
     protected:
         typename std::conditional<IsConst, const mic*, mic*>::type t;
     };
@@ -259,6 +275,14 @@ public:
     }
 
     size_type size() const { return _data.size(); }
+
+    auto begin()        { return index_view<0>(this).begin(); }
+    auto begin() const  { return const_index_view<0>(this).begin(); }
+    auto cbegin() const { return const_index_view<0>(this).cbegin(); }
+
+    auto end()        { return index_view<0>(this).end(); }
+    auto end() const  { return const_index_view<0>(this).end(); }
+    auto cend() const { return const_index_view<0>(this).cend(); }
 
 private:
     template <std::size_t Index, typename K>
