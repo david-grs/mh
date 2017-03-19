@@ -122,6 +122,16 @@ struct mic_index<Object, unordered<Tag, Index>> : public index_base<mic_index<Ob
         __hashtable(empty_key_t<key_type>(key_type{}))
     {}
 
+    auto begin()        { return __hashtable.begin(); }
+    auto begin() const  { return __hashtable.begin(); }
+    auto cbegin() const { return __hashtable.cbegin(); }
+
+    auto end()        { return __hashtable.end(); }
+    auto end() const  { return __hashtable.end(); }
+    auto cend() const { return __hashtable.cend(); }
+
+    void clear() { __hashtable.clear(); }
+
     template <typename K>
     auto find(K&& k) const
     {
@@ -140,14 +150,6 @@ struct mic_index<Object, unordered<Tag, Index>> : public index_base<mic_index<Ob
         return __hashtable.emplace(std::forward<Args>(args)...);
     }
 
-    auto begin()        { return __hashtable.begin(); }
-    auto begin() const  { return __hashtable.begin(); }
-    auto cbegin() const { return __hashtable.cbegin(); }
-
-    auto end()        { return __hashtable.end(); }
-    auto end() const  { return __hashtable.end(); }
-    auto cend() const { return __hashtable.cend(); }
-
     ht<key_type, Object*> __hashtable;
 };
 
@@ -165,6 +167,8 @@ struct mic_index<Object, ordered<Tag, Index>> : public index_base<mic_index<Obje
     {
         return true;
     }
+
+    void clear() {  }
 };
 
 template <typename Object, typename Tag, typename Index>
@@ -210,6 +214,17 @@ struct get_index_from_t
                            std::integral_constant<std::size_t, Index>,
                            get_index_from_t<X, TupleT, Index + 1>>::type ::value;
 };
+
+template <typename TupleT, typename F, std::size_t Index, typename RawTupleT = typename std::decay<TupleT>::type>
+std::enable_if_t<Index >= std::tuple_size<RawTupleT>::value> for_each_t(TupleT&&, F&&)
+{ }
+
+template <typename TupleT, typename F, std::size_t Index = 0, typename RawTupleT = typename std::decay<TupleT>::type>
+std::enable_if_t<Index < std::tuple_size<RawTupleT>::value> for_each_t(TupleT&& t, F&& f)
+{
+    f(std::get<Index>(t));
+    for_each_t<TupleT, F, Index + 1>(std::forward<TupleT>(t), std::forward<F>(f));
+}
 
 }
 
@@ -284,6 +299,11 @@ public:
 
     size_type size() const { return _data.size(); }
     size_type max_size() const { return _data.max_size(); }
+
+    void clear()
+    {
+        detail::for_each_t(__indices, [](auto&& x) { x.clear(); });
+    }
 
 private:
     template <std::size_t Index, typename K>

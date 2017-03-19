@@ -71,3 +71,8 @@ TEST_F(TestMultiIndexContainer, iterator)
     EXPECT_TRUE(_mic.begin() == _mic.end());
 }
 
+TEST_F(TestMultiIndexContainer, clear)
+{
+    _mic.clear();
+}
+
