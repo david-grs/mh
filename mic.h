@@ -211,19 +211,34 @@ struct mic
     using size_type = std::size_t;
     using indices = std::tuple<mic_index<Object, Args>...>;
 
-    template <std::size_t Index>
-    struct index_view
+private:
+    template <std::size_t Index, bool IsConst = false>
+    struct index_view_base
     {
-        explicit index_view(mic* _t) : t(_t)
-        {}
-
         static constexpr std::size_t index = Index;
 
-        template <typename... TArgs>
-        auto emplace(TArgs&&... args) { t->template emplace<Index>(std::forward<TArgs>(args)...); }
+        template <typename T>
+        explicit index_view_base(T* _t) : t(_t)
+        {}
 
-    private:
-        mic* t;
+    protected:
+        typename std::conditional<IsConst, const mic*, mic*>::type t;
+    };
+
+public:
+    template <std::size_t Index>
+    struct index_view : public index_view_base<Index>
+    {
+        using index_view_base<Index>::index_view_base;
+
+        template <typename... TArgs>
+        auto emplace(TArgs&&... args) { return this->t->template emplace<Index>(std::forward<TArgs>(args)...); }
+    };
+
+    template <std::size_t Index>
+    struct const_index_view : public index_view_base<Index, true>
+    {
+        using index_view_base<Index, true>::index_view_base;
     };
 
     template <typename K>
@@ -236,9 +251,8 @@ struct mic
     template <std::size_t Index>
     auto index() { return index_view<Index>(this); }
 
-    //TODO
-    //template <std::size_t Index>
-    //auto index() const { return index_view<Index>(this); }
+    template <std::size_t Index>
+    auto index() const { return const_index_view<Index>(this); }
 
     template <std::size_t Index, typename... TArgs>
     auto emplace(TArgs&&... args)
