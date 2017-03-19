@@ -274,8 +274,6 @@ public:
         return std::get<index>(__indices).find(std::forward<K>(k));
     }
 
-    size_type size() const { return _data.size(); }
-
     auto begin()        { return index_view<0>(this).begin(); }
     auto begin() const  { return const_index_view<0>(this).begin(); }
     auto cbegin() const { return const_index_view<0>(this).cbegin(); }
@@ -283,6 +281,9 @@ public:
     auto end()        { return index_view<0>(this).end(); }
     auto end() const  { return const_index_view<0>(this).end(); }
     auto cend() const { return const_index_view<0>(this).cend(); }
+
+    size_type size() const { return _data.size(); }
+    size_type max_size() const { return _data.max_size(); }
 
 private:
     template <std::size_t Index, typename K>
