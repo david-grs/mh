@@ -215,16 +215,24 @@ struct get_index_from_t
                            get_index_from_t<X, TupleT, Index + 1>>::type ::value;
 };
 
-template <typename TupleT, typename F, std::size_t Index, typename RawTupleT = typename std::decay<TupleT>::type>
-std::enable_if_t<Index >= std::tuple_size<RawTupleT>::value> for_each_t(TupleT&&, F&&)
-{ }
 
-template <typename TupleT, typename F, std::size_t Index = 0, typename RawTupleT = typename std::decay<TupleT>::type>
-std::enable_if_t<Index < std::tuple_size<RawTupleT>::value> for_each_t(TupleT&& t, F&& f)
+struct for_each_t
 {
-    f(std::get<Index>(t));
-    for_each_t<TupleT, F, Index + 1>(std::forward<TupleT>(t), std::forward<F>(f));
-}
+private:
+    template <typename TupleT, typename F, std::size_t... Is>
+    void impl(TupleT&& t, F f, std::index_sequence<Is...>)
+    {
+        (void)std::initializer_list<int>{int{}, (f(std::get<Is>(std::forward<TupleT>(t))), void(), int{})...};
+    }
+
+public:
+    template <typename TupleT, typename F>
+    void operator()(TupleT&& t, F f)
+    {
+        impl(std::forward<TupleT>(t), std::ref(f),
+             std::make_index_sequence<std::tuple_size<typename std::decay<TupleT>::type>::value>());
+    }
+};
 
 }
 
@@ -302,7 +310,7 @@ public:
 
     void clear()
     {
-        detail::for_each_t(__indices, [](auto&& x) { x.clear(); });
+        detail::for_each_t()(__indices, [](auto&& x) { x.clear(); });
     }
 
 private:
