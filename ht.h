@@ -414,6 +414,12 @@ public:
     const_iterator cbegin() const { return begin(); }
     const_iterator cend()   const { return end(); }
 
+    void clear()
+    {
+        // TODO
+
+    }
+
 #ifdef _HT_DEBUG
 
     void dump(std::ostream& os)
