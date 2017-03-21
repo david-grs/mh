@@ -109,7 +109,7 @@ private:
 };
 
 template <typename Object, typename Tag, typename Index>
-struct mic_index<Object, unordered<Tag, Index>> : public index_base<mic_index<Object, unordered<Tag, Index>>>
+struct mic_index<Object, unordered<Tag, Index>> : public ht<typename Index::type, Object*>
 {
     using base = index_base<mic_index<Object, unordered<Tag, Index>>>;
 
@@ -119,38 +119,8 @@ struct mic_index<Object, unordered<Tag, Index>> : public index_base<mic_index<Ob
     using const_iterator = typename index_traits<mic_index>::const_iterator;
 
     explicit mic_index() :
-        __hashtable(empty_key_t<key_type>(key_type{}))
+        ht<key_type, Object*>(empty_key_t<key_type>(key_type{}))
     {}
-
-    auto begin()        { return __hashtable.begin(); }
-    auto begin() const  { return __hashtable.begin(); }
-    auto cbegin() const { return __hashtable.cbegin(); }
-
-    auto end()        { return __hashtable.end(); }
-    auto end() const  { return __hashtable.end(); }
-    auto cend() const { return __hashtable.cend(); }
-
-    void clear() { __hashtable.clear(); }
-
-    template <typename K>
-    auto find(K&& k) const
-    {
-        return __hashtable.find(std::forward<K>(k));
-    }
-
-    template <typename Pair>
-    std::pair<iterator, bool> insert(Pair&& p)
-    {
-        return __hashtable.insert(std::forward<Pair>(p));
-    }
-
-    template <typename... Args>
-    auto emplace_unique_key(Args&&... args)
-    {
-        return __hashtable.emplace(std::forward<Args>(args)...);
-    }
-
-    ht<key_type, Object*> __hashtable;
 };
 
 
