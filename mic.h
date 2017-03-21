@@ -275,6 +275,7 @@ public:
     auto end() const  { return const_index_view<0>(this).end(); }
     auto cend() const { return const_index_view<0>(this).cend(); }
 
+    bool empty() const { return _data.empty(); }
     size_type size() const { return _data.size(); }
     size_type max_size() const { return _data.max_size(); }
 

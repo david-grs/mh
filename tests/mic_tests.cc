@@ -79,3 +79,8 @@ TEST_F(TestMultiIndexContainer, clear)
     EXPECT_EQ(0, int(_mic.size()));
 }
 
+TEST_F(TestMultiIndexContainer, empty)
+{
+    EXPECT_TRUE(_mic.empty());
+}
+
