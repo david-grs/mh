@@ -296,6 +296,26 @@ private:
     }
 
 public:
+    size_type erase(const Key& key)
+    {
+        std::size_t pos = Hash()(key) & (_table_sz - 1);
+        std::size_t num_probes = 1;
+
+        while (!Equal()(_table[pos].first, key))
+        {
+            if (Equal()(_table[pos].first, _empty_key))
+            {
+                _table[pos].first = _empty_key;
+                return 1;
+            }
+
+            pos = next(pos, num_probes);
+            assert(num_probes < _table_sz);
+        }
+
+        return 0;
+    }
+
     const_iterator find(const Key& key) const
     {
         return const_cast<ht&>(*this).find(key);
