@@ -267,6 +267,21 @@ public:
         return std::get<index>(__indices).find(std::forward<K>(k));
     }
 
+    template <typename K>
+    size_type erase(K&& k)
+    {
+        constexpr const std::size_t index = get_index<K>();
+        size_type erased = std::get<index>(__indices).erase(std::forward<K>(k));
+
+        if (erased)
+        {
+            // TODO optimize for delete: adding pointers back to other structs
+            // TODO detail::for_each_if_not_t<index>()(__indices, [](auto&& x) { x.erase(); });
+        }
+        
+        return erased;
+    }
+
     auto begin()        { return index_view<0>(this).begin(); }
     auto begin() const  { return const_index_view<0>(this).begin(); }
     auto cbegin() const { return const_index_view<0>(this).cbegin(); }

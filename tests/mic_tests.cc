@@ -84,3 +84,11 @@ TEST_F(TestMultiIndexContainer, empty)
     EXPECT_TRUE(_mic.empty());
 }
 
+TEST_F(TestMultiIndexContainer, erase)
+{
+    _mic.index<0>().emplace("lalal", new Person{"dada", "dd", 1});
+
+    _mic.erase(std::string("lalal"));
+    EXPECT_TRUE(_mic.empty());
+}
+
