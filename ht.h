@@ -305,7 +305,8 @@ public:
         {
             if (Equal()(_table[pos].first, _empty_key))
             {
-                _table[pos].first = _empty_key;
+                const_cast<key_type&>(_table[pos].first) = _empty_key;
+                _table[pos].second.~Value();
                 return 1;
             }
 
