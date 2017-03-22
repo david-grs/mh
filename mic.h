@@ -210,9 +210,10 @@ template <typename Object, typename... Args>
 struct mic
 {
     using size_type = std::size_t;
-    using indices = std::tuple<mic_index<Object, Args>...>;
 
 private:
+    using indices = std::tuple<mic_index<Object, Args>...>;
+    
     template <std::size_t Index, bool IsConst = false>
     struct index_view_base
     {
@@ -278,7 +279,7 @@ public:
             // TODO optimize for delete: adding pointers back to other structs
             // TODO detail::for_each_if_not_t<index>()(__indices, [](auto&& x) { x.erase(); });
         }
-        
+
         return erased;
     }
 
