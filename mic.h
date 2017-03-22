@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ht.h"
+#include "filter.h"
 
 #include <vector>
 #include <tuple>
@@ -178,7 +179,6 @@ struct get_index_from_t
                            get_index_from_t<X, TupleT, Index + 1>>::type ::value;
 };
 
-
 struct for_each_t
 {
 private:
@@ -194,6 +194,25 @@ public:
     {
         impl(std::forward<TupleT>(t), std::ref(f),
              std::make_index_sequence<std::tuple_size<typename std::decay<TupleT>::type>::value>());
+    }
+};
+
+template <std::size_t Index>
+struct for_each_if_not_t
+{
+private:
+    template <typename TupleT, typename F, std::size_t... Is>
+    void impl(TupleT&& t, F f, std::index_sequence<Is...>)
+    {
+        (void)std::initializer_list<int>{int{}, (f(std::get<Is>(std::forward<TupleT>(t))), void(), int{})...};
+    }
+
+public:
+    template <typename TupleT, typename F>
+    void operator()(TupleT&& t, F f)
+    {
+        impl(std::forward<TupleT>(t), std::ref(f),
+             filter<Index, std::make_index_sequence<std::tuple_size<typename std::decay<TupleT>::type>::value>>()());
     }
 };
 
@@ -270,7 +289,7 @@ public:
         if (erased)
         {
             // TODO optimize for delete: adding pointers back to other structs
-            // TODO detail::for_each_if_not_t<index>()(__indices, [](auto&& x) { x.erase(); });
+            detail::for_each_if_not_t<index>()(__indices, [](auto&& x) { (void)x; });
         }
 
         return erased;
