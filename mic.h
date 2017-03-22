@@ -5,6 +5,7 @@
 #include <vector>
 #include <tuple>
 #include <type_traits>
+#include <map>
 
 template <typename C, typename T, T C::* M>
 struct member
@@ -125,20 +126,12 @@ struct mic_index<Object, unordered<Tag, Index>> : public ht<typename Index::type
 
 
 template <typename Object, typename Tag, typename Index>
-struct mic_index<Object, ordered<Tag, Index>> : public index_base<mic_index<Object, ordered<Tag, Index>>>
+struct mic_index<Object, ordered<Tag, Index>> : public std::map<typename Index::type, Object*>
 {
     using key_type = typename index_traits<mic_index>::key_type;
     using value_type = typename index_traits<mic_index>::value_type;
     using iterator = typename index_traits<mic_index>::iterator;
     using const_iterator = typename index_traits<mic_index>::const_iterator;
-
-    template <typename K>
-    auto find(K&&) const
-    {
-        return true;
-    }
-
-    void clear() {  }
 };
 
 template <typename Object, typename Tag, typename Index>
@@ -213,7 +206,7 @@ struct mic
 
 private:
     using indices = std::tuple<mic_index<Object, Args>...>;
-    
+
     template <std::size_t Index, bool IsConst = false>
     struct index_view_base
     {

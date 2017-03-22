@@ -35,18 +35,17 @@ protected:
         >> _mic;
 };
 
-TEST_F(TestMultiIndexContainer, bla)
-{
- //   EXPECT_EQ(_mic.end(), _mic.find(std::string("sasa")));
-    EXPECT_EQ(1, _mic.find(0));
-    EXPECT_EQ(1, _mic.find(0));
-}
-
-
-TEST_F(TestMultiIndexContainer, emplace)
+TEST_F(TestMultiIndexContainer, emplace_hash)
 {
     auto v = _mic.index<0>();
     v.emplace("lalal", new Person{"dada", "dd", 1});
+    EXPECT_EQ(1, int(_mic.size()));
+}
+
+TEST_F(TestMultiIndexContainer, emplace_map)
+{
+    auto v = _mic.index<1>();
+    v.emplace(324, new Person{"dada", "dd", 1});
     EXPECT_EQ(1, int(_mic.size()));
 }
 
