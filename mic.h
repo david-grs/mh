@@ -12,6 +12,8 @@ template <typename C, typename T, T C::* M>
 struct member
 {
     using type = T;
+
+    type operator()(const C& c) const { return c.*M; }
 };
 
 template <typename C, typename T, T(C::* M) ()>
@@ -119,6 +121,7 @@ struct mic_index<Object, unordered<Tag, Index>> : public ht<typename Index::type
     using value_type = typename index_traits<mic_index>::value_type;
     using iterator = typename index_traits<mic_index>::iterator;
     using const_iterator = typename index_traits<mic_index>::const_iterator;
+    using index_type = Index;
 
     explicit mic_index() :
         ht<key_type, Object*>(empty_key_t<key_type>(key_type{}))
@@ -133,6 +136,7 @@ struct mic_index<Object, ordered<Tag, Index>> : public std::map<typename Index::
     using value_type = typename index_traits<mic_index>::value_type;
     using iterator = typename index_traits<mic_index>::iterator;
     using const_iterator = typename index_traits<mic_index>::const_iterator;
+    using index_type = Index;
 };
 
 template <typename Object, typename Tag, typename Index>
@@ -288,8 +292,15 @@ public:
 
         if (erased)
         {
+            const mapped_type& value = get_value();
+
             // TODO optimize for delete: adding pointers back to other structs
-            detail::for_each_if_not_t<index>()(__indices, [](auto&& x) { (void)x; });
+            detail::for_each_if_not_t<index>()(__indices, [](auto&& x)
+            {
+                using M = typename std::decay<decltype(x)>::type ::index_type;
+                auto& k = M()(v);
+                x.erase(k);
+            });
         }
 
         return erased;
