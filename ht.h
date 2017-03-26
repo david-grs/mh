@@ -302,6 +302,17 @@ private:
     }
 
 public:
+    iterator erase(const_iterator it)
+    {
+        size_type pos = it._node._pos;
+
+        const_cast<key_type&>(_table[pos].first) = _empty_key;
+        _table[pos].second.~Value();
+
+        ++it;
+        return iterator(__node_type(this, it._node._pos));
+    }
+
     size_type erase(const Key& key)
     {
         std::size_t pos = Hash()(key) & (_table_sz - 1);
