@@ -35,6 +35,8 @@ namespace detail
     auto empty_callback = [](std::size_t) {};
 }
 
+template <class, class, class, class> struct ht;
+
 template <typename _Node>
 struct __iterator_base
 {
@@ -54,6 +56,8 @@ struct __iterator_base
 
     bool operator==(const __iterator_base& it) const { return _node == it._node; }
     bool operator!=(const __iterator_base& it) const { return !(*this == it); }
+
+    template <class, class, class, class> friend struct ht;
 
 protected:
     _Node _node;
