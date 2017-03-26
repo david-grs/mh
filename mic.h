@@ -23,6 +23,13 @@ struct mem_fun
     type operator()(const C& c) const { return (c.*M)(); }
 };
 
+template <typename C, typename T, T(C::* M) () const>
+struct const_mem_fun
+{
+    using type = T;
+    type operator()(const C& c) const { return (c.*M)(); }
+};
+
 template <typename Tag, typename Index>
 struct unordered
 {
