@@ -135,6 +135,8 @@ private:
 
         bool operator==(const __node_type& n) const { return _hashtable == n._hashtable && _pos == n._pos; }
 
+        template <class, class, class, class> friend struct ht;
+
     private:
         ht* _hashtable;
         size_type _pos;
