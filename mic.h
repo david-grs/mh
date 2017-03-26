@@ -295,22 +295,23 @@ public:
     size_type erase(K&& k)
     {
         constexpr const std::size_t index = get_index<K>();
-        size_type erased = std::get<index>(__indices).erase(std::forward<K>(k));
+        auto it = std::get<index>(__indices).find(std::forward<K>(k));
 
-        if (erased)
+        if (it == std::get<index>(__indices).cend())
+            return 0;
+
+        const Object* obj = it->second;
+        std::get<index>(__indices).erase(it);
+
+        // TODO optimize for delete: adding pointers back to other structs
+        detail::for_each_if_not_t<index>()(__indices, [obj](auto&& x)
         {
-            const mapped_type& value = get_value();
+            using M = typename std::decay<decltype(x)>::type ::index_type;
+            const auto& k = M()(*obj);
+            x.erase(k);
+        });
 
-            // TODO optimize for delete: adding pointers back to other structs
-            detail::for_each_if_not_t<index>()(__indices, [](auto&& x)
-            {
-                using M = typename std::decay<decltype(x)>::type ::index_type;
-                auto& k = M()(v);
-                x.erase(k);
-            });
-        }
-
-        return erased;
+        return 1;
     }
 
     auto begin()        { return index_view<0>(this).begin(); }
