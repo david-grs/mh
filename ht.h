@@ -360,10 +360,9 @@ public:
         return end();
     }
 
-    template <typename... Ts>
-    std::size_t count(Ts&&... ts)
+    std::size_t count(const Key& key) const
     {
-        return find(ts...) != end();
+        return find(key) == cend() ? 0 : 1;
     }
 
     template <typename K>
