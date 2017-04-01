@@ -15,10 +15,10 @@
 namespace io
 {
 
+static const int FieldWidth = 22;
+
 static void cmp_tests_full_group(const std::vector<test>& tests, const std::vector<test>& ref_tests)
 {
-    static const int FieldWidth = 22;
-
     std::cout << std::setw(FieldWidth) << std::left << "test";
 
     for (const test& t : tests)
