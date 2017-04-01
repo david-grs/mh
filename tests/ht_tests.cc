@@ -224,6 +224,26 @@ TYPED_TEST(TestAllHashtables, erase_key)
     EXPECT_EQ(0, int(erased));
 }
 
+TYPED_TEST(TestAllHashtables, erase_iterator)
+{
+    auto& h = this->_hashtable;
+
+    const auto k = this->next_key();
+    const auto v = this->next_value();
+
+    auto it = h.emplace(k, v).first;
+    EXPECT_EQ(1, int(h.size()));
+
+    it = h.erase(it);
+
+    EXPECT_EQ(it, h.cend());
+    EXPECT_EQ(h.cend(), h.find(k));
+    EXPECT_EQ(0, int(h.size()));
+    EXPECT_EQ(0, int(h.count(k)));
+
+    EXPECT_EQ(0, h.erase(k));
+}
+
 
 
 // TODO THIS IS NOT A UNIT TEST.
