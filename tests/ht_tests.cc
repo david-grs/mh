@@ -185,6 +185,45 @@ TYPED_TEST(TestAllHashtables, walk)
     EXPECT_TRUE(m.empty());
 }
 
+TYPED_TEST(TestAllHashtables, emplace)
+{
+    auto& h = this->_hashtable;
+
+    const auto k = this->next_key();
+    const auto v = this->next_value();
+
+    auto p = h.emplace(k, v);
+
+    EXPECT_TRUE(p.second);
+    auto it = p.first;
+
+    EXPECT_EQ(1, int(h.size()));
+    EXPECT_EQ(1, int(h.count(k)));
+    EXPECT_EQ(it, h.find(k));
+    EXPECT_EQ(v, h.find(k)->second);
+}
+
+TYPED_TEST(TestAllHashtables, erase_key)
+{
+    auto& h = this->_hashtable;
+
+    const auto k = this->next_key();
+    const auto v = this->next_value();
+
+    h.emplace(k, v);
+    EXPECT_EQ(1, int(h.size()));
+
+    auto erased = h.erase(k);
+
+    EXPECT_EQ(1, int(erased));
+    EXPECT_EQ(h.cend(), h.find(k));
+    EXPECT_EQ(0, int(h.size()));
+    EXPECT_EQ(0, int(h.count(k)));
+
+    erased = h.erase(k);
+    EXPECT_EQ(0, int(erased));
+}
+
 
 
 // TODO THIS IS NOT A UNIT TEST.
