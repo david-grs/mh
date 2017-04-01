@@ -304,36 +304,37 @@ private:
 public:
     iterator erase(const_iterator it)
     {
-        size_type pos = it._node._pos;
-
-        const_cast<key_type&>(_table[pos].first) = _empty_key;
-        _table[pos].second.~Value();
-
+        erase_element(it._node._pos);
         ++it;
         return iterator(__node_type(this, it._node._pos));
     }
 
     size_type erase(const Key& key)
     {
-        std::size_t pos = Hash()(key) & (_table_sz - 1);
-        std::size_t num_probes = 1;
-
-        while (!Equal()(_table[pos].first, key))
+        auto it = find(key);
+        if (it == end())
         {
-            if (Equal()(_table[pos].first, _empty_key))
-            {
-                const_cast<key_type&>(_table[pos].first) = _empty_key;
-                _table[pos].second.~Value();
-                return 1;
-            }
-
-            pos = next(pos, num_probes);
-            assert(num_probes < _table_sz);
+            DEBUG("erase: key not found");
+            return 0;
         }
 
-        return 0;
+        DEBUG("erase: key found pos=" << it._node._pos);
+        erase_element(it._node._pos);
+        return 1;
     }
 
+private:
+    void erase_element(size_type pos)
+    {
+        --_elements;
+
+        DEBUG("erasing element pos=" << pos << " remaining elements=" << _elements);
+
+        const_cast<key_type&>(_table[pos].first) = _empty_key;
+        _table[pos].second = Value();
+    }
+
+public:
     const_iterator find(const Key& key) const
     {
         return const_cast<ht&>(*this).find(key);
