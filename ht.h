@@ -344,13 +344,17 @@ public:
         std::size_t pos = Hash()(key) & (_table_sz - 1);
         std::size_t num_probes = 1;
 
-        while (!Equal()(_table[pos].first, key))
+        DEBUG("first probing pos=" << pos);
+
+        while (!Equal()(_table[pos].first, _empty_key))
         {
-            if (Equal()(_table[pos].first, _empty_key))
+            if (Equal()(_table[pos].first, key))
                 return iterator(__node_type(this, pos));
 
             pos = next(pos, num_probes);
             assert(num_probes < _table_sz);
+
+            DEBUG("next probing pos=" << pos);
         }
 
         return end();
