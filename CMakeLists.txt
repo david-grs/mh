@@ -32,8 +32,8 @@ add_executable(benchmark benchmark.cc stats.cc benchmark_io.cc benchmark_ht.cc b
 target_link_libraries(benchmark m)
 
 if (USE_TCMALLOC)
-  find_library(TCMALLOC_LIB NAMES tcmalloc_minimal)
-  target_link_libraries(benchmark ${TCMALLOC_LIB})
+    find_library(TCMALLOC_LIB NAMES tcmalloc_minimal)
+    target_link_libraries(benchmark ${TCMALLOC_LIB})
 endif ()
 
 add_subdirectory(tests)
