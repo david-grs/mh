@@ -23,6 +23,7 @@ include_directories(.)
 option(USE_TCMALLOC "USE_TCMALLOC" OFF)
 
 add_executable(benchmark benchmark.cc stats.cc benchmark_io.cc benchmark_ht.cc benchmark_ha.cc)
+target_link_libraries(benchmark m)
 
 if (USE_TCMALLOC)
   find_library(TCMALLOC_LIB NAMES tcmalloc_minimal)
