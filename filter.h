@@ -33,7 +33,7 @@ struct filter_impl<Index, value_sequence<I, Is...>>
                         value_sequence<I>>::type;
 
         return type{} + filter_impl<Index, value_sequence<Is...>>()();
-    };
+    }
 };
 
 template <std::size_t Index>
