@@ -16,7 +16,7 @@ else()
 endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything -lstdc++")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif()
@@ -30,6 +30,10 @@ option(USE_TCMALLOC "USE_TCMALLOC" OFF)
 
 add_executable(benchmark benchmark.cc stats.cc benchmark_io.cc benchmark_ht.cc benchmark_ha.cc)
 target_link_libraries(benchmark m)
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_link_libraries(benchmark stdc++)
+endif()
 
 if (USE_TCMALLOC)
     find_library(TCMALLOC_LIB NAMES tcmalloc_minimal)
