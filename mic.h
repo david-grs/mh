@@ -12,34 +12,39 @@
 #ifdef __cpp_template_auto
 
 template <typename C, typename T>
-T get_type_pointer(T C::*);
+std::pair<C, T> get_type_member(T C::*);
+
+template <typename C, typename T>
+std::pair<C, T> get_type_mem_fun(T(C::*) ());
+
+template <typename C, typename T>
+std::pair<C, T> get_type_const_mem_fun(T(C::*) () const);
 
 template <auto M>
 struct member
 {
-    template <typename C>
-    using type = decltype(get_type_pointer(M));
+    using class_type = typename decltype(get_type_member(M))::first_type;
+    using type = typename decltype(get_type_member(M))::second_type;
 
-    template <typename C>
-    type<C> operator()(const C& c) const { return c.*M; }
+    type operator()(const class_type& c) const { return c.*M; }
 };
 
 template <auto M>
 struct mem_fun
 {
-    using type = decltype(M);
+    using class_type = typename decltype(get_type_mem_fun(M))::first_type;
+    using type = typename decltype(get_type_mem_fun(M))::second_type;
 
-    template <typename C>
-    type operator()(const C& c) const { return (c.*M)(); }
+    type operator()(const class_type& c) const { return (c.*M)(); }
 };
 
 template <auto M>
 struct const_mem_fun
 {
-    using type = decltype(M);
+    using class_type = typename decltype(get_type_const_mem_fun(M))::first_type;
+    using type = typename decltype(get_type_const_mem_fun(M))::second_type;
 
-    template <typename C>
-    type operator()(const C& c) const { return (c.*M)(); }
+    type operator()(const class_type& c) const { return (c.*M)(); }
 };
 
 
@@ -49,7 +54,6 @@ template <typename C, typename T, T C::* M>
 struct member
 {
     using type = T;
-
     type operator()(const C& c) const { return c.*M; }
 };
 
