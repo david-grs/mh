@@ -6,7 +6,41 @@
 #include <vector>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 #include <map>
+
+#ifdef __cpp_template_auto
+
+template <auto M>
+struct member
+{
+    template <typename C>
+    using type = decltype(std::declval<C>().*M);
+
+    template <typename C>
+    type<C> operator()(const C& c) const { return c.*M; }
+};
+
+template <auto M>
+struct mem_fun
+{
+    using type = decltype(M);
+
+    template <typename C>
+    type operator()(const C& c) const { return (c.*M)(); }
+};
+
+template <auto M>
+struct const_mem_fun
+{
+    using type = decltype(M);
+
+    template <typename C>
+    type operator()(const C& c) const { return (c.*M)(); }
+};
+
+
+#else
 
 template <typename C, typename T, T C::* M>
 struct member
@@ -29,6 +63,9 @@ struct const_mem_fun
     using type = T;
     type operator()(const C& c) const { return (c.*M)(); }
 };
+
+#endif
+
 
 template <typename Tag, typename Index>
 struct unordered
