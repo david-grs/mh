@@ -15,7 +15,7 @@ template <auto M>
 struct member
 {
     template <typename C>
-    using type = decltype(std::declval<C>().*M);
+    using type = std::decay_t<decltype(std::declval<C>().*M)>;
 
     template <typename C>
     type<C> operator()(const C& c) const { return c.*M; }
