@@ -11,11 +11,14 @@
 
 #ifdef __cpp_template_auto
 
+template <typename C, typename T>
+T get_type_pointer(T C::*);
+
 template <auto M>
 struct member
 {
     template <typename C>
-    using type = std::decay_t<decltype(std::declval<C>().*M)>;
+    using type = decltype(get_type_pointer(M));
 
     template <typename C>
     type<C> operator()(const C& c) const { return c.*M; }
