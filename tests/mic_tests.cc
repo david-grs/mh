@@ -20,6 +20,24 @@ protected:
     struct by_first_name {};
     struct by_age {};
 
+#ifdef __cpp_template_auto
+
+    mic<Person,
+        unordered<
+            by_first_name,
+            member<&Person::first_name>
+        >,
+        ordered<
+            by_age,
+            member<&Person::age>
+        >,
+        ordered<
+            by_age,
+            member<&Person::age>
+        >> _mic;
+
+#else
+
     mic<Person,
         unordered<
             by_first_name,
@@ -33,6 +51,8 @@ protected:
             by_age,
             member<Person, int, &Person::age>
         >> _mic;
+
+#endif
 };
 
 TEST_F(TestMultiIndexContainer, emplace_hash)
