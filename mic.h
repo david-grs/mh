@@ -226,14 +226,25 @@ namespace detail
 {
 
 template <typename X, typename TupleT, std::size_t Index = 0>
-struct get_index_from_t
+struct get_index_from_key
 {
     static_assert(Index < std::tuple_size<TupleT>::value, "type not found");
 
     static constexpr const std::size_t value =
          std::conditional<std::is_same<X, typename std::tuple_element_t<Index, TupleT>::key_type>::value,
                            std::integral_constant<std::size_t, Index>,
-                           get_index_from_t<X, TupleT, Index + 1>>::type ::value;
+                           get_index_from_key<X, TupleT, Index + 1>>::type::value;
+};
+
+template <typename Tag, typename TupleT, std::size_t Index = 0>
+struct get_index_from_tag
+{
+    static_assert(Index < std::tuple_size<TupleT>::value, "type not found");
+
+    static constexpr std::size_t value =
+        std::conditional<std::is_same<Tag, typename std::tuple_element_t<Index, TupleT>::tag>::value,
+                                  std::integral_constant<std::size_t, Index>,
+                                  get_index_from_tag<Tag, TupleT, Index + 1>>::type::value;
 };
 
 struct for_each_t
@@ -333,24 +344,24 @@ public:
     template <typename K>
     auto find(K&& k) const
     {
-        constexpr const std::size_t index = get_index<K>();
-        return std::get<index>(__indices).find(std::forward<K>(k));
+        constexpr const std::size_t Index = get_index_from_key<K>();
+        return std::get<Index>(__indices).find(std::forward<K>(k));
     }
 
     template <typename K>
     size_type erase(K&& k)
     {
-        constexpr const std::size_t index = get_index<K>();
-        auto it = std::get<index>(__indices).find(std::forward<K>(k));
+        constexpr const std::size_t Index = get_index_from_key<K>();
+        auto it = std::get<Index>(__indices).find(std::forward<K>(k));
 
-        if (it == std::get<index>(__indices).cend())
+        if (it == std::get<Index>(__indices).cend())
             return 0;
 
         const Object* obj = it->second;
-        std::get<index>(__indices).erase(it);
+        std::get<Index>(__indices).erase(it);
 
         // TODO optimize for delete: adding pointers back to other structs
-        detail::for_each_if_not_t<index>()(__indices, [obj](auto&& x)
+        detail::for_each_if_not_t<Index>()(__indices, [obj](auto&& x)
         {
             using M = typename std::decay<decltype(x)>::type ::index_type;
             const auto& k = M()(*obj);
@@ -401,7 +412,10 @@ private:
     }
 
     template <typename T>
-    static constexpr std::size_t get_index() { return detail::get_index_from_t<T, indices>::value; }
+    static constexpr std::size_t get_index_from_key() { return detail::get_index_from_key<T, indices>::value; }
+
+    template <typename Tag>
+    static constexpr std::size_t get_index_from_tag() { return detail::get_index_from_tag<Tag, indices>::value; }
 
     std::vector<Object> _data;
     indices __indices;
