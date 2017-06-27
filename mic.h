@@ -173,6 +173,7 @@ struct mic_index<Object, unordered<Tag, Index>> : public ht<typename Index::type
     using iterator = typename index_traits<mic_index>::iterator;
     using const_iterator = typename index_traits<mic_index>::const_iterator;
     using index_type = Index;
+    using tag = Tag;
 
     explicit mic_index() :
         ht<key_type, Object*>(empty_key_t<key_type>(key_type{}))
@@ -188,6 +189,7 @@ struct mic_index<Object, ordered<Tag, Index>> : public std::map<typename Index::
     using iterator = typename index_traits<mic_index>::iterator;
     using const_iterator = typename index_traits<mic_index>::const_iterator;
     using index_type = Index;
+    using tag = Tag;
 };
 
 template <typename Object, typename Tag, typename Index>
