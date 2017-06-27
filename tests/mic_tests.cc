@@ -57,7 +57,7 @@ protected:
 
 TEST_F(TestMultiIndexContainer, emplace_hash)
 {
-    auto v = _mic.index<0>();
+    auto v = _mic.index<by_first_name>();
     v.emplace("lalal", new Person{"dada", "dd", 1});
     EXPECT_EQ(1, int(_mic.size()));
 }

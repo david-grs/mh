@@ -334,12 +334,25 @@ public:
         using index_view_base<Index, true>::index_view_base;
     };
 
-
     template <std::size_t Index>
     auto index() { return index_view<Index>(this); }
 
     template <std::size_t Index>
     auto index() const { return const_index_view<Index>(this); }
+
+    template <typename Tag>
+    auto index()
+    {
+        constexpr const std::size_t Index = get_index_from_tag<Tag>();
+        return index<Index>();
+    }
+
+    template <typename Tag>
+    auto index() const
+    {
+        constexpr const std::size_t Index = get_index_from_tag<Tag>();
+        return index<Index>();
+    }
 
     template <typename K>
     auto find(K&& k) const
