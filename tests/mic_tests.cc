@@ -55,6 +55,12 @@ protected:
 #endif
 };
 
+TEST_F(TestMultiIndexContainer, insert)
+{
+    _mic.insert({"foo", "bar", 42});
+    EXPECT_EQ(1, int(_mic.size()));
+}
+
 TEST_F(TestMultiIndexContainer, emplace_hash)
 {
     auto v = _mic.index<by_first_name>();
