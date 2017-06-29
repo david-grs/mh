@@ -396,6 +396,19 @@ public:
     size_type size() const { return _data.size(); }
     size_type max_size() const { return _data.max_size(); }
 
+    void insert(Object&& obj)
+    {
+        _data.push_back(std::move(obj));
+
+        const Object* inserted = &_data.back();
+        detail::for_each_t()(__indices, [inserted](auto&& x)
+        {
+            using M = typename std::decay<decltype(x)>::type ::index_type;
+            const auto& k = M()(*inserted);
+            x.emplace(std::move(k), inserted);
+        });
+    }
+
     void clear()
     {
         detail::for_each_t()(__indices, [](auto&& x) { x.clear(); });
