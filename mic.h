@@ -400,12 +400,12 @@ public:
     {
         _data.push_back(std::move(obj));
 
-        const Object* inserted = &_data.back();
+        Object* inserted = &_data.back();
         detail::for_each_t()(__indices, [inserted](auto&& x)
         {
             using M = typename std::decay<decltype(x)>::type ::index_type;
-            const auto& k = M()(*inserted);
-            x.emplace(std::move(k), inserted);
+            auto k = M()(*inserted);
+            x.emplace(k, inserted);
         });
     }
 
