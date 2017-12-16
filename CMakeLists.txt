@@ -12,6 +12,8 @@ else()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
     elseif (HAVE_FLAG_STD_CXX1Z)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z")
+    else()
+        message(FATAL_ERROR "C++17 support required")
     endif()
 endif()
 
